@@ -1,0 +1,194 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "User account registration with admin/associate/user role mapping",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "name": { "type": "string" },
+        "email": { "type": "string" },
+        "role": { "type": "string", "enum": ["admin", "associate", "user"] },
+        "phone": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "name", "email", "role", "createdAt"]
+    },
+    "Student": {
+      "title": "Student",
+      "description": "Student registered in our school classes and NGO courses",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "matricula": { "type": "string" },
+        "turma": { "type": "string" },
+        "age": { "type": "number" },
+        "course": { "type": "string" },
+        "status": { "type": "string", "enum": ["active", "inactive"] },
+        "joinedAt": { "type": "string" },
+        "guardianName": { "type": "string" },
+        "attendanceCount": { "type": "number" },
+        "totalClasses": { "type": "number" }
+      },
+      "required": ["id", "name", "matricula", "turma", "age", "course", "status", "joinedAt", "attendanceCount", "totalClasses"]
+    },
+    "SchoolUser": {
+      "title": "SchoolUser",
+      "description": "Administrator, Super Admin, or Professor users with e-mail and password login",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "email": { "type": "string" },
+        "password": { "type": "string" },
+        "name": { "type": "string" },
+        "role": { "type": "string", "enum": ["super_admin", "admin", "professor"] },
+        "title": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["id", "email", "password", "name", "role", "createdAt"]
+    },
+    "Subject": {
+      "title": "Subject",
+      "description": "Academic subjects or classes taught by teachers",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "teacherId": { "type": "string" },
+        "turma": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["id", "name", "teacherId", "turma", "createdAt"]
+    },
+    "Lesson": {
+      "title": "Lesson",
+      "description": "Individual classes taught on specific dates",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "subjectId": { "type": "string" },
+        "date": { "type": "string" },
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "presentStudentIds": { "type": "array", "items": { "type": "string" } }
+      },
+      "required": ["id", "subjectId", "date", "title", "presentStudentIds"]
+    },
+    "Assessment": {
+      "title": "Assessment",
+      "description": "Grading evaluations like exam papers, projects or class activities",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "subjectId": { "type": "string" },
+        "title": { "type": "string" },
+        "type": { "type": "string", "enum": ["prova", "trabalho", "atividade"] },
+        "weight": { "type": "number" },
+        "maxScore": { "type": "number" },
+        "date": { "type": "string" }
+      },
+      "required": ["id", "subjectId", "title", "type", "weight", "maxScore"]
+    },
+    "Grade": {
+      "title": "Grade",
+      "description": "Grade report cards of specific students on evaluations",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "studentId": { "type": "string" },
+        "assessmentId": { "type": "string" },
+        "score": { "type": "number" }
+      },
+      "required": ["id", "studentId", "assessmentId", "score"]
+    },
+    "Associate": {
+      "title": "Associate",
+      "description": "Member or direct supporter of Casa Sandrissima NGO",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "email": { "type": "string" },
+        "phone": { "type": "string" },
+        "role": { "type": "string", "enum": ["Doador Regular", "Voluntário", "Apoiador"] },
+        "contributionType": { "type": "string", "enum": ["mensal", "anual", "ocasional"] },
+        "joinedAt": { "type": "string" }
+      },
+      "required": ["id", "name", "email", "phone", "role", "joinedAt"]
+    },
+    "Donation": {
+      "title": "Donation",
+      "description": "Track history of contributions/donations",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "donorName": { "type": "string" },
+        "amount": { "type": "number" },
+        "type": { "type": "string", "enum": ["pix", "clothing", "food", "other"] },
+        "description": { "type": "string" },
+        "date": { "type": "string" }
+      },
+      "required": ["id", "donorName", "type", "date"]
+    },
+    "Message": {
+      "title": "Message",
+      "description": "A direct contact message or feedback from authenticated users to administrators",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "senderId": { "type": "string" },
+        "senderName": { "type": "string" },
+        "senderEmail": { "type": "string" },
+        "message": { "type": "string" },
+        "response": { "type": "string" },
+        "createdAt": { "type": "string" },
+        "respondedAt": { "type": "string" }
+      },
+      "required": ["id", "senderId", "senderName", "senderEmail", "message", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "Users profile configurations"
+    },
+    "/students/{studentId}": {
+      "schema": "Student",
+      "description": "Students list registry"
+    },
+    "/school_users/{schoolUserId}": {
+      "schema": "SchoolUser",
+      "description": "Staff, teachers and administrators database"
+    },
+    "/subjects/{subjectId}": {
+      "schema": "Subject",
+      "description": "Academic subjects list"
+    },
+    "/lessons/{lessonId}": {
+      "schema": "Lesson",
+      "description": "Academic lessons calendar"
+    },
+    "/assessments/{assessmentId}": {
+      "schema": "Assessment",
+      "description": "Evaluations sheet"
+    },
+    "/grades/{gradeId}": {
+      "schema": "Grade",
+      "description": "Grades registry entries"
+    },
+    "/associates/{associateId}": {
+      "schema": "Associate",
+      "description": "Registered associates"
+    },
+    "/donations/{donationId}": {
+      "schema": "Donation",
+      "description": "Donations records"
+    },
+    "/messages/{messageId}": {
+      "schema": "Message",
+      "description": "Feedback message stream"
+    }
+  }
+}

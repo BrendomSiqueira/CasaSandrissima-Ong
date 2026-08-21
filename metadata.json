@@ -1,0 +1,6 @@
+{
+  "name": "Casa Sandríssima",
+  "description": "Portal e Sistema Administrativo da ONG Casa Sandríssima - Organização para acompanhamento de alunos, divulgação de projetos sociais, associação e doações.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
