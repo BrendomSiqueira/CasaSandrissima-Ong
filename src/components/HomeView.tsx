@@ -4,6 +4,7 @@ import { Sprout, BookOpen, Scissors, Trophy, GraduationCap, MapPin, Phone, Mail,
 import { ActiveTab } from '../types';
 import logoImg from '../assets/images/casa_sandrissima_green_white_logo_1779323893215.png';
 import { useFirebase } from '../firebaseContext';
+import TactileButton from './TactileButton';
 
 interface HomeViewProps {
   setActiveTab: (tab: ActiveTab) => void;
@@ -111,30 +112,36 @@ export default function HomeView({ setActiveTab }: HomeViewProps) {
             </p>
 
             <div className="flex flex-wrap gap-4 pt-2">
-              <button 
+              <TactileButton 
                 id="hero-donate-btn"
+                variant="primary"
+                size="md"
                 onClick={() => setActiveTab('doacoes')}
-                className="px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-medium rounded-xl shadow-md shadow-emerald-200/50 hover:shadow-lg transition-all flex items-center gap-2 cursor-pointer"
+                icon={<Heart className="h-4 w-4 fill-white" />}
               >
-                <Heart className="h-4 w-4 fill-white" />
                 Quero Apoiar a Causa
-              </button>
-              <button 
+              </TactileButton>
+
+              <TactileButton 
                 id="hero-projects-btn"
+                variant="secondary"
+                size="md"
                 onClick={() => setActiveTab('projetos')}
-                className="px-6 py-3 bg-white hover:bg-stone-50 text-stone-700 border border-stone-200 font-medium rounded-xl transition-all flex items-center gap-2 cursor-pointer"
+                icon={<ChevronRight className="h-4 w-4 text-stone-500" />}
+                iconPosition="right"
               >
                 Ver Projetos
-                <ChevronRight className="h-4 w-4 text-stone-400" />
-              </button>
-              <button 
+              </TactileButton>
+
+              <TactileButton 
                 id="hero-galeria-btn"
+                variant="glass"
+                size="md"
                 onClick={() => setActiveTab('galeria')}
-                className="px-5 py-3 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200/80 font-medium rounded-xl transition-all flex items-center gap-2 cursor-pointer"
+                icon={<ImageIcon className="h-4 w-4 text-emerald-700" />}
               >
-                <ImageIcon className="h-4 w-4 text-emerald-600" />
                 Galeria de Fotos
-              </button>
+              </TactileButton>
             </div>
           </div>
 
@@ -397,13 +404,16 @@ export default function HomeView({ setActiveTab }: HomeViewProps) {
               </div>
             </div>
 
-            <button 
+            <TactileButton 
               onClick={() => setActiveTab('doacoes')}
-              className="w-full py-3 bg-emerald-650 hover:bg-emerald-700 text-white font-semibold rounded-xl text-center shadow-md transition-all cursor-pointer block"
+              variant="primary"
+              size="lg"
+              className="w-full"
               id="about-card-donate-btn"
+              icon={<Heart className="h-5 w-5 fill-white" />}
             >
               Fazer Minha Doação de Apoio
-            </button>
+            </TactileButton>
           </div>
 
         </div>

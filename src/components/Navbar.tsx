@@ -16,6 +16,7 @@ import {
 import { ActiveTab } from '../types';
 import { useFirebase } from '../firebaseContext';
 import logoImg from '../assets/images/casa_sandrissima_green_white_logo_1779323893215.png';
+import TactileButton from './TactileButton';
 
 interface NavbarProps {
   activeTab: ActiveTab;
@@ -123,16 +124,17 @@ export default function Navbar({ activeTab, setActiveTab, onOpenLoginModal }: Na
             
             {/* Supporter & Student Login / Profile Button */}
             {!user ? (
-              <button
+              <TactileButton
                 type="button"
                 id="btn-login-aluno-apoiador"
+                variant="glass"
+                size="sm"
                 onClick={handleStudentSupporterClick}
                 title="Acesso para Alunos e Apoiadores"
-                className="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold bg-emerald-50 hover:bg-emerald-100/90 text-emerald-800 border border-emerald-200/90 transition-all flex items-center gap-1.5 shadow-xs hover:shadow cursor-pointer"
+                icon={<UserIcon className="h-4 w-4 text-emerald-700" />}
               >
-                <UserIcon className="h-4 w-4 text-emerald-600" />
-                <span>Alunos & Apoiadores</span>
-              </button>
+                Alunos & Apoiadores
+              </TactileButton>
             ) : (
               <div className="relative">
                 <button

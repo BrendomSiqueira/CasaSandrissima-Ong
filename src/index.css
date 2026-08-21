@@ -556,4 +556,254 @@
   }
 }
 
+/* =========================================================================
+   Tactile & Futuristic Action Button System
+   ========================================================================= */
+
+.tactile-btn {
+  --primary: #34d399;
+  --neutral-1: #065f46;
+  --neutral-2: #047857;
+  --radius: 14px;
+  --text-color: #ffffff;
+  --conic-color: rgba(255, 255, 255, 0.95);
+
+  cursor: pointer;
+  border-radius: var(--radius);
+  color: var(--text-color);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+  border: none;
+  box-shadow: 0 0.5px 0.5px 1px rgba(255, 255, 255, 0.2),
+    0 8px 18px rgba(0, 0, 0, 0.15), 0 3px 4px 0px rgba(0, 0, 0, 0.05);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s ease;
+  font-family: inherit;
+  font-style: normal;
+  text-decoration: none;
+  overflow: visible;
+}
+
+.tactile-btn:hover {
+  transform: scale(1.025);
+  box-shadow: 0 0 1px 2px rgba(255, 255, 255, 0.3),
+    0 12px 24px rgba(0, 0, 0, 0.22), 0 8px 3px -3px rgba(0, 0, 0, 0.04);
+}
+
+.tactile-btn:active {
+  transform: scale(0.975);
+  box-shadow: 0 0 1px 1px rgba(255, 255, 255, 0.25),
+    0 4px 10px rgba(0, 0, 0, 0.18);
+}
+
+/* Outer Border & Depth Layer */
+.tactile-btn::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius);
+  border: 2px solid transparent;
+  background: linear-gradient(var(--neutral-1), var(--neutral-2)) padding-box,
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.35), rgba(0, 0, 0, 0.45)) border-box;
+  z-index: 0;
+  transition: all 0.35s ease;
+  pointer-events: none;
+}
+
+.tactile-btn:hover::after {
+  transform: scale(1.025, 1.04);
+  box-shadow: inset 0 -1px 3px 0 rgba(255, 255, 255, 0.6);
+}
+
+/* Inner Soft Glow Bed */
+.tactile-btn::before {
+  content: "";
+  inset: 4px;
+  position: absolute;
+  background: linear-gradient(to top, var(--neutral-1), var(--neutral-2));
+  border-radius: calc(var(--radius) - 2px);
+  filter: blur(0.5px);
+  z-index: 2;
+  pointer-events: none;
+}
+
+/* Conic Spinning Glowing Outline on Hover */
+.tactile-btn .btn-outline-glow {
+  position: absolute;
+  border-radius: inherit;
+  overflow: hidden;
+  z-index: 1;
+  opacity: 0;
+  transition: opacity 0.35s ease;
+  inset: -2.5px -3.5px;
+  pointer-events: none;
+}
+
+.tactile-btn .btn-outline-glow::before {
+  content: "";
+  position: absolute;
+  inset: -100%;
+  background: conic-gradient(
+    from 180deg,
+    transparent 60%,
+    var(--conic-color, rgba(255, 255, 255, 0.95)) 82%,
+    transparent 100%
+  );
+  animation: btnSpin 2s linear infinite;
+  animation-play-state: paused;
+}
+
+@keyframes btnSpin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.tactile-btn:hover .btn-outline-glow {
+  opacity: 1;
+}
+
+.tactile-btn:hover .btn-outline-glow::before {
+  animation-play-state: running;
+}
+
+/* Internal States */
+.tactile-btn .btn-state {
+  z-index: 3;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+/* Letter Wave Animation */
+.tactile-btn .btn-text-wrapper span {
+  display: inline-block;
+  transition: transform 0.3s ease, color 0.3s ease;
+}
+
+.tactile-btn:hover .btn-text-wrapper span {
+  animation: btnWaveLetter 0.55s ease forwards calc(var(--i, 0) * 0.022s);
+}
+
+@keyframes btnWaveLetter {
+  30% {
+    transform: translateY(3.5px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-3.5px) rotate(0deg);
+    color: var(--primary);
+  }
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+}
+
+/* Icon Animation */
+.tactile-btn .btn-icon {
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), color 0.3s ease;
+  z-index: 3;
+}
+
+.tactile-btn:hover .btn-icon {
+  transform: scale(1.2) rotate(6deg);
+  color: var(--primary);
+}
+
+/* Size Variants */
+.tactile-btn-sm {
+  --radius: 10px;
+}
+
+.tactile-btn-md {
+  --radius: 13px;
+}
+
+.tactile-btn-lg {
+  --radius: 16px;
+}
+
+/* Color & Theme Archetypes */
+
+/* 1. Primary Emerald (Main Brand Action) */
+.tactile-btn-primary {
+  --primary: #6ee7b7;
+  --neutral-1: #065f46;
+  --neutral-2: #047857;
+  --text-color: #ffffff;
+  --conic-color: #a7f3d0;
+}
+
+/* 2. Secondary / Clean Pearl Light */
+.tactile-btn-secondary {
+  --primary: #059669;
+  --neutral-1: #ffffff;
+  --neutral-2: #f3f4f6;
+  --text-color: #292524;
+  --conic-color: #10b981;
+  text-shadow: none;
+}
+.tactile-btn-secondary::after {
+  background: linear-gradient(var(--neutral-1), var(--neutral-2)) padding-box,
+    linear-gradient(to bottom, rgba(0, 0, 0, 0.08), rgba(0, 0, 0, 0.22)) border-box;
+}
+
+/* 3. Glass Emerald Mint */
+.tactile-btn-glass {
+  --primary: #047857;
+  --neutral-1: #ecfdf5;
+  --neutral-2: #d1fae5;
+  --text-color: #065f46;
+  --conic-color: #10b981;
+  text-shadow: none;
+}
+.tactile-btn-glass::after {
+  background: linear-gradient(var(--neutral-1), var(--neutral-2)) padding-box,
+    linear-gradient(to bottom, rgba(5, 150, 105, 0.25), rgba(5, 150, 105, 0.45)) border-box;
+}
+
+/* 4. Warm Amber / Golden */
+.tactile-btn-amber {
+  --primary: #fef08a;
+  --neutral-1: #b45309;
+  --neutral-2: #92400e;
+  --text-color: #ffffff;
+  --conic-color: #fde047;
+}
+
+/* 5. Accent Rose / Heart */
+.tactile-btn-accent {
+  --primary: #fecdd3;
+  --neutral-1: #be123c;
+  --neutral-2: #9f1239;
+  --text-color: #ffffff;
+  --conic-color: #fda4af;
+}
+
+/* 6. Charcoal / Night Dark */
+.tactile-btn-dark {
+  --primary: #34d399;
+  --neutral-1: #292524;
+  --neutral-2: #1c1917;
+  --text-color: #fafaf9;
+  --conic-color: #10b981;
+}
+
+/* 7. Minimal Outline */
+.tactile-btn-outline {
+  --primary: #059669;
+  --neutral-1: rgba(255, 255, 255, 0.9);
+  --neutral-2: rgba(245, 245, 244, 0.9);
+  --text-color: #44403c;
+  --conic-color: #059669;
+  text-shadow: none;
+}
+
+
 
