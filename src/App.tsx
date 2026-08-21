@@ -8,6 +8,7 @@ import ProjetosView from './components/ProjetosView';
 import GaleriaView from './components/GaleriaView';
 import AreaAssociadoView from './components/AreaAssociadoView';
 import SocialLoginModal from './components/SocialLoginModal';
+import CookieBanner from './components/CookieBanner';
 import { ActiveTab, Student, Associate, Donation } from './types';
 import { useFirebase } from './firebaseContext';
 import { useModal } from './components/ModalContext';
@@ -150,6 +151,9 @@ export default function App() {
         onClose={() => setIsLoginModalOpen(false)}
         reason={loginReason}
       />
+
+      {/* Cookie Consent Notification & Preferences */}
+      <CookieBanner />
 
     </div>
   );

@@ -74,6 +74,15 @@ export default function Footer({ setActiveTab, onOpenLoginModal }: FooterProps) 
                   Galeria de Fotos
                 </button>
               </li>
+              <li>
+                <button 
+                  onClick={() => window.dispatchEvent(new Event('open-cookie-preferences'))} 
+                  className="hover:text-emerald-400 cursor-pointer transition-colors text-xs text-stone-450"
+                  id="footer-cookie-pref-btn"
+                >
+                  Privacidade & Cookies
+                </button>
+              </li>
             </ul>
           </div>
 
