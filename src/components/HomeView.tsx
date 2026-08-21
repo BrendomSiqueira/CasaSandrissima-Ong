@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'motion/react';
-import { Sprout, BookOpen, Scissors, Trophy, GraduationCap, MapPin, Phone, Mail, ChevronRight, Heart, Activity, Palette } from 'lucide-react';
+import { Sprout, BookOpen, Scissors, Trophy, GraduationCap, MapPin, Phone, Mail, ChevronRight, Heart, Activity, Palette, Image as ImageIcon } from 'lucide-react';
 import { ActiveTab } from '../types';
 import logoImg from '../assets/images/casa_sandrissima_green_white_logo_1779323893215.png';
 import { useFirebase } from '../firebaseContext';
@@ -126,6 +126,14 @@ export default function HomeView({ setActiveTab }: HomeViewProps) {
               >
                 Ver Projetos
                 <ChevronRight className="h-4 w-4 text-stone-400" />
+              </button>
+              <button 
+                id="hero-galeria-btn"
+                onClick={() => setActiveTab('galeria')}
+                className="px-5 py-3 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200/80 font-medium rounded-xl transition-all flex items-center gap-2 cursor-pointer"
+              >
+                <ImageIcon className="h-4 w-4 text-emerald-600" />
+                Galeria de Fotos
               </button>
             </div>
           </div>

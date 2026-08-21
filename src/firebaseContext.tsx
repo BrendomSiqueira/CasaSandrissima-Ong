@@ -11,7 +11,20 @@ import {
   getDocs,
   deleteDoc
 } from 'firebase/firestore';
-import { auth, db, handleFirestoreError, OperationType } from './firebase';
+import { 
+  auth, 
+  db, 
+  handleFirestoreError, 
+  OperationType, 
+  signInWithSocial, 
+  signInWithGoogle,
+  signInWithFacebook,
+  signInWithMicrosoft,
+  signInWithEmail,
+  signUpWithEmail,
+  sendPasswordReset,
+  logoutUser 
+} from './firebase';
 import { Student, Associate, Donation, SchoolUser, Subject, Lesson, Assessment, Grade } from './types';
 
 // Helper to recursively scrub undefined properties so Firestore writes do not crash on optional fields
@@ -77,6 +90,15 @@ interface FirebaseContextType {
   grades: Grade[];
 
   // Actions
+  loginWithSocial: (provider: 'google' | 'facebook' | 'microsoft') => Promise<User>;
+  signInWithGoogle: () => Promise<User>;
+  signInWithFacebook: () => Promise<User>;
+  signInWithMicrosoft: () => Promise<User>;
+  loginWithEmail: (email: string, pass: string) => Promise<User>;
+  registerWithEmail: (email: string, pass: string, displayName: string) => Promise<User>;
+  resetPassword: (email: string) => Promise<void>;
+  logout: () => Promise<void>;
+
   addStudent: (student: Student) => Promise<void>;
   updateStudent: (student: Student) => Promise<void>;
   deleteStudent: (id: string) => Promise<void>;
@@ -650,6 +672,15 @@ export const FirebaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       lessons,
       assessments,
       grades,
+
+      loginWithSocial: signInWithSocial,
+      signInWithGoogle,
+      signInWithFacebook,
+      signInWithMicrosoft,
+      loginWithEmail: signInWithEmail,
+      registerWithEmail: signUpWithEmail,
+      resetPassword: sendPasswordReset,
+      logout: logoutUser,
 
       addStudent,
       updateStudent,

@@ -11,6 +11,7 @@ import { useFirebase } from '../firebaseContext';
 import { signInWithGoogle, logoutUser } from '../firebase';
 import { encryptPassword, decryptPassword } from '../lib/crypto';
 import { useModal } from './ModalContext';
+import PencilLoader from './PencilLoader';
 
 interface AreaAssociadoViewProps {
   studentsList: Student[];
@@ -157,7 +158,10 @@ export default function AreaAssociadoView({
   const handleGoogleLogin = async () => {
     try {
       await signInWithGoogle();
-    } catch (e) {
+    } catch (e: any) {
+      if (e?.code === 'auth/popup-closed-by-user' || e?.code === 'auth/cancelled-popup-request') {
+        return;
+      }
       await alert("Falha ao autenticar com o Google. Certifique-se de que a janela pop-up não foi bloqueada.", "Erro no Google", "error");
     }
   };
@@ -636,9 +640,12 @@ export default function AreaAssociadoView({
 
   if (loading) {
     return (
-      <div className="py-20 text-center space-y-4">
-        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-emerald-600 mx-auto"></div>
-        <p className="text-stone-500 text-sm">Carregando portal seguro...</p>
+      <div className="py-20 flex items-center justify-center">
+        <PencilLoader 
+          size="md" 
+          message="Carregando portal seguro..." 
+          submessage="Sincronizando dados institucionais da Casa Sandríssima" 
+        />
       </div>
     );
   }

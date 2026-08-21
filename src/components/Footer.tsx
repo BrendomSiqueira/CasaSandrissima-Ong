@@ -1,14 +1,21 @@
 import React from 'react';
-import { Phone, Mail, MapPin, Instagram, Facebook, Youtube } from 'lucide-react';
+import { Phone, Mail, MapPin, Instagram, Facebook, Youtube, Settings } from 'lucide-react';
 import { ActiveTab } from '../types';
 import logoImg from '../assets/images/casa_sandrissima_green_white_logo_1779323893215.png';
+import { useFirebase } from '../firebaseContext';
 
 interface FooterProps {
   setActiveTab: (tab: ActiveTab) => void;
+  onOpenLoginModal?: (reason?: 'galeria' | 'doacoes' | 'portal' | 'geral' | 'aluno_apoiador') => void;
 }
 
-export default function Footer({ setActiveTab }: FooterProps) {
+export default function Footer({ setActiveTab, onOpenLoginModal }: FooterProps) {
+  const { user } = useFirebase();
   const currentYear = new Date().getFullYear();
+
+  const handleAdminAccess = () => {
+    setActiveTab('area_associado');
+  };
 
   return (
     <footer className="bg-stone-900 text-stone-450 border-t border-stone-800" id="main-footer">
@@ -38,7 +45,7 @@ export default function Footer({ setActiveTab }: FooterProps) {
             </p>
           </div>
 
-          {/* Quick Navigation Links */}
+          {/* Quick Navigation Links - Public Only */}
           <div className="space-y-4" id="footer-navigation">
             <h3 className="text-sm font-semibold tracking-wider text-stone-100 uppercase">Navegação</h3>
             <ul className="space-y-2 text-sm text-stone-400">
@@ -63,8 +70,8 @@ export default function Footer({ setActiveTab }: FooterProps) {
                 </button>
               </li>
               <li>
-                <button onClick={() => setActiveTab('area_associado')} className="hover:text-emerald-400 cursor-pointer transition-colors">
-                  Portal Administrativo
+                <button onClick={() => setActiveTab('galeria')} className="hover:text-emerald-400 cursor-pointer transition-colors">
+                  Galeria de Fotos
                 </button>
               </li>
             </ul>
@@ -159,10 +166,19 @@ export default function Footer({ setActiveTab }: FooterProps) {
 
         </div>
 
-        {/* Footer Bottom copyright */}
+        {/* Footer Bottom copyright & discreet admin trigger */}
         <div className="mt-12 pt-8 border-t border-stone-800 text-center text-xs text-stone-550 flex flex-col sm:flex-row justify-between items-center gap-4" id="footer-bottom-copyright">
           <p>© {currentYear} Casa Sandríssima. Todos os direitos reservados.</p>
-          <p className="font-mono text-stone-600">Desenvolvido pelo Time HardCoders • Projeto Social com Propósito</p>
+          <div className="flex items-center gap-4">
+            <span className="font-mono text-stone-600">Desenvolvido pelo Time HardCoders • Projeto Social com Propósito</span>
+            <button
+              onClick={handleAdminAccess}
+              className="text-stone-700 hover:text-stone-400 transition-colors p-1 cursor-pointer"
+              title="Acesso Administrativo"
+            >
+              <Settings className="h-3.5 w-3.5" />
+            </button>
+          </div>
         </div>
       </div>
     </footer>

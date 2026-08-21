@@ -1,24 +1,55 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Heart, Coins, Calendar, Trash2, ShieldCheck, Check, Copy, ShoppingBag, Landmark, ArrowRight, UserCheck, QrCode, ArrowLeft, Send, Sparkles } from 'lucide-react';
+import { Heart, Coins, Calendar, Trash2, ShieldCheck, Check, Copy, ShoppingBag, Landmark, ArrowRight, UserCheck, QrCode, ArrowLeft, Send, Sparkles, Lock, User as UserIcon } from 'lucide-react';
 import { Donation } from '../types';
 import { generatePixPayload } from '../lib/pix';
 import { useModal } from './ModalContext';
+import { useFirebase } from '../firebaseContext';
 import logoImg from '../assets/images/casa_sandrissima_green_white_logo_1779323893215.png';
+import PencilLoader from './PencilLoader';
 
 interface DoacaoViewProps {
   onAddDonation: (donation: Donation) => Promise<void> | void;
   onUpdateDonation: (donation: Donation) => Promise<void> | void;
   donationsList: Donation[];
+  onOpenLoginModal?: (reason?: 'galeria' | 'doacoes' | 'portal' | 'geral') => void;
 }
 
-export default function DoacaoView({ onAddDonation, onUpdateDonation, donationsList }: DoacaoViewProps) {
+export default function DoacaoView({ onAddDonation, onUpdateDonation, donationsList, onOpenLoginModal }: DoacaoViewProps) {
+  const { user, loginWithSocial } = useFirebase();
   const { alert } = useModal();
+  const [socialLoading, setSocialLoading] = useState<'google' | 'facebook' | 'microsoft' | null>(null);
+
   const [formData, setFormData] = useState({
     donorName: '',
     description: '',
     isAnonymous: false
   });
+
+  // When user is authenticated, prefill their name
+  useEffect(() => {
+    if (user && !formData.donorName) {
+      setFormData(prev => ({
+        ...prev,
+        donorName: user.displayName || user.email?.split('@')[0] || ''
+      }));
+    }
+  }, [user]);
+
+  const handleQuickLogin = async (provider: 'google' | 'facebook' | 'microsoft') => {
+    setSocialLoading(provider);
+    try {
+      await loginWithSocial(provider);
+      setSocialLoading(null);
+    } catch (err: any) {
+      setSocialLoading(null);
+      if (err?.code === 'auth/popup-closed-by-user' || err?.code === 'auth/cancelled-popup-request') {
+        // User cancelled popup, no error alert needed
+        return;
+      }
+      await alert(`Erro ao autenticar com ${provider}. Tente novamente ou use o Google.`, "Aviso de Login", "warn");
+    }
+  };
 
   const [copiedKey, setCopiedKey] = useState(false);
   const [copiedPayload, setCopiedPayload] = useState(false);
@@ -375,6 +406,90 @@ export default function DoacaoView({ onAddDonation, onUpdateDonation, donationsL
                     <p className="text-xs text-stone-500 mt-0.5">Selecione o valor do fomento via Pix e preencha seu nome para gerar o código oficial de doação.</p>
                   </div>
 
+                  {/* Auth Status & Social Login Requirement */}
+                  {!user ? (
+                    <div className="p-4 bg-emerald-50/70 border border-emerald-200 rounded-2xl space-y-3" id="donation-auth-required-box">
+                      <div className="flex items-start gap-2.5">
+                        <div className="bg-emerald-600 text-white p-1.5 rounded-lg shrink-0 mt-0.5">
+                          <Lock className="h-4 w-4" />
+                        </div>
+                        <div className="text-xs">
+                          <span className="font-bold text-stone-900 block">Identificação Necessária para Doar</span>
+                          <span className="text-stone-600 leading-relaxed block mt-0.5">
+                            Para conformidade e recibo nominal, faça login com sua rede social preferida:
+                          </span>
+                        </div>
+                      </div>
+
+                      {socialLoading ? (
+                        <div className="py-2">
+                          <PencilLoader
+                            size="sm"
+                            message={`Conectando com ${socialLoading === 'google' ? 'Google' : socialLoading === 'facebook' ? 'Facebook' : 'Microsoft'}...`}
+                          />
+                        </div>
+                      ) : (
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-1">
+                          <button
+                            type="button"
+                            onClick={() => handleQuickLogin('google')}
+                            className="flex items-center justify-center gap-1.5 px-2.5 py-2 bg-white hover:bg-stone-50 border border-stone-200 rounded-xl text-xs font-bold text-stone-800 shadow-xs cursor-pointer"
+                          >
+                            <svg className="w-4 h-4" viewBox="0 0 24 24">
+                              <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                              <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                              <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+                              <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+                            </svg>
+                            <span>Google</span>
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() => handleQuickLogin('facebook')}
+                            className="flex items-center justify-center gap-1.5 px-2.5 py-2 bg-[#1877F2] hover:bg-[#166fe5] rounded-xl text-xs font-bold text-white shadow-xs cursor-pointer"
+                          >
+                            <svg className="w-4 h-4 fill-white" viewBox="0 0 24 24">
+                              <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                            </svg>
+                            <span>Facebook</span>
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() => handleQuickLogin('microsoft')}
+                            className="flex items-center justify-center gap-1.5 px-2.5 py-2 bg-[#2F2F2F] hover:bg-[#202020] rounded-xl text-xs font-bold text-white shadow-xs cursor-pointer"
+                          >
+                            <svg className="w-3.5 h-3.5" viewBox="0 0 21 21">
+                              <rect x="1" y="1" width="9" height="9" fill="#f25022" />
+                              <rect x="11" y="1" width="9" height="9" fill="#7fba00" />
+                              <rect x="1" y="11" width="9" height="9" fill="#00a4ef" />
+                              <rect x="11" y="11" width="9" height="9" fill="#ffb900" />
+                            </svg>
+                            <span>Microsoft</span>
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-2xl flex items-center justify-between">
+                      <div className="flex items-center gap-2.5">
+                        <div className="bg-emerald-600 text-white p-1.5 rounded-full">
+                          <ShieldCheck className="h-4 w-4" />
+                        </div>
+                        <div className="text-left text-xs">
+                          <span className="font-bold text-stone-900 block">Doador Autenticado</span>
+                          <span className="text-emerald-800 font-mono text-[11px]">
+                            {user.displayName || user.email}
+                          </span>
+                        </div>
+                      </div>
+                      <span className="text-[10px] uppercase font-mono font-bold bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-md">
+                        ✓ Verificado
+                      </span>
+                    </div>
+                  )}
+
                   {/* Donor Name */}
                   <div className="space-y-1">
                     <div className="flex justify-between items-center">
@@ -461,21 +576,17 @@ export default function DoacaoView({ onAddDonation, onUpdateDonation, donationsL
                   id="supporter-simulation-form-step2"
                 >
                   {isVerifying ? (
-                    <div className="py-6 space-y-6 flex flex-col items-center justify-center min-h-[320px]">
-                      <div className="relative">
-                        {/* Beautiful progressive spinner */}
-                        <div className="h-16 w-16 rounded-full border-4 border-stone-100 border-t-emerald-600 animate-spin" />
-                        <div className="absolute inset-0 flex items-center justify-center text-xs font-mono font-bold text-emerald-700">
-                          {Math.min(100, (verificationIndex + 1) * 20)}%
-                        </div>
+                    <div className="py-4 space-y-4 flex flex-col items-center justify-center min-h-[320px]">
+                      <PencilLoader
+                        size="md"
+                        message="Verificando recebimento do Pix..."
+                        submessage="Aguardando confirmação em tempo real no Banco Central"
+                      />
+                      <div className="text-xs font-mono font-bold text-emerald-700 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">
+                        {Math.min(100, (verificationIndex + 1) * 20)}% concluído
                       </div>
                       
                       <div className="w-full space-y-3 px-2">
-                        <div className="text-center pb-2">
-                          <h4 className="font-sans font-bold text-stone-900 text-sm">Verificando recebimento do Pix...</h4>
-                          <p className="text-[11px] text-stone-500 font-sans mt-0.5 font-semibold">Aguardando confirmação em tempo real no Banco Central</p>
-                        </div>
-                        
                         <div className="space-y-2 bg-stone-50 border border-stone-200/50 p-4 rounded-2xl text-[11px] font-mono leading-relaxed shadow-sm">
                           {[
                             "Conectando ao núcleo de liquidação do Banco Central...",

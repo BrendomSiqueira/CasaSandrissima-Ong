@@ -1,4 +1,16 @@
-export type ActiveTab = 'home' | 'associacao' | 'doacoes' | 'projetos' | 'area_associado';
+export type ActiveTab = 'home' | 'associacao' | 'doacoes' | 'projetos' | 'galeria' | 'area_associado';
+
+export interface GalleryPhoto {
+  id: string;
+  title: string;
+  category: 'karate' | 'costura' | 'bordado' | 'pilates' | 'ingles' | 'eventos' | 'comunidade';
+  categoryLabel: string;
+  imageUrl: string;
+  description: string;
+  date: string;
+  author: string;
+  tags: string[];
+}
 
 export interface Student {
   id: string;

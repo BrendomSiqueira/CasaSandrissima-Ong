@@ -5,15 +5,23 @@ import HomeView from './components/HomeView';
 import AssociacaoView from './components/AssociacaoView';
 import DoacaoView from './components/DoacaoView';
 import ProjetosView from './components/ProjetosView';
+import GaleriaView from './components/GaleriaView';
 import AreaAssociadoView from './components/AreaAssociadoView';
+import SocialLoginModal from './components/SocialLoginModal';
 import { ActiveTab, Student, Associate, Donation } from './types';
 import { useFirebase } from './firebaseContext';
 import { useModal } from './components/ModalContext';
+import PencilLoader from './components/PencilLoader';
 
 export default function App() {
-  const [activeTab, setActiveTab ] = useState<ActiveTab>('home');
+  const [activeTab, setActiveTab] = useState<ActiveTab>('home');
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+  const [loginReason, setLoginReason] = useState<'galeria' | 'doacoes' | 'portal' | 'geral' | 'aluno_apoiador'>('geral');
+
   const { confirm } = useModal();
   const { 
+    loading,
+    user,
     students, 
     associates, 
     donations, 
@@ -26,25 +34,23 @@ export default function App() {
     updateDonation
   } = useFirebase();
 
+  const handleOpenLoginModal = (reason: 'galeria' | 'doacoes' | 'portal' | 'geral' | 'aluno_apoiador' = 'geral') => {
+    setLoginReason(reason);
+    setIsLoginModalOpen(true);
+  };
+
   // Handle addition callbacks mapping to Firebase Context
   const handleAddStudent = async (newStudent: Student) => {
     await addStudent(newStudent);
   };
 
   const handleModifyStudents = async (updatedStudents: Student[]) => {
-    // Locate modified or deleted students
-    // Since we are changing locally-triggered arrays, we can reconcile changes
-    // But inside AreaAssociadoView, we can also use direct context methods.
-    // For compatibility with the existing prop signatures, we can check 
-    // which student was changed, or simply loop/reconcile.
-    // Better, let's look at the old array and see what changed:
     for (const st of updatedStudents) {
       const match = students.find(s => s.id === st.id);
       if (!match || JSON.stringify(match) !== JSON.stringify(st)) {
         await updateStudent(st);
       }
     }
-    // Check for deletions
     for (const st of students) {
       if (!updatedStudents.some(s => s.id === st.id)) {
         await deleteStudent(st.id);
@@ -83,11 +89,19 @@ export default function App() {
           <DoacaoView 
             onAddDonation={handleAddDonation} 
             onUpdateDonation={updateDonation}
-            donationsList={donations} 
+            donationsList={donations}
+            onOpenLoginModal={handleOpenLoginModal}
           />
         );
       case 'projetos':
         return <ProjetosView setActiveTab={setActiveTab} />;
+      case 'galeria':
+        return (
+          <GaleriaView 
+            setActiveTab={setActiveTab} 
+            onOpenLoginModal={handleOpenLoginModal} 
+          />
+        );
       case 'area_associado':
         return (
           <AreaAssociadoView 
@@ -108,7 +122,11 @@ export default function App() {
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-emerald-50/60 via-white to-stone-100 text-stone-800 font-sans" id="app-root-container">
       
       {/* Dynamic Navbar */}
-      <Navbar activeTab={activeTab} setActiveTab={setActiveTab} />
+      <Navbar 
+        activeTab={activeTab} 
+        setActiveTab={setActiveTab} 
+        onOpenLoginModal={handleOpenLoginModal} 
+      />
       
       {/* Scroll indicator for aesthetic purposes */}
       <div className="h-1 bg-gradient-to-r from-emerald-500 via-emerald-600 to-teal-600" />
@@ -121,7 +139,17 @@ export default function App() {
       </main>
 
       {/* Stateful Footer */}
-      <Footer setActiveTab={setActiveTab} />
+      <Footer 
+        setActiveTab={setActiveTab} 
+        onOpenLoginModal={handleOpenLoginModal}
+      />
+
+      {/* Social Login Modal Accessible from anywhere */}
+      <SocialLoginModal
+        isOpen={isLoginModalOpen}
+        onClose={() => setIsLoginModalOpen(false)}
+        reason={loginReason}
+      />
 
     </div>
   );
