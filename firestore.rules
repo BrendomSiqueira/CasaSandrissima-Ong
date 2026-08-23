@@ -41,7 +41,6 @@ service cloud.firestore {
       
       allow create: if isOwner(userId) && 
                       (request.resource.data.role == 'user' || (request.resource.data.role == 'admin' && isAdmin())) && 
-                      request.resource.data.email == request.auth.token.email &&
                       request.resource.data.uid == userId &&
                       request.resource.data.createdAt != null;
                       

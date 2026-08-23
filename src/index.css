@@ -6,6 +6,38 @@
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
 }
 
+html {
+  scroll-behavior: smooth;
+  background-color: #fbfdfc;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #fbfdfc;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Custom modern scrollbar with emerald accent */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f5f3;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #a7f3d0;
+  border-radius: 9999px;
+  border: 2px solid #f1f5f3;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #34d399;
+}
+
 /* Custom Social Media Container & Animated Icons */
 .card-social-wrapper {
   width: fit-content;
@@ -88,6 +120,28 @@
     transform: translateY(0);
     opacity: 1;
   }
+}
+
+/* Dynamic Green Highlight and Comments Lockup Animation */
+.green-text-highlight {
+  background: linear-gradient(227deg, #047857 0%, #10b981 50%, #34d399 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
+  display: inline;
+}
+
+.comments-ambient-gradient {
+  background: radial-gradient(circle at 50% 50%, rgba(16, 185, 129, 0.15), rgba(5, 150, 105, 0.05) 40%, transparent 70%);
+}
+
+.donor-green-card {
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.donor-green-card:hover {
+  transform: translateY(-4px);
 }
 
 /* 3D Glassmorphism Donors & Supporters Card */

@@ -82,7 +82,7 @@ export default function AssociacaoView({ onAddAssociate, associatesList }: Assoc
       <section className="grid grid-cols-1 md:grid-cols-3 gap-8" id="institution-culture">
         
         {/* Mission card */}
-        <div className="bg-white rounded-2xl p-6 border border-stone-150 relative overflow-hidden" id="card-culture-mission">
+        <div className="bg-white/85 backdrop-blur-md rounded-2xl p-6 border border-emerald-100/70 shadow-sm relative overflow-hidden" id="card-culture-mission">
           <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-50/50 rounded-full translate-x-8 -translate-y-8"></div>
           <div className="space-y-4 relative z-10">
             <div className="bg-emerald-105 p-3 rounded-xl w-fit text-emerald-600">
@@ -96,7 +96,7 @@ export default function AssociacaoView({ onAddAssociate, associatesList }: Assoc
         </div>
 
         {/* Objective card */}
-        <div className="bg-white rounded-2xl p-6 border border-stone-150 relative overflow-hidden" id="card-culture-objective">
+        <div className="bg-white/85 backdrop-blur-md rounded-2xl p-6 border border-emerald-100/70 shadow-sm relative overflow-hidden" id="card-culture-objective">
           <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-50/50 rounded-full translate-x-8 -translate-y-8"></div>
           <div className="space-y-4 relative z-10">
             <div className="bg-emerald-105 p-3 rounded-xl w-fit text-emerald-600">
@@ -110,7 +110,7 @@ export default function AssociacaoView({ onAddAssociate, associatesList }: Assoc
         </div>
 
         {/* Values card */}
-        <div className="bg-white rounded-2xl p-6 border border-stone-150 relative overflow-hidden" id="card-culture-values">
+        <div className="bg-white/85 backdrop-blur-md rounded-2xl p-6 border border-emerald-100/70 shadow-sm relative overflow-hidden" id="card-culture-values">
           <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-50/50 rounded-full translate-x-8 -translate-y-8"></div>
           <div className="space-y-4 relative z-10">
             <div className="bg-emerald-105 p-3 rounded-xl w-fit text-emerald-600">
@@ -174,7 +174,7 @@ export default function AssociacaoView({ onAddAssociate, associatesList }: Assoc
         </div>
 
         {/* Right Column: Portal Registration Form */}
-        <div className="lg:col-span-7 bg-white rounded-2xl border border-stone-200/80 shadow-md p-6 md:p-8" id="associate-form-card">
+        <div className="lg:col-span-7 bg-white/85 backdrop-blur-md rounded-2xl border border-emerald-100/80 shadow-md p-6 md:p-8" id="associate-form-card">
           
           <AnimatePresence mode="wait">
             {!isSuccess ? (

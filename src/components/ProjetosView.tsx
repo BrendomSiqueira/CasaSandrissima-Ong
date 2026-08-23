@@ -164,7 +164,7 @@ export default function ProjetosView({ setActiveTab }: ProjetosViewProps) {
       </section>
 
       {/* Main Feature Layout */}
-      <section className="bg-white rounded-3xl border border-stone-200/80 shadow-md p-6 md:p-10" id="project-detailed-board">
+      <section className="bg-white/85 backdrop-blur-md rounded-3xl border border-emerald-100/70 shadow-md p-6 md:p-10" id="project-detailed-board">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
           
           {/* Left Block: Image & Basic properties info */}

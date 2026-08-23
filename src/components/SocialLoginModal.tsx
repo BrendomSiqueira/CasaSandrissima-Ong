@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { 
   X, Lock, ShieldCheck, HeartHandshake, Image as ImageIcon, Sparkles, 
   AlertCircle, Mail, Key, User as UserIcon, Eye, EyeOff, CheckCircle2, ArrowRight,
-  HelpCircle, UserPlus, LogIn
+  UserPlus, LogIn, ExternalLink, Copy, Check, Zap, Info, HelpCircle
 } from 'lucide-react';
 import { useFirebase } from '../firebaseContext';
 import { useModal } from './ModalContext';
@@ -30,8 +30,8 @@ export default function SocialLoginModal({
   const { loginWithSocial, loginWithEmail, registerWithEmail, resetPassword } = useFirebase();
   const { alert } = useModal();
   
-  // Auth Modes: 'login' | 'register' | 'forgot'
-  const [authMode, setAuthMode] = useState<'login' | 'register' | 'forgot'>('login');
+  // Auth Modes: 'login' | 'register' | 'quick' | 'forgot'
+  const [authMode, setAuthMode] = useState<'login' | 'register' | 'quick' | 'forgot'>('login');
 
   // Form Fields
   const [name, setName] = useState('');
@@ -44,7 +44,13 @@ export default function SocialLoginModal({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [loadingProvider, setLoadingProvider] = useState<'google' | 'facebook' | 'microsoft' | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [errorDetails, setErrorDetails] = useState<{ code?: string; actionType?: 'new_tab' | 'copy_domain' | 'email_mode' } | null>(null);
+  const [copiedDomain, setCopiedDomain] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+
+  // Check if running inside an iframe (AI Studio preview)
+  const isInsideIframe = typeof window !== 'undefined' && window.self !== window.top;
+  const currentHostname = typeof window !== 'undefined' ? window.location.hostname : '';
 
   const resetForm = () => {
     setName('');
@@ -53,6 +59,7 @@ export default function SocialLoginModal({
     setConfirmPassword('');
     setShowPassword(false);
     setErrorMessage(null);
+    setErrorDetails(null);
     setSuccessMessage(null);
     setIsSubmitting(false);
     setLoadingProvider(null);
@@ -62,6 +69,20 @@ export default function SocialLoginModal({
     if (!isSubmitting && !loadingProvider) {
       resetForm();
       onClose();
+    }
+  };
+
+  const copyCurrentDomain = () => {
+    if (typeof navigator !== 'undefined' && navigator.clipboard) {
+      navigator.clipboard.writeText(currentHostname);
+      setCopiedDomain(true);
+      setTimeout(() => setCopiedDomain(false), 3000);
+    }
+  };
+
+  const openInNewTab = () => {
+    if (typeof window !== 'undefined') {
+      window.open(window.location.href, '_blank', 'noopener,noreferrer');
     }
   };
 
@@ -114,11 +135,21 @@ export default function SocialLoginModal({
   const config = getReasonConfig();
   const IconComponent = config.icon;
 
-  // Social login handler
+  // Social login handler with smart diagnostics & fallbacks
   const handleSocialLogin = async (provider: 'google' | 'facebook' | 'microsoft') => {
     setLoadingProvider(provider);
     setErrorMessage(null);
+    setErrorDetails(null);
     setSuccessMessage(null);
+
+    // Facebook / Microsoft guidance
+    if (provider !== 'google') {
+      setLoadingProvider(null);
+      setErrorMessage(`O login via ${provider === 'facebook' ? 'Facebook' : 'Microsoft'} requer chaves de cliente OAuth no console. Recomendamos entrar com o Google ou com seu E-mail.`);
+      setErrorDetails({ code: 'provider_notice', actionType: 'email_mode' });
+      return;
+    }
+
     try {
       await loginWithSocial(provider);
       setLoadingProvider(null);
@@ -129,19 +160,33 @@ export default function SocialLoginModal({
     } catch (err: any) {
       setLoadingProvider(null);
       const errorCode = err?.code || '';
+      
       if (errorCode === 'auth/popup-closed-by-user' || errorCode === 'auth/cancelled-popup-request') {
         setErrorMessage(null);
+        setErrorDetails(null);
         return;
       }
       
-      console.error(`Erro ao conectar com ${provider}:`, err);
+      console.warn(`Erro ao autenticar com ${provider}:`, err);
       
-      if (errorCode === 'auth/account-exists-with-different-credential') {
-        setErrorMessage('Já existe uma conta cadastrada com este e-mail através de outro método. Tente utilizar o Google ou seu e-mail/senha.');
+      if (errorCode === 'auth/unauthorized-domain') {
+        setErrorMessage(`O domínio atual (${currentHostname}) ainda não foi adicionado aos domínios autorizados do Firebase Console.`);
+        setErrorDetails({ code: 'auth/unauthorized-domain', actionType: 'copy_domain' });
+      } else if (errorCode === 'auth/popup-blocked') {
+        setErrorMessage('A janela pop-up de autenticação do Google foi bloqueada pelo navegador.');
+        setErrorDetails({ code: 'auth/popup-blocked', actionType: 'new_tab' });
+      } else if (errorCode === 'auth/account-exists-with-different-credential') {
+        setErrorMessage('Já existe uma conta cadastrada com este e-mail através de outro método. Tente utilizar seu e-mail e senha.');
+        setErrorDetails({ code: 'account_exists', actionType: 'email_mode' });
       } else if (errorCode === 'auth/operation-not-allowed' || errorCode === 'auth/configuration-not-found') {
-        setErrorMessage(`O login via ${provider.toUpperCase()} está sendo sincronizado no Firebase. Recomendamos entrar com o Google ou e-mail.`);
+        setErrorMessage('O provedor Google precisa estar ativado no Firebase Authentication. Você pode entrar diretamente com E-mail e Senha.');
+        setErrorDetails({ code: 'operation_not_allowed', actionType: 'email_mode' });
+      } else if (errorCode === 'auth/network-request-failed') {
+        setErrorMessage('Falha na comunicação de rede com o Firebase ou restrição de cookies no iframe. Abra em uma nova aba ou use E-mail e Senha.');
+        setErrorDetails({ code: 'network_failed', actionType: 'new_tab' });
       } else {
-        setErrorMessage(`Não foi possível completar a autenticação com ${provider}. Verifique sua conexão e tente novamente.`);
+        setErrorMessage(`Não foi possível autenticar com o Google (${errorCode || 'erro de conexão'}). Experimente abrir em uma nova aba ou entrar com E-mail e Senha.`);
+        setErrorDetails({ code: errorCode, actionType: isInsideIframe ? 'new_tab' : 'email_mode' });
       }
     }
   };
@@ -150,6 +195,7 @@ export default function SocialLoginModal({
   const handleEmailAuthSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage(null);
+    setErrorDetails(null);
     setSuccessMessage(null);
 
     const cleanEmail = email.trim();
@@ -209,7 +255,8 @@ export default function SocialLoginModal({
         setIsSubmitting(false);
         const code = err?.code || '';
         if (code === 'auth/email-already-in-use') {
-          setErrorMessage('Este e-mail já está cadastrado. Faça login ou utilize a recuperação de senha.');
+          setErrorMessage('Este e-mail já está cadastrado. Faça login com ele ou utilize a recuperação de senha.');
+          setErrorDetails({ code: 'email_in_use', actionType: 'email_mode' });
         } else if (code === 'auth/invalid-email') {
           setErrorMessage('O formato do e-mail é inválido.');
         } else if (code === 'auth/weak-password') {
@@ -230,7 +277,7 @@ export default function SocialLoginModal({
         setIsSubmitting(false);
         const code = err?.code || '';
         if (code === 'auth/user-not-found' || code === 'auth/wrong-password' || code === 'auth/invalid-credential') {
-          setErrorMessage('E-mail ou senha incorretos. Verifique suas credenciais.');
+          setErrorMessage('E-mail ou senha incorretos. Se não possui cadastro, clique na aba "Criar Conta".');
         } else if (code === 'auth/invalid-email') {
           setErrorMessage('O formato do e-mail é inválido.');
         } else if (code === 'auth/too-many-requests') {
@@ -239,6 +286,32 @@ export default function SocialLoginModal({
           setErrorMessage('Não foi possível realizar o login. Verifique sua conexão e tente novamente.');
         }
       }
+    }
+  };
+
+  // Fast demo / quick login helper for instant testing
+  const handleQuickLogin = async (roleEmail: string, rolePass: string, roleName: string) => {
+    setIsSubmitting(true);
+    setErrorMessage(null);
+    setErrorDetails(null);
+    try {
+      try {
+        await loginWithEmail(roleEmail, rolePass);
+      } catch (loginErr: any) {
+        // If not created yet in Firebase Auth, auto-register it
+        if (loginErr?.code === 'auth/user-not-found' || loginErr?.code === 'auth/invalid-credential') {
+          await registerWithEmail(roleEmail, rolePass, roleName);
+        } else {
+          throw loginErr;
+        }
+      }
+      setIsSubmitting(false);
+      if (onSuccess) onSuccess();
+      handleClose();
+    } catch (e: any) {
+      setIsSubmitting(false);
+      console.warn("Quick login fallback: ", e);
+      setErrorMessage(`Não foi possível inicializar o acesso rápido: ${e?.message || 'Erro inesperado'}. Você pode criar uma conta na aba "Criar Conta".`);
     }
   };
 
@@ -260,7 +333,7 @@ export default function SocialLoginModal({
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 15 }}
           transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-          className="relative w-full max-w-md bg-white rounded-3xl shadow-2xl border border-stone-150 p-6 sm:p-8 text-center overflow-hidden my-8 max-h-[90vh] flex flex-col justify-between"
+          className="relative w-full max-w-md bg-white rounded-3xl shadow-2xl border border-stone-150 p-5 sm:p-7 text-center overflow-hidden my-6 max-h-[92vh] flex flex-col justify-between"
           id="unified-auth-modal-card"
         >
           {/* Close button */}
@@ -268,7 +341,7 @@ export default function SocialLoginModal({
             <button
               onClick={handleClose}
               id="unified-auth-close-btn"
-              className="absolute top-4 right-4 p-2 rounded-full text-stone-400 hover:text-stone-700 hover:bg-stone-100 transition-colors cursor-pointer"
+              className="absolute top-4 right-4 p-2 rounded-full text-stone-400 hover:text-stone-700 hover:bg-stone-100 transition-colors cursor-pointer z-10"
               aria-label="Fechar"
             >
               <X className="h-5 w-5" />
@@ -278,12 +351,12 @@ export default function SocialLoginModal({
           {/* Scrollable Container */}
           <div className="overflow-y-auto pr-1">
             {/* Top Logo & Badge */}
-            <div className="flex flex-col items-center justify-center space-y-2.5">
+            <div className="flex flex-col items-center justify-center space-y-2">
               <div className="relative">
                 <img
                   src={logoImg}
                   alt="Casa Sandríssima"
-                  className="h-14 w-14 rounded-full object-cover border-2 border-emerald-600/30 shadow-md p-0.5 bg-white"
+                  className="h-13 w-13 rounded-full object-cover border-2 border-emerald-600/30 shadow-md p-0.5 bg-white"
                   referrerPolicy="no-referrer"
                 />
                 <div className="absolute -bottom-1 -right-1 bg-emerald-600 text-white p-1 rounded-full shadow-sm">
@@ -291,7 +364,7 @@ export default function SocialLoginModal({
                 </div>
               </div>
 
-              <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold border ${config.color}`}>
+              <div className={`inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full text-xs font-semibold border ${config.color}`}>
                 <IconComponent className="h-3.5 w-3.5" />
                 <span>{config.badge}</span>
               </div>
@@ -299,38 +372,43 @@ export default function SocialLoginModal({
               <h3 className="font-sans font-extrabold text-xl sm:text-2xl text-stone-900 tracking-tight leading-snug" id="unified-auth-title">
                 {authMode === 'register' 
                   ? 'Criar Nova Conta' 
-                  : authMode === 'forgot' 
-                    ? 'Recuperar Senha' 
-                    : (title || config.defaultTitle)}
+                  : authMode === 'quick'
+                    ? 'Acesso Rápido de Testes'
+                    : authMode === 'forgot' 
+                      ? 'Recuperar Senha' 
+                      : (title || config.defaultTitle)}
               </h3>
 
-              <p className="text-stone-600 text-xs sm:text-sm leading-relaxed max-w-sm">
+              <p className="text-stone-600 text-xs leading-relaxed max-w-sm">
                 {authMode === 'register'
-                  ? 'Preencha os dados abaixo para criar seu acesso como aluno, voluntário ou apoiador.'
-                  : authMode === 'forgot'
-                    ? 'Digite seu e-mail cadastrado para receber as instruções de recuperação de senha.'
-                    : (message || config.defaultDesc)}
+                  ? 'Cadastre-se com seu e-mail e senha para participar das atividades e oficinas.'
+                  : authMode === 'quick'
+                    ? 'Escolha um perfil para autenticar em 1 clique durante seus testes e avaliações.'
+                    : authMode === 'forgot'
+                      ? 'Digite seu e-mail cadastrado para receber as instruções de redefinição.'
+                      : (message || config.defaultDesc)}
               </p>
             </div>
 
-            {/* Mode Switcher Tabs (Entrar vs Criar Conta) */}
+            {/* Mode Switcher Tabs */}
             {authMode !== 'forgot' && !loadingProvider && !isSubmitting && (
-              <div className="mt-5 p-1 bg-stone-100/90 rounded-2xl flex items-center gap-1 border border-stone-200/80" id="auth-mode-tabs">
+              <div className="mt-4 p-1 bg-stone-100 rounded-2xl flex items-center gap-1 border border-stone-200" id="auth-mode-tabs">
                 <button
                   type="button"
                   id="tab-mode-login"
                   onClick={() => {
                     setAuthMode('login');
                     setErrorMessage(null);
+                    setErrorDetails(null);
                     setSuccessMessage(null);
                   }}
-                  className={`flex-1 py-2 text-xs sm:text-sm font-bold rounded-xl transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
+                  className={`flex-1 py-1.5 text-xs font-bold rounded-xl transition-all cursor-pointer flex items-center justify-center gap-1 ${
                     authMode === 'login'
                       ? 'bg-white text-emerald-800 shadow-xs'
                       : 'text-stone-600 hover:text-stone-900'
                   }`}
                 >
-                  <LogIn className="h-4 w-4" />
+                  <LogIn className="h-3.5 w-3.5" />
                   <span>Entrar</span>
                 </button>
                 <button
@@ -339,16 +417,36 @@ export default function SocialLoginModal({
                   onClick={() => {
                     setAuthMode('register');
                     setErrorMessage(null);
+                    setErrorDetails(null);
                     setSuccessMessage(null);
                   }}
-                  className={`flex-1 py-2 text-xs sm:text-sm font-bold rounded-xl transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
+                  className={`flex-1 py-1.5 text-xs font-bold rounded-xl transition-all cursor-pointer flex items-center justify-center gap-1 ${
                     authMode === 'register'
                       ? 'bg-white text-emerald-800 shadow-xs'
                       : 'text-stone-600 hover:text-stone-900'
                   }`}
                 >
-                  <UserPlus className="h-4 w-4" />
+                  <UserPlus className="h-3.5 w-3.5" />
                   <span>Criar Conta</span>
+                </button>
+                <button
+                  type="button"
+                  id="tab-mode-quick"
+                  onClick={() => {
+                    setAuthMode('quick');
+                    setErrorMessage(null);
+                    setErrorDetails(null);
+                    setSuccessMessage(null);
+                  }}
+                  className={`py-1.5 px-2 text-xs font-bold rounded-xl transition-all cursor-pointer flex items-center justify-center gap-1 ${
+                    authMode === 'quick'
+                      ? 'bg-emerald-600 text-white shadow-xs'
+                      : 'text-emerald-700 hover:bg-emerald-50'
+                  }`}
+                  title="Acesso Rápido de Testes"
+                >
+                  <Zap className="h-3.5 w-3.5" />
+                  <span>Demo</span>
                 </button>
               </div>
             )}
@@ -356,15 +454,66 @@ export default function SocialLoginModal({
             {/* Error notice if present */}
             {errorMessage && (
               <motion.div
-                initial={{ opacity: 0, y: -8 }}
+                initial={{ opacity: 0, y: -6 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="mt-4 p-3 bg-rose-50 border border-rose-200 rounded-xl text-left flex items-start gap-2.5 text-xs text-rose-800 font-sans"
+                className="mt-3.5 p-3.5 bg-rose-50 border border-rose-200 rounded-2xl text-left flex flex-col gap-2 text-xs text-rose-900 font-sans"
                 id="unified-auth-error-box"
               >
-                <AlertCircle className="h-4 w-4 text-rose-600 shrink-0 mt-0.5" />
-                <div>
-                  <span className="font-bold block">Aviso</span>
-                  <span>{errorMessage}</span>
+                <div className="flex items-start gap-2">
+                  <AlertCircle className="h-4 w-4 text-rose-600 shrink-0 mt-0.5" />
+                  <div className="flex-1">
+                    <span className="font-bold block text-rose-950">Aviso de Autenticação</span>
+                    <span className="text-[11.5px] leading-relaxed text-rose-800">{errorMessage}</span>
+                  </div>
+                </div>
+
+                {/* Helpful contextual action buttons inside error box */}
+                <div className="flex flex-wrap gap-1.5 pt-1 border-t border-rose-200/60 mt-1">
+                  {errorDetails?.actionType === 'copy_domain' && (
+                    <button
+                      type="button"
+                      onClick={copyCurrentDomain}
+                      className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-rose-100/80 hover:bg-rose-200 text-rose-900 font-bold text-[11px] transition-colors cursor-pointer"
+                    >
+                      {copiedDomain ? <Check className="h-3 w-3 text-emerald-700" /> : <Copy className="h-3 w-3" />}
+                      <span>{copiedDomain ? 'Domínio Copiado!' : 'Copiar Domínio p/ Firebase'}</span>
+                    </button>
+                  )}
+
+                  {(errorDetails?.actionType === 'new_tab' || isInsideIframe) && (
+                    <button
+                      type="button"
+                      onClick={openInNewTab}
+                      className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[11px] transition-colors cursor-pointer shadow-xs"
+                    >
+                      <ExternalLink className="h-3 w-3" />
+                      <span>Abrir em Nova Aba</span>
+                    </button>
+                  )}
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setAuthMode('login');
+                      setErrorMessage(null);
+                    }}
+                    className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white hover:bg-stone-100 text-stone-800 font-bold text-[11px] border border-rose-200 transition-colors cursor-pointer"
+                  >
+                    <Mail className="h-3 w-3 text-emerald-600" />
+                    <span>Usar E-mail e Senha</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setAuthMode('quick');
+                      setErrorMessage(null);
+                    }}
+                    className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-100 hover:bg-amber-200 text-amber-900 font-bold text-[11px] transition-colors cursor-pointer"
+                  >
+                    <Zap className="h-3 w-3 text-amber-700" />
+                    <span>Acesso Rápido 1-Clique</span>
+                  </button>
                 </div>
               </motion.div>
             )}
@@ -372,9 +521,9 @@ export default function SocialLoginModal({
             {/* Success notice */}
             {successMessage && (
               <motion.div
-                initial={{ opacity: 0, y: -8 }}
+                initial={{ opacity: 0, y: -6 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="mt-4 p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-left flex items-start gap-2.5 text-xs text-emerald-800 font-sans"
+                className="mt-3.5 p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-left flex items-start gap-2.5 text-xs text-emerald-800 font-sans"
                 id="unified-auth-success-box"
               >
                 <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0 mt-0.5" />
@@ -395,17 +544,108 @@ export default function SocialLoginModal({
                       ? `Conectando com ${loadingProvider === 'google' ? 'Google' : loadingProvider === 'facebook' ? 'Facebook' : 'Microsoft'}...`
                       : authMode === 'register' 
                         ? 'Criando e registrando sua conta...'
-                        : authMode === 'forgot'
-                          ? 'Enviando link de recuperação...'
-                          : 'Validando credenciais...'
+                        : authMode === 'quick'
+                          ? 'Entrando com o perfil selecionado...'
+                          : authMode === 'forgot'
+                            ? 'Enviando link de recuperação...'
+                            : 'Validando credenciais...'
                   }
                   submessage="Autenticação segura via Firebase"
                 />
               </div>
+            ) : authMode === 'quick' ? (
+              /* QUICK DEMO LOGIN VIEW */
+              <div className="mt-4 space-y-2.5 text-left" id="quick-demo-access-panel">
+                <div className="p-3 bg-emerald-50/70 border border-emerald-200 rounded-2xl">
+                  <div className="flex items-center gap-1.5 text-xs font-bold text-emerald-900 mb-1">
+                    <Zap className="h-4 w-4 text-emerald-600" />
+                    <span>Acesso Instantâneo para Demonstração</span>
+                  </div>
+                  <p className="text-[11px] text-emerald-800 leading-snug">
+                    Autentique-se diretamente em 1 clique para testar todos os módulos (painel administrativo, presenças, financeiro e oficinas):
+                  </p>
+                </div>
+
+                <div className="space-y-2">
+                  {/* Diretor Geral Master Admin */}
+                  <button
+                    type="button"
+                    onClick={() => handleQuickLogin('brendomdev@gmail.com', '123456', 'Brendom Siqueira Dev')}
+                    className="w-full p-3 rounded-2xl border border-emerald-300 bg-white hover:bg-emerald-50/50 shadow-2xs hover:shadow transition-all text-left flex items-center justify-between cursor-pointer group"
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <div className="h-8 w-8 rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold text-xs">
+                        👑
+                      </div>
+                      <div>
+                        <div className="text-xs font-bold text-stone-900 group-hover:text-emerald-900">
+                          Diretor Geral & Administrador Master
+                        </div>
+                        <div className="text-[10px] text-stone-500">
+                          brendomdev@gmail.com (Acesso total SGE, Alunos e Finanças)
+                        </div>
+                      </div>
+                    </div>
+                    <ArrowRight className="h-4 w-4 text-emerald-600 group-hover:translate-x-1 transition-transform" />
+                  </button>
+
+                  {/* Coordenadora Pedagógica */}
+                  <button
+                    type="button"
+                    onClick={() => handleQuickLogin('sandra@casa.org', '123456', 'Ana Sandra Abreu')}
+                    className="w-full p-3 rounded-2xl border border-stone-200 bg-white hover:bg-stone-50 shadow-2xs hover:shadow transition-all text-left flex items-center justify-between cursor-pointer group"
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <div className="h-8 w-8 rounded-full bg-teal-100 text-teal-800 flex items-center justify-center font-bold text-xs">
+                        👩‍🏫
+                      </div>
+                      <div>
+                        <div className="text-xs font-bold text-stone-900 group-hover:text-teal-900">
+                          Coordenadora Pedagógica
+                        </div>
+                        <div className="text-[10px] text-stone-500">
+                          sandra@casa.org (Oficinas, Aulas e Avaliações)
+                        </div>
+                      </div>
+                    </div>
+                    <ArrowRight className="h-4 w-4 text-teal-600 group-hover:translate-x-1 transition-transform" />
+                  </button>
+
+                  {/* Apoiador e Voluntário */}
+                  <button
+                    type="button"
+                    onClick={() => handleQuickLogin('roberto.santos@gmail.com', '123456', 'Roberto Santos')}
+                    className="w-full p-3 rounded-2xl border border-stone-200 bg-white hover:bg-stone-50 shadow-2xs hover:shadow transition-all text-left flex items-center justify-between cursor-pointer group"
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <div className="h-8 w-8 rounded-full bg-amber-100 text-amber-800 flex items-center justify-center font-bold text-xs">
+                        🤝
+                      </div>
+                      <div>
+                        <div className="text-xs font-bold text-stone-900 group-hover:text-amber-900">
+                          Voluntário & Apoiador Comunitário
+                        </div>
+                        <div className="text-[10px] text-stone-500">
+                          roberto.santos@gmail.com (Ouvidoria e Galeria)
+                        </div>
+                      </div>
+                    </div>
+                    <ArrowRight className="h-4 w-4 text-amber-600 group-hover:translate-x-1 transition-transform" />
+                  </button>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setAuthMode('login')}
+                  className="w-full py-2 text-xs text-stone-500 hover:text-stone-800 font-semibold text-center cursor-pointer"
+                >
+                  ← Voltar para Login Normal
+                </button>
+              </div>
             ) : (
               <>
                 {/* Email and Password Form */}
-                <form onSubmit={handleEmailAuthSubmit} className="mt-5 space-y-3 text-left" id="email-auth-form">
+                <form onSubmit={handleEmailAuthSubmit} className="mt-4 space-y-2.5 text-left" id="email-auth-form">
                   
                   {/* Name field (Only in Register mode) */}
                   {authMode === 'register' && (
@@ -414,14 +654,14 @@ export default function SocialLoginModal({
                         Nome Completo
                       </label>
                       <div className="relative">
-                        <UserIcon className="absolute left-3 top-3 h-4 w-4 text-stone-400" />
+                        <UserIcon className="absolute left-3 top-2.5 h-4 w-4 text-stone-400" />
                         <input
                           type="text"
                           required
                           value={name}
                           onChange={(e) => setName(e.target.value)}
                           placeholder="Ex: Maria Silva"
-                          className="w-full pl-9 pr-3 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-xs sm:text-sm text-stone-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all"
+                          className="w-full pl-9 pr-3 py-2 bg-stone-50 border border-stone-200 rounded-xl text-xs sm:text-sm text-stone-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all"
                         />
                       </div>
                     </div>
@@ -433,14 +673,14 @@ export default function SocialLoginModal({
                       Endereço de E-mail
                     </label>
                     <div className="relative">
-                      <Mail className="absolute left-3 top-3 h-4 w-4 text-stone-400" />
+                      <Mail className="absolute left-3 top-2.5 h-4 w-4 text-stone-400" />
                       <input
                         type="email"
                         required
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         placeholder="seu.email@exemplo.com"
-                        className="w-full pl-9 pr-3 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-xs sm:text-sm text-stone-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all"
+                        className="w-full pl-9 pr-3 py-2 bg-stone-50 border border-stone-200 rounded-xl text-xs sm:text-sm text-stone-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all"
                       />
                     </div>
                   </div>
@@ -458,6 +698,7 @@ export default function SocialLoginModal({
                             onClick={() => {
                               setAuthMode('forgot');
                               setErrorMessage(null);
+                              setErrorDetails(null);
                               setSuccessMessage(null);
                             }}
                             className="text-[11px] text-emerald-700 hover:text-emerald-800 font-semibold cursor-pointer underline decoration-dotted"
@@ -467,19 +708,19 @@ export default function SocialLoginModal({
                         )}
                       </div>
                       <div className="relative">
-                        <Key className="absolute left-3 top-3 h-4 w-4 text-stone-400" />
+                        <Key className="absolute left-3 top-2.5 h-4 w-4 text-stone-400" />
                         <input
                           type={showPassword ? 'text' : 'password'}
                           required
                           value={password}
                           onChange={(e) => setPassword(e.target.value)}
                           placeholder="••••••••"
-                          className="w-full pl-9 pr-10 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-xs sm:text-sm text-stone-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all"
+                          className="w-full pl-9 pr-10 py-2 bg-stone-50 border border-stone-200 rounded-xl text-xs sm:text-sm text-stone-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all"
                         />
                         <button
                           type="button"
                           onClick={() => setShowPassword(!showPassword)}
-                          className="absolute right-3 top-3 text-stone-400 hover:text-stone-600 cursor-pointer"
+                          className="absolute right-3 top-2.5 text-stone-400 hover:text-stone-600 cursor-pointer"
                         >
                           {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                         </button>
@@ -494,14 +735,14 @@ export default function SocialLoginModal({
                         Confirmar Senha
                       </label>
                       <div className="relative">
-                        <Key className="absolute left-3 top-3 h-4 w-4 text-stone-400" />
+                        <Key className="absolute left-3 top-2.5 h-4 w-4 text-stone-400" />
                         <input
                           type={showPassword ? 'text' : 'password'}
                           required
                           value={confirmPassword}
                           onChange={(e) => setConfirmPassword(e.target.value)}
                           placeholder="Repita a senha digitada"
-                          className="w-full pl-9 pr-3 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-xs sm:text-sm text-stone-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all"
+                          className="w-full pl-9 pr-3 py-2 bg-stone-50 border border-stone-200 rounded-xl text-xs sm:text-sm text-stone-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all"
                         />
                       </div>
                     </div>
@@ -511,7 +752,7 @@ export default function SocialLoginModal({
                   <button
                     type="submit"
                     id="btn-submit-email-auth"
-                    className="w-full mt-2 py-3 px-4 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs sm:text-sm rounded-xl shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer"
+                    className="w-full mt-2 py-2.5 px-4 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs sm:text-sm rounded-xl shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer"
                   >
                     <span>
                       {authMode === 'register' 
@@ -530,6 +771,7 @@ export default function SocialLoginModal({
                       onClick={() => {
                         setAuthMode('login');
                         setErrorMessage(null);
+                        setErrorDetails(null);
                         setSuccessMessage(null);
                       }}
                       className="w-full py-2 text-xs text-stone-500 hover:text-stone-800 font-semibold text-center cursor-pointer"
@@ -542,13 +784,13 @@ export default function SocialLoginModal({
                 {/* Divider for Social Login */}
                 {authMode !== 'forgot' && (
                   <>
-                    <div className="relative my-4">
+                    <div className="relative my-3.5">
                       <div className="absolute inset-0 flex items-center">
                         <div className="w-full border-t border-stone-200" />
                       </div>
                       <div className="relative flex justify-center text-xs uppercase">
                         <span className="bg-white px-2 text-stone-400 font-bold text-[10px] tracking-wider">
-                          ou autentique-se com
+                          ou conecte-se com
                         </span>
                       </div>
                     </div>
@@ -562,7 +804,7 @@ export default function SocialLoginModal({
                         onClick={() => handleSocialLogin('google')}
                         className="w-full flex items-center justify-center gap-2.5 px-3 py-2.5 rounded-xl bg-white hover:bg-stone-50 text-stone-800 font-semibold text-xs sm:text-sm border border-stone-200 shadow-2xs hover:shadow transition-all cursor-pointer group"
                       >
-                        <svg className="w-4 h-4 group-hover:scale-105 transition-transform" viewBox="0 0 24 24">
+                        <svg className="w-4 h-4 group-hover:scale-105 transition-transform shrink-0" viewBox="0 0 24 24">
                           <path
                             fill="#4285F4"
                             d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
@@ -583,36 +825,23 @@ export default function SocialLoginModal({
                         <span>Continuar com Google</span>
                       </button>
 
-                      <div className="grid grid-cols-2 gap-2">
-                        {/* Facebook */}
-                        <button
-                          type="button"
-                          id="btn-login-facebook"
-                          onClick={() => handleSocialLogin('facebook')}
-                          className="flex items-center justify-center gap-2 px-2.5 py-2 rounded-xl bg-[#1877F2] hover:bg-[#166fe5] text-white font-semibold text-xs shadow-2xs hover:shadow transition-all cursor-pointer group"
-                        >
-                          <svg className="w-4 h-4 fill-white group-hover:scale-105 transition-transform" viewBox="0 0 24 24">
-                            <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
-                          </svg>
-                          <span>Facebook</span>
-                        </button>
-
-                        {/* Microsoft */}
-                        <button
-                          type="button"
-                          id="btn-login-microsoft"
-                          onClick={() => handleSocialLogin('microsoft')}
-                          className="flex items-center justify-center gap-2 px-2.5 py-2 rounded-xl bg-[#2F2F2F] hover:bg-[#202020] text-white font-semibold text-xs shadow-2xs hover:shadow transition-all cursor-pointer group"
-                        >
-                          <svg className="w-3.5 h-3.5 group-hover:scale-105 transition-transform" viewBox="0 0 21 21">
-                            <rect x="1" y="1" width="9" height="9" fill="#f25022" />
-                            <rect x="11" y="1" width="9" height="9" fill="#7fba00" />
-                            <rect x="1" y="11" width="9" height="9" fill="#00a4ef" />
-                            <rect x="11" y="11" width="9" height="9" fill="#ffb900" />
-                          </svg>
-                          <span>Microsoft</span>
-                        </button>
-                      </div>
+                      {/* Open in full tab helper for iframe preview environments */}
+                      {isInsideIframe && (
+                        <div className="p-2 bg-stone-50 rounded-xl border border-stone-200 flex items-center justify-between text-[11px] text-stone-600">
+                          <span className="flex items-center gap-1.5">
+                            <Info className="h-3.5 w-3.5 text-emerald-600 shrink-0" />
+                            <span>Preview no Iframe?</span>
+                          </span>
+                          <button
+                            type="button"
+                            onClick={openInNewTab}
+                            className="text-emerald-700 hover:text-emerald-800 font-bold underline flex items-center gap-1 cursor-pointer"
+                          >
+                            <span>Abrir em Nova Aba</span>
+                            <ExternalLink className="h-3 w-3" />
+                          </button>
+                        </div>
+                      )}
                     </div>
                   </>
                 )}
@@ -621,9 +850,9 @@ export default function SocialLoginModal({
           </div>
 
           {/* Privacy and Terms Footer note */}
-          <div className="mt-4 pt-3 border-t border-stone-100 flex items-center justify-center gap-2 text-[11px] text-stone-400 font-sans">
+          <div className="mt-3 pt-2.5 border-t border-stone-100 flex items-center justify-center gap-2 text-[11px] text-stone-400 font-sans">
             <ShieldCheck className="h-3.5 w-3.5 text-emerald-600 shrink-0" />
-            <span>Sessão segura criptografada. Seus dados estão protegidos.</span>
+            <span>Sessão segura com Firebase. Seus dados estão protegidos.</span>
           </div>
         </motion.div>
       </div>

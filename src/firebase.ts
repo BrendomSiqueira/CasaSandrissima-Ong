@@ -82,7 +82,7 @@ export async function signInWithGoogle(): Promise<User> {
     return result.user;
   } catch (error: any) {
     if (error?.code !== 'auth/popup-closed-by-user' && error?.code !== 'auth/cancelled-popup-request') {
-      console.error("Error signing in with Google: ", error);
+      console.warn("Google Sign-In caught error code:", error?.code, error?.message);
     }
     throw error;
   }
@@ -94,7 +94,7 @@ export async function signInWithFacebook(): Promise<User> {
     return result.user;
   } catch (error: any) {
     if (error?.code !== 'auth/popup-closed-by-user' && error?.code !== 'auth/cancelled-popup-request') {
-      console.error("Error signing in with Facebook: ", error);
+      console.warn("Facebook Sign-In caught error code:", error?.code, error?.message);
     }
     throw error;
   }
@@ -106,7 +106,7 @@ export async function signInWithMicrosoft(): Promise<User> {
     return result.user;
   } catch (error: any) {
     if (error?.code !== 'auth/popup-closed-by-user' && error?.code !== 'auth/cancelled-popup-request') {
-      console.error("Error signing in with Microsoft: ", error);
+      console.warn("Microsoft Sign-In caught error code:", error?.code, error?.message);
     }
     throw error;
   }

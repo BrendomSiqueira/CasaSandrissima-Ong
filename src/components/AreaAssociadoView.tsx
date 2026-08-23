@@ -162,7 +162,28 @@ export default function AreaAssociadoView({
       if (e?.code === 'auth/popup-closed-by-user' || e?.code === 'auth/cancelled-popup-request') {
         return;
       }
-      await alert("Falha ao autenticar com o Google. Certifique-se de que a janela pop-up não foi bloqueada.", "Erro no Google", "error");
+      if (e?.code === 'auth/unauthorized-domain') {
+        await alert(
+          `O domínio atual (${typeof window !== 'undefined' ? window.location.hostname : ''}) não está autorizado no Firebase Console. Utilize a aba "Acesso por Senha" ou adicione o domínio em Authentication > Settings.`,
+          "Domínio não autorizado",
+          "warn"
+        );
+      } else if (e?.code === 'auth/popup-blocked') {
+        const openTab = await confirm(
+          "A janela pop-up do Google foi bloqueada pelo navegador no iframe. Deseja abrir a aplicação em uma nova aba para autenticar?",
+          "Janela Bloqueada",
+          "info"
+        );
+        if (openTab && typeof window !== 'undefined') {
+          window.open(window.location.href, '_blank');
+        }
+      } else {
+        await alert(
+          "Não foi possível autenticar com o Google. Você também pode acessar diretamente com seu e-mail e senha na aba ao lado.",
+          "Autenticação Social",
+          "error"
+        );
+      }
     }
   };
 
@@ -654,7 +675,7 @@ export default function AreaAssociadoView({
   if (!loggedInStaff && !user) {
     return (
       <div className="max-w-md mx-auto py-10" id="portal-login-frame">
-        <div className="bg-white rounded-3xl border border-stone-200 shadow-xl p-6 md:p-8 space-y-6 relative overflow-hidden">
+        <div className="bg-white/85 backdrop-blur-md rounded-3xl border border-emerald-100/80 shadow-xl p-6 md:p-8 space-y-6 relative overflow-hidden">
           <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-emerald-600 to-teal-600" />
           
           <div className="text-center space-y-2">

@@ -120,8 +120,26 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-b from-emerald-50/60 via-white to-stone-100 text-stone-800 font-sans" id="app-root-container">
+    <div className="min-h-screen flex flex-col relative text-stone-800 font-sans selection:bg-emerald-200 selection:text-emerald-900 overflow-x-hidden" id="app-root-container">
       
+      {/* Dynamic Ambient Background: Soft White-to-Green Gradient & Glows */}
+      <div className="fixed inset-0 -z-10 pointer-events-none overflow-hidden" aria-hidden="true" id="site-ambient-background">
+        {/* Core Vertical Gradient: Crisp Pure White at Top -> Delicate Mint Mist -> Refreshing Soft Green at Base */}
+        <div className="absolute inset-0 bg-gradient-to-b from-[#ffffff] via-[#f3faf6] via-[35%] to-[#bbf7d0]/65" />
+        
+        {/* Ambient Radial Mesh Highlight Top-Right */}
+        <div className="absolute -top-[12%] -right-[8%] w-[680px] h-[680px] rounded-full bg-gradient-to-br from-emerald-100/60 via-teal-100/35 to-transparent blur-[110px] opacity-85" />
+        
+        {/* Ambient Radial Mesh Highlight Mid-Left */}
+        <div className="absolute top-[28%] -left-[12%] w-[720px] h-[720px] rounded-full bg-gradient-to-tr from-emerald-200/40 via-emerald-100/25 to-transparent blur-[120px] opacity-75" />
+        
+        {/* Ambient Radial Glow Lower Section */}
+        <div className="absolute bottom-[8%] right-[5%] w-[800px] h-[600px] rounded-full bg-gradient-to-t from-emerald-300/35 via-teal-100/30 to-transparent blur-[130px] opacity-80" />
+        
+        {/* Subtle Micro-pattern Grid for Modern Tactile Depth */}
+        <div className="absolute inset-0 bg-[radial-gradient(#059669_0.65px,transparent_0.65px)] [background-size:28px_28px] opacity-[0.028]" />
+      </div>
+
       {/* Dynamic Navbar */}
       <Navbar 
         activeTab={activeTab} 
@@ -129,11 +147,11 @@ export default function App() {
         onOpenLoginModal={handleOpenLoginModal} 
       />
       
-      {/* Scroll indicator for aesthetic purposes */}
-      <div className="h-1 bg-gradient-to-r from-emerald-500 via-emerald-600 to-teal-600" />
+      {/* Subtle Glowing Header Accent Bar */}
+      <div className="h-[3px] bg-gradient-to-r from-emerald-400 via-emerald-500 to-teal-600 shadow-[0_1px_8px_rgba(16,185,129,0.35)]" />
 
       {/* Screen Frame Content Area */}
-      <main className="flex-grow max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-6 mb-12">
+      <main className="flex-grow max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-6 mb-12 relative z-10">
         <div id="active-tab-container">
           {renderActiveView()}
         </div>
@@ -142,7 +160,7 @@ export default function App() {
       {/* Stateful Footer */}
       <Footer 
         setActiveTab={setActiveTab} 
-        onOpenLoginModal={handleOpenLoginModal}
+        onOpenLoginModal={handleOpenLoginModal} 
       />
 
       {/* Social Login Modal Accessible from anywhere */}

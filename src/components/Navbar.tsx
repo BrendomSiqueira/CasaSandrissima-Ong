@@ -62,7 +62,7 @@ export default function Navbar({ activeTab, setActiveTab, onOpenLoginModal }: Na
   };
 
   return (
-    <nav className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-stone-150 shadow-sm" id="main-navbar">
+    <nav className="sticky top-0 z-50 bg-white/85 backdrop-blur-md border-b border-emerald-100/60 shadow-xs transition-all" id="main-navbar">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16 items-center">
           

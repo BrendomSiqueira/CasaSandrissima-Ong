@@ -214,7 +214,7 @@ export default function DoacaoView({ onAddDonation, onUpdateDonation, donationsL
       <section className="grid grid-cols-1 lg:grid-cols-12 gap-8 text-left" id="doacao-pillar-cards">
         
         {/* Pix Section */}
-        <div className="lg:col-span-6 bg-white rounded-2xl p-6 border border-stone-150 flex flex-col justify-between space-y-6" id="card-donate-pix">
+        <div className="lg:col-span-6 bg-white/85 backdrop-blur-md rounded-2xl p-6 border border-emerald-100/80 shadow-sm flex flex-col justify-between space-y-6" id="card-donate-pix">
           <div className="space-y-4">
             <div className="flex justify-between items-start">
               <div className="bg-emerald-50 text-emerald-600 p-3 rounded-xl w-fit">
@@ -304,7 +304,7 @@ export default function DoacaoView({ onAddDonation, onUpdateDonation, donationsL
         </div>
 
         {/* Physical Section */}
-        <div className="lg:col-span-3 bg-white rounded-2xl p-6 border border-stone-150 flex flex-col justify-between space-y-6" id="card-donate-physical">
+        <div className="lg:col-span-3 bg-white/85 backdrop-blur-md rounded-2xl p-6 border border-emerald-100/70 shadow-sm flex flex-col justify-between space-y-6" id="card-donate-physical">
           <div className="space-y-4">
             <div className="bg-emerald-50 text-emerald-600 p-3 rounded-xl w-fit">
               <ShoppingBag className="h-6 w-6" />
@@ -324,7 +324,7 @@ export default function DoacaoView({ onAddDonation, onUpdateDonation, donationsL
         </div>
 
         {/* Supplies Section */}
-        <div className="lg:col-span-3 bg-white rounded-2xl p-6 border border-stone-150 flex flex-col justify-between space-y-6" id="card-donate-supplies">
+        <div className="lg:col-span-3 bg-white/85 backdrop-blur-md rounded-2xl p-6 border border-emerald-100/70 shadow-sm flex flex-col justify-between space-y-6" id="card-donate-supplies">
           <div className="space-y-4">
             <div className="bg-emerald-50 text-emerald-600 p-3 rounded-xl w-fit">
               <Heart className="h-6 w-6" />
@@ -346,10 +346,10 @@ export default function DoacaoView({ onAddDonation, onUpdateDonation, donationsL
       </section>
 
       {/* Interactive Simulator: Donate Simulator Panel */}
-      <section className="bg-stone-50 rounded-3xl p-6 md:p-10 border border-stone-200/50 grid grid-cols-1 lg:grid-cols-12 gap-10 items-stretch" id="simulator-section">
+      <section className="bg-white/80 backdrop-blur-md rounded-3xl p-6 md:p-10 border border-emerald-100/80 shadow-sm grid grid-cols-1 lg:grid-cols-12 gap-10 items-stretch" id="simulator-section">
         
         {/* Left Column Form / Current active step */}
-        <div className="lg:col-span-7 bg-white rounded-2xl border border-stone-200/80 p-6 md:p-8 flex flex-col justify-between" id="simulator-form-card">
+        <div className="lg:col-span-7 bg-white/90 backdrop-blur-sm rounded-2xl border border-emerald-100/70 p-6 md:p-8 flex flex-col justify-between shadow-xs" id="simulator-form-card">
           <div className="w-full">
             
             {/* Step Indicators */}

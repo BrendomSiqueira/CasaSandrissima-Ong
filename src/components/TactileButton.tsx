@@ -3,7 +3,7 @@ import React from 'react';
 export type TactileButtonVariant = 'primary' | 'secondary' | 'accent' | 'amber' | 'dark' | 'glass' | 'outline';
 export type TactileButtonSize = 'sm' | 'md' | 'lg';
 
-interface TactileButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+export interface TactileButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   children: React.ReactNode;
   variant?: TactileButtonVariant;
   size?: TactileButtonSize;
@@ -13,6 +13,11 @@ interface TactileButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
   isSent?: boolean;
   sentText?: string;
   animateLetters?: boolean;
+  id?: string;
+  onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void;
+  type?: 'button' | 'submit' | 'reset';
+  title?: string;
+  disabled?: boolean;
 }
 
 export default function TactileButton({
