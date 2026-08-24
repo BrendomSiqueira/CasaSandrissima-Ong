@@ -13,6 +13,7 @@ export interface TactileButtonProps extends React.ButtonHTMLAttributes<HTMLButto
   isSent?: boolean;
   sentText?: string;
   animateLetters?: boolean;
+  showArrows?: boolean;
   id?: string;
   onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void;
   type?: 'button' | 'submit' | 'reset';
@@ -28,45 +29,15 @@ export default function TactileButton({
   iconPosition = 'left',
   className = '',
   isSent = false,
-  sentText = 'Enviado!',
-  animateLetters = true,
+  sentText = 'Enviado com sucesso!',
+  showArrows = true,
   ...props
 }: TactileButtonProps) {
 
-  // Helper to split text into animated letter spans
-  const renderContent = (content: React.ReactNode) => {
-    if (!animateLetters || typeof content !== 'string') {
-      return <span>{content}</span>;
-    }
-
-    return (
-      <p className="btn-text-wrapper inline-flex flex-wrap items-center justify-center pointer-events-none">
-        {content.split('').map((char, index) => {
-          if (char === ' ') {
-            return (
-              <span key={index} className="inline-block" style={{ width: '0.32em' }}>
-                &nbsp;
-              </span>
-            );
-          }
-          return (
-            <span
-              key={index}
-              style={{ '--i': index } as React.CSSProperties}
-              className="inline-block"
-            >
-              {char}
-            </span>
-          );
-        })}
-      </p>
-    );
-  };
-
   const sizeClasses = {
     sm: 'tactile-btn-sm text-xs font-semibold px-4 py-2 min-h-[38px]',
-    md: 'tactile-btn-md text-sm font-bold px-5 py-2.5 min-h-[46px]',
-    lg: 'tactile-btn-lg text-base font-bold px-7 py-3.5 min-h-[56px]',
+    md: 'tactile-btn-md text-sm font-bold px-6 py-2.5 min-h-[46px]',
+    lg: 'tactile-btn-lg text-base font-bold px-8 py-3.5 min-h-[54px]',
   }[size];
 
   const variantClass = `tactile-btn-${variant}`;
@@ -76,27 +47,47 @@ export default function TactileButton({
       {...props}
       className={`tactile-btn ${variantClass} ${sizeClasses} ${className} select-none`}
     >
-      {/* Animated Conic Outline Glow on Hover */}
-      <div className="btn-outline-glow" aria-hidden="true" />
+      {/* Sliding Arrow 2 (entering from left on hover) */}
+      {showArrows && !isSent && (
+        <svg viewBox="0 0 24 24" className="arr-2" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path
+            d="M16.1716 10.9999L10.8076 5.63589L12.2218 4.22168L20 11.9999L12.2218 19.778L10.8076 18.3638L16.1716 12.9999H4V10.9999H16.1716Z"
+          />
+        </svg>
+      )}
 
-      {/* Default State */}
+      {/* Expanding Ripple/Morphing Circle from Center */}
+      <span className="circle" aria-hidden="true"></span>
+
+      {/* Default Content with Animated Translation */}
       <div className={`btn-state btn-state--default ${isSent ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
-        {icon && iconPosition === 'left' && (
-          <span className="btn-icon mr-1.5 shrink-0 inline-flex items-center justify-center">
-            {icon}
-          </span>
-        )}
-        {renderContent(children)}
-        {icon && iconPosition === 'right' && (
-          <span className="btn-icon ml-1.5 shrink-0 inline-flex items-center justify-center">
-            {icon}
-          </span>
-        )}
+        <span className="btn-text">
+          {icon && iconPosition === 'left' && (
+            <span className="btn-icon mr-1.5 shrink-0 inline-flex items-center justify-center">
+              {icon}
+            </span>
+          )}
+          <span>{children}</span>
+          {icon && iconPosition === 'right' && (
+            <span className="btn-icon ml-1.5 shrink-0 inline-flex items-center justify-center">
+              {icon}
+            </span>
+          )}
+        </span>
       </div>
+
+      {/* Sliding Arrow 1 (exiting to right on hover) */}
+      {showArrows && !isSent && (
+        <svg viewBox="0 0 24 24" className="arr-1" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path
+            d="M16.1716 10.9999L10.8076 5.63589L12.2218 4.22168L20 11.9999L12.2218 19.778L10.8076 18.3638L16.1716 12.9999H4V10.9999H16.1716Z"
+          />
+        </svg>
+      )}
 
       {/* Sent/Completed State if applicable */}
       {isSent && (
-        <div className="btn-state btn-state--sent absolute inset-0 flex items-center justify-center">
+        <div className="btn-state btn-state--sent absolute inset-0 flex items-center justify-center z-10">
           <span className="btn-icon mr-1.5 inline-flex items-center justify-center">
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -104,13 +95,13 @@ export default function TactileButton({
               viewBox="0 0 24 24"
               height="1.2em"
               width="1.2em"
-              strokeWidth="2"
+              strokeWidth="2.5"
               stroke="currentColor"
             >
               <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
             </svg>
           </span>
-          {renderContent(sentText)}
+          <span className="font-bold">{sentText}</span>
         </div>
       )}
     </button>

@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Target, Compass, Sparkles, UserPlus, CheckCircle2, ShieldCheck, HeartHandshake } from 'lucide-react';
 import { Associate } from '../types';
 import { useModal } from './ModalContext';
+import TactileButton from './TactileButton';
 
 interface AssociacaoViewProps {
   onAddAssociate: (associate: Associate) => void;
@@ -289,13 +290,18 @@ export default function AssociacaoView({ onAddAssociate, associatesList }: Assoc
                   </motion.div>
                 )}
 
-                <button 
-                  type="submit"
-                  id="submit-associate-btn"
-                  className="w-full h-12 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-md cursor-pointer transition-all flex items-center justify-center gap-2 mt-2"
-                >
-                  Confirmar Inscrição Solidária
-                </button>
+                <div className="pt-2">
+                  <TactileButton 
+                    type="submit"
+                    id="submit-associate-btn"
+                    variant="primary"
+                    size="lg"
+                    className="w-full"
+                    icon={<UserPlus className="h-4 w-4" />}
+                  >
+                    Confirmar Inscrição Solidária
+                  </TactileButton>
+                </div>
               </motion.form>
             ) : (
               <motion.div 
@@ -323,13 +329,14 @@ export default function AssociacaoView({ onAddAssociate, associatesList }: Assoc
                   </span>
                 </div>
 
-                <button 
+                <TactileButton 
                   onClick={() => setIsSuccess(false)}
-                  className="px-6 py-2 bg-stone-100 hover:bg-stone-250 text-stone-700 border border-stone-200 font-semibold rounded-xl text-xs transition-colors cursor-pointer"
+                  variant="secondary"
+                  size="sm"
                   id="reset-form-success-btn"
                 >
                   Cadastrar novo associado
-                </button>
+                </TactileButton>
               </motion.div>
             )}
           </AnimatePresence>

@@ -12,6 +12,7 @@ import { logoutUser } from '../firebase';
 import { encryptPassword, decryptPassword } from '../lib/crypto';
 import { useModal } from './ModalContext';
 import PencilLoader from './PencilLoader';
+import TactileButton from './TactileButton';
 
 interface AreaAssociadoViewProps {
   studentsList: Student[];
@@ -790,12 +791,14 @@ export default function AreaAssociadoView({
                   </div>
                 </div>
 
-                <button
+                <TactileButton
                   type="submit"
-                  className="w-full select-none h-11 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs uppercase tracking-wider transition-all shadow-md active:scale-[0.98] cursor-pointer"
+                  variant="primary"
+                  size="lg"
+                  className="w-full"
                 >
                   Entrar no SGE
-                </button>
+                </TactileButton>
 
                 <div className="bg-amber-50/70 border border-amber-200 rounded-xl p-3 text-[10px] text-amber-850 space-y-1 text-center font-medium">
                   <p className="font-bold flex items-center justify-center gap-1">🛡️ Credenciais de Testes do Sistema:</p>
@@ -903,17 +906,19 @@ export default function AreaAssociadoView({
                   </div>
                 )}
 
-                <button
+                <TactileButton
                   type="submit"
                   disabled={siteIsSubmitting}
-                  className="w-full select-none h-11 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-bold rounded-xl text-xs uppercase tracking-wider transition-all shadow-md active:scale-[0.98] cursor-pointer mt-1"
+                  variant="primary"
+                  size="lg"
+                  className="w-full mt-1"
                 >
                   {siteIsSubmitting 
                     ? 'Processando...' 
                     : siteAuthMode === 'register' 
                       ? 'Cadastrar Minha Conta' 
                       : 'Entrar no Site'}
-                </button>
+                </TactileButton>
 
                 <p className="text-[11px] text-stone-500 text-center">
                   {siteAuthMode === 'login' 

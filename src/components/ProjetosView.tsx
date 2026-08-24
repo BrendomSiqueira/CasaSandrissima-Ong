@@ -27,6 +27,7 @@ import {
 import { ActiveTab, Workshop } from '../types';
 import { useModal } from './ModalContext';
 import { useFirebase } from '../firebaseContext';
+import TactileButton from './TactileButton';
 
 interface ProjetosViewProps {
   setActiveTab: (tab: ActiveTab) => void;
@@ -492,17 +493,20 @@ export default function ProjetosView({
                 <span className="text-xs text-emerald-800 font-semibold block">Inscrições abertas!</span>
                 <span className="text-[11px] text-emerald-700 leading-normal block">Preencha e converse com nossa secretaria para cadastrar o aluno.</span>
               </div>
-              <div className="flex gap-3 shrink-0">
+              <div className="flex flex-wrap items-center gap-3 shrink-0">
                 {isMaster && (
-                  <button
+                  <TactileButton
+                    type="button"
                     onClick={handleOpenEditModal}
-                    className="px-3 py-2 bg-amber-100 hover:bg-amber-200 text-amber-900 rounded-lg text-xs font-bold transition-all cursor-pointer inline-flex items-center gap-1 border border-amber-300"
+                    variant="amber"
+                    size="sm"
+                    icon={<Edit3 className="h-3.5 w-3.5" />}
                   >
-                    <Edit3 className="h-3.5 w-3.5 text-amber-700" />
                     Editar Oficina
-                  </button>
+                  </TactileButton>
                 )}
-                <button 
+                <TactileButton 
+                  type="button"
                   onClick={async () => {
                     await alert(
                       "Direcionando para contato de pré-matrícula!\n\nTelefone de Contato da nossa secretaria em Franca/SP:\n(16) 99277-4601 (WhatsApp)",
@@ -510,11 +514,13 @@ export default function ProjetosView({
                       "info"
                     );
                   }}
-                  className="px-4 py-2 bg-emerald-650 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold transition-all cursor-pointer inline-flex items-center gap-1.5 shadow-sm"
+                  variant="primary"
+                  size="sm"
                   id="project-enroll-redirect-btn"
+                  icon={<ArrowUpRight className="h-3.5 w-3.5" />}
                 >
-                  Matrícula Rápida <ArrowUpRight className="h-3.5 w-3.5" />
-                </button>
+                  Matrícula Rápida
+                </TactileButton>
               </div>
             </div>
 

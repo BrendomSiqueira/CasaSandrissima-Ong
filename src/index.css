@@ -422,8 +422,358 @@ body {
   transform: translate3d(0, 0, 90px);
 }
 
-/* =========================================================
-   Animated Pencil Loader
+/* =========================================================================
+   Community Workshop Passes / 3D Holographic Tickets (Casa Sandríssima)
+   ========================================================================= */
+
+.ticket-canvas {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+.ticket-wrapper {
+  --t-bg: #15221c;
+  --t-bg-light: #1c2e26;
+  --t-accent: #10b981;
+  --t-accent-glow: rgba(16, 185, 129, 0.45);
+  --t-text-main: #f8fafc;
+  --t-text-muted: #94a3b8;
+  font-size: 11px;
+  perspective: 1000px;
+  display: block;
+  width: 100%;
+  max-width: 320px;
+  margin: 0 auto;
+  cursor: pointer;
+  text-align: left;
+}
+
+@media (min-width: 640px) {
+  .ticket-wrapper {
+    font-size: 11.5px;
+  }
+}
+
+.ticket {
+  position: relative;
+  width: 100%;
+  color: var(--t-text-main);
+  font-family: inherit;
+  transform-style: preserve-3d;
+  transition: transform 0.5s cubic-bezier(0.23, 1, 0.32, 1), box-shadow 0.5s ease;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.28), 0 0 0 1px rgba(255, 255, 255, 0.08);
+  background: transparent;
+  border-radius: 1.2em;
+}
+
+.ticket-wrapper:hover .ticket {
+  transform: rotateX(4deg) rotateY(-5deg) translateY(-6px) scale(1.025);
+  box-shadow: 18px 24px 44px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.16), -4px -4px 28px var(--t-accent-glow);
+}
+
+.ticket::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 1.2em;
+  pointer-events: none;
+  background: linear-gradient(
+    115deg,
+    transparent 0%,
+    transparent 40%,
+    rgba(255, 255, 255, 0.08) 45%,
+    rgba(255, 255, 255, 0.25) 50%,
+    rgba(255, 255, 255, 0.08) 55%,
+    transparent 60%,
+    transparent 100%
+  );
+  z-index: 10;
+  background-size: 250% 250%;
+  background-position: 100% 100%;
+  transition: background-position 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+  mix-blend-mode: overlay;
+}
+
+.ticket-wrapper:hover .ticket::after {
+  background-position: 0% 0%;
+}
+
+.t-main {
+  padding: 1.8em 1.6em 2em 1.6em;
+  position: relative;
+  overflow: hidden;
+  background: radial-gradient(
+      circle at bottom left,
+      transparent 1em,
+      var(--t-bg) 1.05em
+    ),
+    radial-gradient(circle at bottom right, transparent 1em, var(--t-bg) 1.05em);
+  background-size: 51% 100%;
+  background-position: bottom left, bottom right;
+  background-repeat: no-repeat;
+  border-top-left-radius: 1.2em;
+  border-top-right-radius: 1.2em;
+}
+
+.t-main::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: linear-gradient(
+      rgba(255, 255, 255, 0.04) 1px,
+      transparent 1px
+    ),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+  background-size: 1.8em 1.8em;
+  opacity: 0.8;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.t-content {
+  position: relative;
+  z-index: 1;
+}
+
+.t-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.2em;
+}
+
+.t-logo {
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+  font-weight: 800;
+  font-size: 1.1em;
+  letter-spacing: -0.02em;
+  color: #fff;
+}
+
+.t-logo-icon {
+  font-size: 1.4em;
+  filter: drop-shadow(0 0 8px var(--t-accent-glow));
+}
+
+.t-type {
+  font-size: 0.65em;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--t-accent);
+  border: 1px solid var(--t-accent);
+  background: rgba(0, 0, 0, 0.35);
+  padding: 0.35em 0.8em;
+  border-radius: 99em;
+  font-weight: 800;
+}
+
+.t-title {
+  font-size: 1.85em;
+  font-weight: 900;
+  line-height: 1.15;
+  margin-bottom: 0.3em;
+  letter-spacing: -0.02em;
+  background: linear-gradient(135deg, #ffffff 0%, #e2e8f0 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.t-subtitle {
+  color: var(--t-text-muted);
+  font-size: 0.88em;
+  line-height: 1.4;
+  margin-bottom: 1.5em;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.t-details {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1em 0.8em;
+  margin-bottom: 0.5em;
+}
+
+.t-detail-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2em;
+}
+
+.t-label {
+  font-size: 0.65em;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--t-text-muted);
+  font-weight: 600;
+}
+
+.t-value {
+  font-size: 1.05em;
+  font-weight: 700;
+  color: var(--t-text-main);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.t-perforation {
+  display: flex;
+  justify-content: space-between;
+  height: 1em;
+  align-items: center;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  transform: translateY(50%);
+  z-index: 2;
+}
+
+.t-perf-line {
+  flex-grow: 1;
+  height: 0;
+  border-top: 2px dashed rgba(255, 255, 255, 0.22);
+  margin: 0 1.4em;
+}
+
+.t-stub {
+  padding: 1.4em 1.6em;
+  background: radial-gradient(
+      circle at top left,
+      transparent 1em,
+      var(--t-bg-light) 1.05em
+    ),
+    radial-gradient(
+      circle at top right,
+      transparent 1em,
+      var(--t-bg-light) 1.05em
+    );
+  background-size: 51% 100%;
+  background-position: top left, top right;
+  background-repeat: no-repeat;
+  border-bottom-left-radius: 1.2em;
+  border-bottom-right-radius: 1.2em;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+  border-top: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.t-barcode-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35em;
+}
+
+.t-barcode {
+  width: 8.5em;
+  height: 2em;
+  background: repeating-linear-gradient(
+    90deg,
+    #fff 0,
+    #fff 2px,
+    transparent 2px,
+    transparent 4px,
+    #fff 4px,
+    #fff 5px,
+    transparent 5px,
+    transparent 7px,
+    #fff 7px,
+    #fff 10px,
+    transparent 10px,
+    transparent 13px,
+    #fff 13px,
+    #fff 14px,
+    transparent 14px,
+    transparent 16px
+  );
+  opacity: 0.85;
+}
+
+.t-barcode-id {
+  font-family: monospace;
+  font-size: 0.68em;
+  color: var(--t-text-muted);
+  letter-spacing: 0.15em;
+}
+
+.t-admit {
+  text-align: right;
+}
+
+.t-admit-text {
+  font-size: 0.65em;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--t-text-muted);
+}
+
+.t-admit-num {
+  font-size: 2.1em;
+  font-weight: 900;
+  line-height: 1;
+  color: var(--t-accent);
+  text-shadow: 0 0 14px var(--t-accent-glow);
+}
+
+.ticket-wrapper:active .ticket {
+  transform: rotateX(10deg) rotateY(-3deg) scale(0.98);
+}
+
+.ticket-wrapper:active .t-stub {
+  transform: translateY(3px);
+  opacity: 0.9;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+/* Workshop Color Archetypes */
+.ticket-theme-karate {
+  --t-bg: #1c1813;
+  --t-bg-light: #2a221a;
+  --t-accent: #f97316;
+  --t-accent-glow: rgba(249, 115, 22, 0.5);
+}
+
+.ticket-theme-english {
+  --t-bg: #111a24;
+  --t-bg-light: #182535;
+  --t-accent: #38bdf8;
+  --t-accent-glow: rgba(56, 189, 248, 0.5);
+}
+
+.ticket-theme-sewing {
+  --t-bg: #1c1424;
+  --t-bg-light: #281c33;
+  --t-accent: #c084fc;
+  --t-accent-glow: rgba(192, 132, 252, 0.5);
+}
+
+.ticket-theme-pilates {
+  --t-bg: #10211d;
+  --t-bg-light: #162f2a;
+  --t-accent: #2dd4bf;
+  --t-accent-glow: rgba(45, 212, 191, 0.5);
+}
+
+.ticket-theme-embroidery {
+  --t-bg: #221419;
+  --t-bg-light: #311c24;
+  --t-accent: #fb7185;
+  --t-accent-glow: rgba(251, 113, 133, 0.5);
+}
+
    ========================================================= */
 .pencil {
   display: block;
@@ -611,253 +961,450 @@ body {
 }
 
 /* =========================================================================
-   Tactile & Futuristic Action Button System
+   Tactile & Kinetic Animated Button System (Casa Sandríssima Modern UI)
    ========================================================================= */
 
 .tactile-btn {
-  --primary: #34d399;
+  --primary: #10b981;
   --neutral-1: #065f46;
   --neutral-2: #047857;
-  --radius: 14px;
+  --radius: 100px;
   --text-color: #ffffff;
-  --conic-color: rgba(255, 255, 255, 0.95);
+  --hover-text-color: #ffffff;
+  --circle-bg: #047857;
+  --border-color: #059669;
+  --shadow-color: rgba(5, 150, 105, 0.35);
 
-  cursor: pointer;
-  border-radius: var(--radius);
-  color: var(--text-color);
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
-  border: none;
-  box-shadow: 0 0.5px 0.5px 1px rgba(255, 255, 255, 0.2),
-    0 8px 18px rgba(0, 0, 0, 0.15), 0 3px 4px 0px rgba(0, 0, 0, 0.05);
+  position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  position: relative;
-  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s ease;
-  font-family: inherit;
-  font-style: normal;
+  gap: 6px;
+  padding: 12px 36px;
+  border: 2px solid var(--border-color);
+  font-size: 15px;
+  background: linear-gradient(135deg, var(--neutral-1), var(--neutral-2));
+  border-radius: var(--radius);
+  font-weight: 700;
+  color: var(--text-color);
+  box-shadow: 0 4px 16px var(--shadow-color);
+  cursor: pointer;
+  overflow: hidden;
   text-decoration: none;
-  overflow: visible;
+  transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+  font-family: inherit;
+  user-select: none;
+  white-space: nowrap;
+}
+
+.tactile-btn svg.arr-1,
+.tactile-btn svg.arr-2 {
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  fill: currentColor;
+  z-index: 9;
+  transition: all 0.75s cubic-bezier(0.23, 1, 0.32, 1);
+  pointer-events: none;
+}
+
+.tactile-btn .arr-1 {
+  right: 14px;
+}
+
+.tactile-btn .arr-2 {
+  left: -30%;
+}
+
+.tactile-btn .circle {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 16px;
+  height: 16px;
+  background-color: var(--circle-bg);
+  border-radius: 50%;
+  opacity: 0;
+  transition: all 0.75s cubic-bezier(0.23, 1, 0.32, 1);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.tactile-btn .btn-text {
+  position: relative;
+  z-index: 1;
+  transform: translateX(-10px);
+  transition: all 0.75s cubic-bezier(0.23, 1, 0.32, 1);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .tactile-btn:hover {
-  transform: scale(1.025);
-  box-shadow: 0 0 1px 2px rgba(255, 255, 255, 0.3),
-    0 12px 24px rgba(0, 0, 0, 0.22), 0 8px 3px -3px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 10px 28px var(--shadow-color);
+  color: var(--hover-text-color);
+  border-radius: 14px;
+  transform: translateY(-2px);
+}
+
+.tactile-btn:hover .arr-1 {
+  right: -30%;
+}
+
+.tactile-btn:hover .arr-2 {
+  left: 14px;
+}
+
+.tactile-btn:hover .btn-text {
+  transform: translateX(10px);
 }
 
 .tactile-btn:active {
-  transform: scale(0.975);
-  box-shadow: 0 0 1px 1px rgba(255, 255, 255, 0.25),
-    0 4px 10px rgba(0, 0, 0, 0.18);
+  transform: scale(0.96);
+  box-shadow: 0 0 0 3px var(--primary);
 }
 
-/* Outer Border & Depth Layer */
-.tactile-btn::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: var(--radius);
-  border: 2px solid transparent;
-  background: linear-gradient(var(--neutral-1), var(--neutral-2)) padding-box,
-    linear-gradient(to bottom, rgba(255, 255, 255, 0.35), rgba(0, 0, 0, 0.45)) border-box;
-  z-index: 0;
-  transition: all 0.35s ease;
-  pointer-events: none;
-}
-
-.tactile-btn:hover::after {
-  transform: scale(1.025, 1.04);
-  box-shadow: inset 0 -1px 3px 0 rgba(255, 255, 255, 0.6);
-}
-
-/* Inner Soft Glow Bed */
-.tactile-btn::before {
-  content: "";
-  inset: 4px;
-  position: absolute;
-  background: linear-gradient(to top, var(--neutral-1), var(--neutral-2));
-  border-radius: calc(var(--radius) - 2px);
-  filter: blur(0.5px);
-  z-index: 2;
-  pointer-events: none;
-}
-
-/* Conic Spinning Glowing Outline on Hover */
-.tactile-btn .btn-outline-glow {
-  position: absolute;
-  border-radius: inherit;
-  overflow: hidden;
-  z-index: 1;
-  opacity: 0;
-  transition: opacity 0.35s ease;
-  inset: -2.5px -3.5px;
-  pointer-events: none;
-}
-
-.tactile-btn .btn-outline-glow::before {
-  content: "";
-  position: absolute;
-  inset: -100%;
-  background: conic-gradient(
-    from 180deg,
-    transparent 60%,
-    var(--conic-color, rgba(255, 255, 255, 0.95)) 82%,
-    transparent 100%
-  );
-  animation: btnSpin 2s linear infinite;
-  animation-play-state: paused;
-}
-
-@keyframes btnSpin {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
-}
-
-.tactile-btn:hover .btn-outline-glow {
+.tactile-btn:hover .circle {
+  width: 420px;
+  height: 420px;
   opacity: 1;
-}
-
-.tactile-btn:hover .btn-outline-glow::before {
-  animation-play-state: running;
-}
-
-/* Internal States */
-.tactile-btn .btn-state {
-  z-index: 3;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-  transition: all 0.3s ease;
-}
-
-/* Letter Wave Animation */
-.tactile-btn .btn-text-wrapper span {
-  display: inline-block;
-  transition: transform 0.3s ease, color 0.3s ease;
-}
-
-.tactile-btn:hover .btn-text-wrapper span {
-  animation: btnWaveLetter 0.55s ease forwards calc(var(--i, 0) * 0.022s);
-}
-
-@keyframes btnWaveLetter {
-  30% {
-    transform: translateY(3.5px) rotate(0deg);
-  }
-  50% {
-    transform: translateY(-3.5px) rotate(0deg);
-    color: var(--primary);
-  }
-  100% {
-    transform: translateY(0) rotate(0deg);
-  }
-}
-
-/* Icon Animation */
-.tactile-btn .btn-icon {
-  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), color 0.3s ease;
-  z-index: 3;
-}
-
-.tactile-btn:hover .btn-icon {
-  transform: scale(1.2) rotate(6deg);
-  color: var(--primary);
 }
 
 /* Size Variants */
 .tactile-btn-sm {
-  --radius: 10px;
+  padding: 8px 24px;
+  font-size: 13px;
+}
+.tactile-btn-sm .btn-text {
+  transform: translateX(-7px);
+}
+.tactile-btn-sm:hover .btn-text {
+  transform: translateX(7px);
+}
+.tactile-btn-sm svg.arr-1,
+.tactile-btn-sm svg.arr-2 {
+  width: 15px;
+  height: 15px;
+}
+.tactile-btn-sm .arr-1 {
+  right: 10px;
+}
+.tactile-btn-sm:hover .arr-2 {
+  left: 10px;
 }
 
 .tactile-btn-md {
-  --radius: 13px;
+  padding: 12px 36px;
+  font-size: 14.5px;
 }
 
 .tactile-btn-lg {
-  --radius: 16px;
+  padding: 15px 44px;
+  font-size: 16px;
 }
 
-/* Color & Theme Archetypes */
+/* Themes adapted to Casa Sandríssima */
 
 /* 1. Primary Emerald (Main Brand Action) */
 .tactile-btn-primary {
-  --primary: #6ee7b7;
+  --primary: #10b981;
   --neutral-1: #065f46;
   --neutral-2: #047857;
   --text-color: #ffffff;
-  --conic-color: #a7f3d0;
+  --hover-text-color: #ffffff;
+  --circle-bg: #059669;
+  --border-color: #10b981;
+  --shadow-color: rgba(16, 185, 129, 0.4);
 }
 
 /* 2. Secondary / Clean Pearl Light */
 .tactile-btn-secondary {
   --primary: #059669;
   --neutral-1: #ffffff;
-  --neutral-2: #f3f4f6;
-  --text-color: #292524;
-  --conic-color: #10b981;
-  text-shadow: none;
-}
-.tactile-btn-secondary::after {
-  background: linear-gradient(var(--neutral-1), var(--neutral-2)) padding-box,
-    linear-gradient(to bottom, rgba(0, 0, 0, 0.08), rgba(0, 0, 0, 0.22)) border-box;
+  --neutral-2: #f4f5f6;
+  --text-color: #1c1917;
+  --hover-text-color: #ffffff;
+  --circle-bg: #059669;
+  --border-color: #d6d3d1;
+  --shadow-color: rgba(0, 0, 0, 0.08);
 }
 
 /* 3. Glass Emerald Mint */
 .tactile-btn-glass {
-  --primary: #047857;
+  --primary: #059669;
   --neutral-1: #ecfdf5;
   --neutral-2: #d1fae5;
   --text-color: #065f46;
-  --conic-color: #10b981;
-  text-shadow: none;
-}
-.tactile-btn-glass::after {
-  background: linear-gradient(var(--neutral-1), var(--neutral-2)) padding-box,
-    linear-gradient(to bottom, rgba(5, 150, 105, 0.25), rgba(5, 150, 105, 0.45)) border-box;
+  --hover-text-color: #ffffff;
+  --circle-bg: #059669;
+  --border-color: #6ee7b7;
+  --shadow-color: rgba(5, 150, 105, 0.2);
 }
 
 /* 4. Warm Amber / Golden */
 .tactile-btn-amber {
-  --primary: #fef08a;
-  --neutral-1: #b45309;
-  --neutral-2: #92400e;
+  --primary: #f59e0b;
+  --neutral-1: #92400e;
+  --neutral-2: #78350f;
   --text-color: #ffffff;
-  --conic-color: #fde047;
+  --hover-text-color: #ffffff;
+  --circle-bg: #b45309;
+  --border-color: #f59e0b;
+  --shadow-color: rgba(245, 158, 11, 0.4);
 }
 
 /* 5. Accent Rose / Heart */
 .tactile-btn-accent {
-  --primary: #fecdd3;
-  --neutral-1: #be123c;
-  --neutral-2: #9f1239;
+  --primary: #f43f5e;
+  --neutral-1: #9f1239;
+  --neutral-2: #881337;
   --text-color: #ffffff;
-  --conic-color: #fda4af;
+  --hover-text-color: #ffffff;
+  --circle-bg: #e11d48;
+  --border-color: #fb7185;
+  --shadow-color: rgba(244, 63, 94, 0.4);
 }
 
 /* 6. Charcoal / Night Dark */
 .tactile-btn-dark {
-  --primary: #34d399;
-  --neutral-1: #292524;
-  --neutral-2: #1c1917;
+  --primary: #10b981;
+  --neutral-1: #1c1917;
+  --neutral-2: #0c0a09;
   --text-color: #fafaf9;
-  --conic-color: #10b981;
+  --hover-text-color: #ffffff;
+  --circle-bg: #292524;
+  --border-color: #44403c;
+  --shadow-color: rgba(0, 0, 0, 0.35);
 }
 
 /* 7. Minimal Outline */
 .tactile-btn-outline {
   --primary: #059669;
-  --neutral-1: rgba(255, 255, 255, 0.9);
-  --neutral-2: rgba(245, 245, 244, 0.9);
+  --neutral-1: #ffffff;
+  --neutral-2: #ffffff;
   --text-color: #44403c;
-  --conic-color: #059669;
-  text-shadow: none;
+  --hover-text-color: #ffffff;
+  --circle-bg: #059669;
+  --border-color: #e7e5e4;
+  --shadow-color: rgba(0, 0, 0, 0.05);
 }
+
+/* =========================================================================
+   Modern Animated Kinetic Buttons with Morphing Circle & Dual Arrows
+   ========================================================================= */
+
+.animated-btn,
+.animated-button {
+  --btn-accent: #059669;
+  --btn-accent-glow: rgba(5, 150, 105, 0.4);
+  --btn-text: #ffffff;
+  --btn-hover-text: #ffffff;
+  --btn-circle-bg: #047857;
+  --btn-bg: #065f46;
+  --btn-border: #059669;
+  
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 14px 34px;
+  border: 2px solid var(--btn-border);
+  font-size: 15px;
+  background-color: var(--btn-bg);
+  border-radius: 100px;
+  font-weight: 600;
+  color: var(--btn-text);
+  box-shadow: 0 4px 14px var(--btn-accent-glow);
+  cursor: pointer;
+  overflow: hidden;
+  text-decoration: none;
+  transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+  white-space: nowrap;
+  user-select: none;
+}
+
+.animated-btn svg.arr-1,
+.animated-btn svg.arr-2,
+.animated-button svg.arr-1,
+.animated-button svg.arr-2 {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  fill: currentColor;
+  z-index: 9;
+  transition: all 0.8s cubic-bezier(0.23, 1, 0.32, 1);
+  pointer-events: none;
+}
+
+.animated-btn .arr-1,
+.animated-button .arr-1 {
+  right: 16px;
+}
+
+.animated-btn .arr-2,
+.animated-button .arr-2 {
+  left: -25%;
+}
+
+.animated-btn .circle,
+.animated-button .circle {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 20px;
+  height: 20px;
+  background-color: var(--btn-circle-bg);
+  border-radius: 50%;
+  opacity: 0;
+  transition: all 0.8s cubic-bezier(0.23, 1, 0.32, 1);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.animated-btn .btn-text,
+.animated-btn .text,
+.animated-button .btn-text,
+.animated-button .text {
+  position: relative;
+  z-index: 1;
+  transform: translateX(-10px);
+  transition: all 0.8s cubic-bezier(0.23, 1, 0.32, 1);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.animated-btn:hover,
+.animated-button:hover {
+  box-shadow: 0 8px 24px var(--btn-accent-glow);
+  color: var(--btn-hover-text);
+  border-radius: 14px;
+  transform: translateY(-2px);
+}
+
+.animated-btn:hover .arr-1,
+.animated-button:hover .arr-1 {
+  right: -25%;
+}
+
+.animated-btn:hover .arr-2,
+.animated-button:hover .arr-2 {
+  left: 16px;
+}
+
+.animated-btn:hover .btn-text,
+.animated-btn:hover .text,
+.animated-button:hover .btn-text,
+.animated-button:hover .text {
+  transform: translateX(10px);
+}
+
+.animated-btn:active,
+.animated-button:active {
+  transform: scale(0.96);
+  box-shadow: 0 0 0 3px var(--btn-accent);
+}
+
+.animated-btn:hover .circle,
+.animated-button:hover .circle {
+  width: 380px;
+  height: 380px;
+  opacity: 1;
+}
+
+/* Button Sizing */
+.animated-btn-sm {
+  padding: 9px 26px;
+  font-size: 13px;
+}
+.animated-btn-sm .btn-text {
+  transform: translateX(-8px);
+}
+.animated-btn-sm:hover .btn-text {
+  transform: translateX(8px);
+}
+.animated-btn-sm svg.arr-1,
+.animated-btn-sm svg.arr-2 {
+  width: 16px;
+  height: 16px;
+}
+.animated-btn-sm .arr-1 {
+  right: 12px;
+}
+.animated-btn-sm:hover .arr-2 {
+  left: 12px;
+}
+
+.animated-btn-md {
+  padding: 13px 34px;
+  font-size: 14.5px;
+}
+
+.animated-btn-lg {
+  padding: 16px 42px;
+  font-size: 16px;
+}
+
+/* Themes adapted to Casa Sandríssima */
+
+/* 1. Emerald Vibrant */
+.animated-btn-emerald {
+  --btn-accent: #10b981;
+  --btn-accent-glow: rgba(16, 185, 129, 0.35);
+  --btn-text: #ffffff;
+  --btn-hover-text: #ffffff;
+  --btn-bg: #065f46;
+  --btn-circle-bg: #047857;
+  --btn-border: #10b981;
+}
+
+/* 2. Amber / Golden */
+.animated-btn-amber {
+  --btn-accent: #f59e0b;
+  --btn-accent-glow: rgba(245, 158, 11, 0.4);
+  --btn-text: #ffffff;
+  --btn-hover-text: #ffffff;
+  --btn-bg: #92400e;
+  --btn-circle-bg: #b45309;
+  --btn-border: #f59e0b;
+}
+
+/* 3. Dark Charcoal */
+.animated-btn-dark {
+  --btn-accent: #10b981;
+  --btn-accent-glow: rgba(0, 0, 0, 0.35);
+  --btn-text: #ffffff;
+  --btn-hover-text: #ffffff;
+  --btn-bg: #1c1917;
+  --btn-circle-bg: #292524;
+  --btn-border: #44403c;
+}
+
+/* 4. Minimal Light / Outline */
+.animated-btn-outline {
+  --btn-accent: #059669;
+  --btn-accent-glow: rgba(5, 150, 105, 0.15);
+  --btn-text: #1c1917;
+  --btn-hover-text: #ffffff;
+  --btn-bg: #ffffff;
+  --btn-circle-bg: #059669;
+  --btn-border: #e7e5e4;
+}
+
+/* 5. White on Dark/Green */
+.animated-btn-white {
+  --btn-accent: #ffffff;
+  --btn-accent-glow: rgba(255, 255, 255, 0.3);
+  --btn-text: #065f46;
+  --btn-hover-text: #ffffff;
+  --btn-bg: #ffffff;
+  --btn-circle-bg: #047857;
+  --btn-border: #ffffff;
+}
+
 
 
 

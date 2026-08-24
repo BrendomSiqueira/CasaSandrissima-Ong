@@ -330,16 +330,19 @@ export default function Navbar({ activeTab, setActiveTab, onOpenLoginModal }: Na
                 </div>
               ) : (
                 <div className="p-2 mb-2 bg-stone-50 rounded-2xl border border-stone-200/70">
-                  <button
+                  <TactileButton
+                    type="button"
+                    variant="primary"
+                    size="md"
+                    className="w-full"
                     onClick={() => {
                       onOpenLoginModal('aluno_apoiador');
                       setIsOpen(false);
                     }}
-                    className="w-full flex items-center justify-center gap-2 py-2.5 px-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-xs cursor-pointer"
+                    icon={<UserIcon className="h-4 w-4" />}
                   >
-                    <UserIcon className="h-4 w-4" />
-                    <span>Acesso & Cadastro (Alunos & Apoiadores)</span>
-                  </button>
+                    Acesso & Cadastro
+                  </TactileButton>
                 </div>
               )}
 

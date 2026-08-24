@@ -8,6 +8,7 @@ import {
 import { useFirebase } from '../firebaseContext';
 import logoImg from '../assets/images/casa_sandrissima_green_white_logo_1779323893215.png';
 import PencilLoader from './PencilLoader';
+import TactileButton from './TactileButton';
 
 interface SocialLoginModalProps {
   isOpen: boolean;
@@ -607,20 +608,22 @@ export default function SocialLoginModal({
                 )}
 
                 {/* Action Submit Button */}
-                <button
-                  type="submit"
-                  id="btn-submit-email-auth"
-                  className="w-full mt-2 py-3 px-4 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs sm:text-sm rounded-xl shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer"
-                >
-                  <span>
+                <div className="pt-2">
+                  <TactileButton
+                    type="submit"
+                    id="btn-submit-email-auth"
+                    variant="primary"
+                    size="lg"
+                    className="w-full"
+                    icon={<ArrowRight className="h-4 w-4" />}
+                  >
                     {authMode === 'register' 
                       ? 'Cadastrar Minha Conta' 
                       : authMode === 'forgot'
                         ? 'Enviar Link de Redefinição'
                         : 'Entrar na Conta'}
-                  </span>
-                  <ArrowRight className="h-4 w-4" />
-                </button>
+                  </TactileButton>
+                </div>
 
                 {/* Switcher links */}
                 <div className="pt-2 text-center text-xs text-stone-500">

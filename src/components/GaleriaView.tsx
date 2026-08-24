@@ -27,6 +27,7 @@ import { useFirebase } from '../firebaseContext';
 import { useModal } from './ModalContext';
 import { GalleryPhoto, ActiveTab } from '../types';
 import logoImg from '../assets/images/casa_sandrissima_green_white_logo_1779323893215.png';
+import TactileButton from './TactileButton';
 
 interface GaleriaViewProps {
   setActiveTab: (tab: ActiveTab) => void;
@@ -360,15 +361,16 @@ export default function GaleriaView({ setActiveTab, onOpenLoginModal }: GaleriaV
                   {user.displayName || user.email}
                 </span>
               </div>
-              <button
+              <TactileButton
                 type="button"
                 id="btn-add-new-photo"
                 onClick={handleOpenAddModal}
-                className="px-3.5 py-2 bg-emerald-500 hover:bg-emerald-400 text-stone-950 font-bold text-xs rounded-xl shadow transition-all flex items-center gap-1.5 cursor-pointer hover:scale-105"
+                variant="primary"
+                size="sm"
+                icon={<Plus className="h-4 w-4" />}
               >
-                <Plus className="h-4 w-4" />
-                <span>Nova Foto</span>
-              </button>
+                Nova Foto
+              </TactileButton>
             </div>
           ) : (
             <div className="hidden md:flex items-center gap-2 text-stone-400 text-xs bg-stone-800/50 px-3 py-2 rounded-xl border border-stone-700/50">
@@ -810,20 +812,22 @@ export default function GaleriaView({ setActiveTab, onOpenLoginModal }: GaleriaV
 
                 {/* Submit Actions */}
                 <div className="pt-3 border-t border-stone-100 flex items-center justify-end gap-2.5">
-                  <button
+                  <TactileButton
                     type="button"
                     onClick={() => setIsPhotoModalOpen(false)}
-                    className="px-4 py-2.5 rounded-xl border border-stone-200 text-stone-600 hover:bg-stone-100 text-xs font-bold cursor-pointer"
+                    variant="secondary"
+                    size="sm"
                   >
                     Cancelar
-                  </button>
-                  <button
+                  </TactileButton>
+                  <TactileButton
                     type="submit"
-                    className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-md cursor-pointer flex items-center gap-1.5"
+                    variant="primary"
+                    size="sm"
+                    icon={<Check className="h-4 w-4" />}
                   >
-                    <Check className="h-4 w-4" />
-                    <span>{editingPhoto ? 'Salvar Alterações' : 'Publicar Foto'}</span>
-                  </button>
+                    {editingPhoto ? 'Salvar Alterações' : 'Publicar Foto'}
+                  </TactileButton>
                 </div>
               </form>
             </motion.div>

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { X, ShieldCheck, Cookie, Check, Info } from 'lucide-react';
+import TactileButton from './TactileButton';
 
 const STORAGE_KEY = 'casa_sandrissima_cookie_consent_v1';
 
@@ -168,24 +169,26 @@ export default function CookieBanner() {
                 </p>
 
                 {/* Action Buttons: More Options + Accept */}
-                <div className="w-full flex items-center justify-between mt-1 pt-2">
+                <div className="w-full flex items-center justify-between mt-1 pt-2 gap-2">
                   <button
                     type="button"
                     id="btn-cookie-more-options"
                     onClick={() => setIsOptionsModalOpen(true)}
-                    className="text-sm mr-auto text-zinc-600 cursor-pointer font-semibold transition-colors hover:text-[#634647] hover:underline underline-offset-2"
+                    className="text-xs mr-auto text-zinc-600 cursor-pointer font-semibold transition-colors hover:text-[#634647] hover:underline underline-offset-2"
                   >
                     Mais Opções
                   </button>
 
-                  <button
+                  <TactileButton
                     type="button"
                     id="btn-cookie-accept"
                     onClick={handleAcceptAll}
-                    className="font-semibold cursor-pointer py-2 px-6 w-max break-keep text-sm rounded-lg transition-colors text-[#634647] hover:text-[#ddad81] bg-[#ddad81] hover:bg-[#634647] shadow-sm"
+                    variant="primary"
+                    size="sm"
+                    icon={<Check className="h-3.5 w-3.5" />}
                   >
                     Aceitar
-                  </button>
+                  </TactileButton>
                 </div>
               </div>
             </div>
@@ -252,13 +255,14 @@ export default function CookieBanner() {
               </div>
 
               <div className="mt-6 pt-4 border-t border-stone-100 flex justify-end">
-                <button
+                <TactileButton
                   type="button"
                   onClick={() => setIsPrivacyModalOpen(false)}
-                  className="py-2.5 px-6 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs sm:text-sm cursor-pointer shadow-xs transition-colors"
+                  variant="primary"
+                  size="md"
                 >
                   Entendi e Fechar
-                </button>
+                </TactileButton>
               </div>
             </motion.div>
           </div>
@@ -359,21 +363,24 @@ export default function CookieBanner() {
 
               {/* Preferences Modal Actions */}
               <div className="mt-6 pt-4 border-t border-stone-100 flex items-center justify-between gap-3">
-                <button
+                <TactileButton
                   type="button"
                   onClick={handleSavePreferences}
-                  className="py-2.5 px-4 rounded-xl border border-stone-300 text-stone-700 hover:bg-stone-100 font-bold text-xs sm:text-sm cursor-pointer transition-colors"
+                  variant="secondary"
+                  size="sm"
                 >
                   Salvar Escolhas
-                </button>
+                </TactileButton>
 
-                <button
+                <TactileButton
                   type="button"
                   onClick={handleAcceptAll}
-                  className="py-2.5 px-6 rounded-xl font-semibold text-sm transition-colors text-[#634647] hover:text-[#ddad81] bg-[#ddad81] hover:bg-[#634647] cursor-pointer shadow-xs"
+                  variant="primary"
+                  size="sm"
+                  icon={<Check className="h-3.5 w-3.5" />}
                 >
                   Aceitar Todos
-                </button>
+                </TactileButton>
               </div>
             </motion.div>
           </div>

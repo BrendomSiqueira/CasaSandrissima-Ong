@@ -7,6 +7,7 @@ import { useModal } from './ModalContext';
 import { useFirebase } from '../firebaseContext';
 import logoImg from '../assets/images/casa_sandrissima_green_white_logo_1779323893215.png';
 import PencilLoader from './PencilLoader';
+import TactileButton from './TactileButton';
 
 interface DoacaoViewProps {
   onAddDonation: (donation: Donation) => Promise<void> | void;
@@ -556,12 +557,17 @@ export default function DoacaoView({ onAddDonation, onUpdateDonation, donationsL
                     </div>
                   </div>
 
-                  <button
-                    type="submit"
-                    className="w-full h-11 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs tracking-wide cursor-pointer uppercase transition-all flex items-center justify-center gap-1.5 shadow"
-                  >
-                    Gerar Código Pix de Apoio <ArrowRight className="h-4 w-4" />
-                  </button>
+                  <div className="pt-2">
+                    <TactileButton
+                      type="submit"
+                      variant="primary"
+                      size="lg"
+                      className="w-full"
+                      icon={<ArrowRight className="h-4 w-4" />}
+                    >
+                      Gerar Código Pix de Apoio
+                    </TactileButton>
+                  </div>
                 </motion.form>
               )}
 
@@ -646,21 +652,16 @@ export default function DoacaoView({ onAddDonation, onUpdateDonation, donationsL
                         </div>
 
                         <div className="pt-2">
-                          <button
+                          <TactileButton
                             type="button"
                             onClick={handleCopyPayload}
-                            className="w-full py-2.5 px-3 bg-white border border-stone-200 hover:border-stone-300 text-stone-700 text-[10px] font-extrabold uppercase rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-sm"
+                            variant="secondary"
+                            size="sm"
+                            className="w-full"
+                            icon={copiedPayload ? <Check className="h-4 w-4 text-emerald-600 shrink-0" /> : <Copy className="h-4 w-4 shrink-0" />}
                           >
-                            {copiedPayload ? (
-                              <>
-                                <Check className="h-4 w-4 text-emerald-600 shrink-0" /> Código Copiado!
-                              </>
-                            ) : (
-                              <>
-                                <Copy className="h-4 w-4 shrink-0" /> Copiar Pix Copia e Cola
-                              </>
-                            )}
-                          </button>
+                            {copiedPayload ? 'Código Copiado!' : 'Copiar Pix Copia e Cola'}
+                          </TactileButton>
                         </div>
                       </div>
 
@@ -671,21 +672,27 @@ export default function DoacaoView({ onAddDonation, onUpdateDonation, donationsL
                         </span>
                       </div>
 
-                      <div className="flex gap-2.5 pt-1">
-                        <button
+                      <div className="flex flex-col sm:flex-row gap-2.5 pt-1">
+                        <TactileButton
                           type="button"
                           onClick={() => setStep(1)}
-                          className="flex-1 h-11 bg-white border border-stone-200 hover:bg-stone-50 text-stone-700 font-bold rounded-xl text-xs uppercase cursor-pointer transition-all flex items-center justify-center gap-1.5"
+                          variant="secondary"
+                          size="md"
+                          className="flex-1"
+                          icon={<ArrowLeft className="h-4 w-4" />}
                         >
-                          <ArrowLeft className="h-4 w-4" /> Voltar
-                        </button>
-                        <button
+                          Voltar
+                        </TactileButton>
+                        <TactileButton
                           type="button"
                           onClick={handleConfirmPayment}
-                          className="flex-[2] h-11 bg-stone-900 hover:bg-stone-800 text-white font-bold rounded-xl text-xs uppercase cursor-pointer transition-all flex items-center justify-center gap-1.5 shadow"
+                          variant="dark"
+                          size="md"
+                          className="flex-[2]"
+                          icon={<Check className="h-4 w-4" />}
                         >
-                          Confirmar Pagamento Realizado ✓
-                        </button>
+                          Confirmar Pagamento Realizado
+                        </TactileButton>
                       </div>
                     </>
                   )}
@@ -730,21 +737,26 @@ export default function DoacaoView({ onAddDonation, onUpdateDonation, donationsL
                     </div>
                   </div>
 
-                  <div className="flex gap-2.5 pt-1">
-                    <button
+                  <div className="flex flex-col sm:flex-row gap-2.5 pt-1">
+                    <TactileButton
                       type="button"
                       onClick={handleSkipMessage}
-                      className="flex-1 h-11 bg-white border border-stone-200 hover:bg-stone-50 text-stone-700 font-bold rounded-xl text-xs uppercase cursor-pointer transition-all flex items-center justify-center gap-1.5 text-center"
+                      variant="secondary"
+                      size="md"
+                      className="flex-1"
                     >
                       Pular / Apenas Confirmar
-                    </button>
-                    <button
+                    </TactileButton>
+                    <TactileButton
                       type="submit"
                       disabled={!formData.description.trim()}
-                      className="flex-[2] h-11 bg-emerald-600 hover:bg-emerald-700 disabled:bg-emerald-400 text-white font-bold rounded-xl text-xs uppercase cursor-pointer transition-all flex items-center justify-center gap-1.5 shadow"
+                      variant="primary"
+                      size="md"
+                      className="flex-[2]"
+                      icon={<Send className="h-3.5 w-3.5" />}
                     >
-                      Enviar Recado para Curadoria <Send className="h-3.5 w-3.5" />
-                    </button>
+                      Enviar Recado para Curadoria
+                    </TactileButton>
                   </div>
                 </motion.form>
               )}
@@ -779,13 +791,16 @@ export default function DoacaoView({ onAddDonation, onUpdateDonation, donationsL
                     </p>
                   </div>
 
-                  <button
+                  <TactileButton
                     type="button"
                     onClick={handleResetSimulator}
-                    className="w-full h-11 bg-stone-900 hover:bg-stone-800 text-white font-bold rounded-xl text-xs tracking-wide cursor-pointer uppercase transition-all flex items-center justify-center gap-1.5 shadow"
+                    variant="dark"
+                    size="lg"
+                    className="w-full"
+                    icon={<Sparkles className="h-3.5 w-3.5" />}
                   >
-                    Iniciar Novo Apoio <Sparkles className="h-3.5 w-3.5" />
-                  </button>
+                    Iniciar Novo Apoio
+                  </TactileButton>
                 </motion.div>
               )}
             </AnimatePresence>

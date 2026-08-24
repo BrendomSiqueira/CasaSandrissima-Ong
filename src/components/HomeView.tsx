@@ -46,47 +46,92 @@ export default function HomeView({ setActiveTab, onSelectWorkshop }: HomeViewPro
   const activities = [
     {
       id: 'karate',
-      title: "Aulas de Karatê",
-      description: "Aulas gratuitas para promover disciplina, autocontrole, autodefesa e desenvolvimento motor para crianças e jovens.",
-      detail: "Mais do que uma simples arte marcial, é uma ferramenta poderosa de transformação pessoal e cidadania.",
+      title: "Karatê Comunitário",
+      fullTitle: "Aulas de Karatê",
+      description: "Disciplina, autodefesa e desenvolvimento motor para crianças e jovens.",
+      detail: "Mais do que uma simples arte marcial, é uma ferramenta de transformação pessoal e cidadania.",
       icon: Trophy,
-      bgColor: "bg-orange-55 shadow-orange-100",
+      emoji: "🥋",
+      typeTag: "100% Gratuito",
+      themeClass: "ticket-theme-karate",
+      schedule: "Ter & Qui • 18h30",
+      investment: "Gratuito",
+      venue: "Sede Sandríssima",
+      barcodeId: "CS-2026-KARATE-PASS",
+      admitLabel: "Vagas",
+      admitNum: "01",
       iconColor: "text-orange-600 bg-orange-100",
     },
     {
       id: 'english',
-      title: "Aulas de Inglês",
-      description: "Aulas preparatórias e dinâmicas que ensinam do vocabulário essencial às práticas de conversação reais.",
-      detail: "Aprender um novo idioma vai muito além de conhecer novas palavras — é abrir portas para um mundo de oportunidades.",
+      title: "Inglês do Futuro",
+      fullTitle: "Aulas de Inglês",
+      description: "Vocabulário prático e conversação real abrindo portas para o mundo.",
+      detail: "Aprender um novo idioma é abrir caminhos para oportunidades acadêmicas e profissionais.",
       icon: BookOpen,
-      bgColor: "bg-blue-55 shadow-blue-100",
+      emoji: "🇬🇧",
+      typeTag: "Capacitação",
+      themeClass: "ticket-theme-english",
+      schedule: "Seg & Qua • 15h00",
+      investment: "Gratuito",
+      venue: "Sala de Estudos",
+      barcodeId: "CS-2026-ENGLISH-PASS",
+      admitLabel: "Nível",
+      admitNum: "02",
       iconColor: "text-blue-600 bg-blue-100",
     },
     {
       id: 'sewing',
-      title: "Aulas de Costura",
-      description: "Oficinas práticas focadas no desenvolvimento técnico de modelagem, corte, costura e customizações.",
-      detail: "Facilita a autonomia, geração de renda e reintegração com criatividade na comunidade local.",
+      title: "Corte & Costura",
+      fullTitle: "Aulas de Costura",
+      description: "Modelagem técnica, confecção e customizações para autonomia e renda.",
+      detail: "Facilita a autonomia financeira, geração de renda e reintegração com criatividade na comunidade.",
       icon: Scissors,
-      bgColor: "bg-purple-55 shadow-purple-100",
+      emoji: "🧵",
+      typeTag: "Oficina Prática",
+      themeClass: "ticket-theme-sewing",
+      schedule: "Terças • 14h00",
+      investment: "Gratuito",
+      venue: "Ateliê Criativo",
+      barcodeId: "CS-2026-SEWING-PASS",
+      admitLabel: "Ateliê",
+      admitNum: "03",
       iconColor: "text-purple-600 bg-purple-100",
     },
     {
       id: 'pilates',
-      title: "Aulas de Pilates",
-      description: "Toda sexta-feira, das 09h às 10h da manhã. Sessões focadas em postura, flexibilidade e fortalecimento do core/powerhouse de forma segura.",
-      detail: "Apenas 40 reais mensais! Sede: Rua Filomena Ana Rita, 390 - Jardim Ipanema.",
+      title: "Pilates & Postura",
+      fullTitle: "Aulas de Pilates",
+      description: "Postura, flexibilidade e fortalecimento do core de forma segura e guiada.",
+      detail: "Sessões semanais focadas em respiração, fortalecimento muscular e saúde integral.",
       icon: Activity,
-      bgColor: "bg-teal-55 shadow-teal-100",
+      emoji: "🧘",
+      typeTag: "Saúde & Corpo",
+      themeClass: "ticket-theme-pilates",
+      schedule: "Sextas • 09h00",
+      investment: "R$ 40/mês",
+      venue: "Espaço Saúde",
+      barcodeId: "CS-2026-PILATES-PASS",
+      admitLabel: "Turma",
+      admitNum: "04",
       iconColor: "text-teal-600 bg-teal-100",
     },
     {
       id: 'embroidery',
-      title: "Aulas de Bordados",
-      description: "Toda terça-feira, das 13h às 16h. Curso de bordado livre, artístico e tradicional, aproximando afeto, terapia ocupacional e arte.",
-      detail: "Totalmente de graça! Ideal para desenvolvimento pessoal, terapia, socialização e geração de renda.",
+      title: "Bordado & Arte",
+      fullTitle: "Aulas de Bordados",
+      description: "Bordado livre e tradicional aproximando afeto, terapia e arte manual.",
+      detail: "Ideal para desenvolvimento pessoal, socialização, terapia ocupacional e renda.",
       icon: Palette,
-      bgColor: "bg-rose-55 shadow-rose-100",
+      emoji: "🪡",
+      typeTag: "100% Gratuito",
+      themeClass: "ticket-theme-embroidery",
+      schedule: "Terças • 13h00",
+      investment: "Gratuito",
+      venue: "Espaço de Artes",
+      barcodeId: "CS-2026-EMBROID-PASS",
+      admitLabel: "Artes",
+      admitNum: "05",
       iconColor: "text-rose-600 bg-rose-105",
     },
   ];
@@ -326,49 +371,97 @@ export default function HomeView({ setActiveTab, onSelectWorkshop }: HomeViewPro
         setActiveTab={setActiveTab} 
       />
 
-      {/* Offered Activities Cards Grid */}
+      {/* Offered Activities / 3D Holographic Workshop Passes */}
       <section className="space-y-10" id="workshops-list">
         <div className="text-center max-w-2xl mx-auto space-y-3">
-          <h2 className="font-sans font-extrabold text-2xl md:text-4.2xl text-stone-900 tracking-tight">
-            Nossos Pilares de Apoio
+          <div className="inline-flex items-center gap-2 px-3 py-1 bg-emerald-50 text-emerald-800 border border-emerald-200/80 rounded-full text-xs font-bold uppercase tracking-wider">
+            <span>🎟️ Passaportes do Saber</span>
+          </div>
+          <h2 className="font-sans font-extrabold text-2xl md:text-4xl text-stone-900 tracking-tight">
+            Nossos Cursos e Oficinas Comunitárias
           </h2>
           <p className="text-stone-600 text-sm md:text-base leading-relaxed">
-            Oferecemos oficinas práticas e teóricas gratuitas com foco no desenvolvimento integral e fomento de novas perspectivas sociais.
+            Selecione seu passaporte comunitário para conferir a ementa detalhada, horários, fotos e garantir sua inscrição gratuita.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 justify-items-center">
           {activities.map((act, index) => {
-            const Icon = act.icon;
             return (
               <motion.div 
                 key={index}
                 variants={itemVariants}
-                whileHover={{ y: -6, transition: { duration: 0.2 } }}
                 id={`activity-card-${index}`}
-                onClick={() => handleOpenWorkshop(act.id)}
-                className="bg-white rounded-2xl p-6 border border-stone-150 hover:border-emerald-200 hover:shadow-xl hover:shadow-emerald-500/10 transition-all text-left flex flex-col justify-between cursor-pointer group"
+                className="w-full flex justify-center"
               >
-                <div className="space-y-4">
-                  <div className={`w-fit p-3 rounded-xl ${act.iconColor} group-hover:scale-110 transition-transform duration-200`}>
-                    <Icon className="h-6 w-6" />
+                <div className="ticket-canvas">
+                  <div 
+                    className={`ticket-wrapper ${act.themeClass}`}
+                    onClick={() => handleOpenWorkshop(act.id)}
+                    title={`Clique para acessar a ementa e detalhes de ${act.title}`}
+                  >
+                    <div className="ticket">
+                      {/* Main Ticket Body */}
+                      <div className="t-main">
+                        <div className="t-content">
+                          <div className="t-header">
+                            <div className="t-logo">
+                              <span className="t-logo-icon">{act.emoji}</span>
+                              <span className="font-extrabold text-xs uppercase tracking-wide text-stone-100">
+                                Casa Sandríssima
+                              </span>
+                            </div>
+                            <div className="t-type">{act.typeTag}</div>
+                          </div>
+
+                          <div className="t-title">
+                            {act.title}
+                          </div>
+                          
+                          <div className="t-subtitle">
+                            {act.description}
+                          </div>
+
+                          <div className="t-details">
+                            <div className="t-detail-item">
+                              <span className="t-label">Horários</span>
+                              <span className="t-value">{act.schedule}</span>
+                            </div>
+                            <div className="t-detail-item">
+                              <span className="t-label">Investimento</span>
+                              <span className="t-value">{act.investment}</span>
+                            </div>
+                            <div className="t-detail-item">
+                              <span className="t-label">Local</span>
+                              <span className="t-value">{act.venue}</span>
+                            </div>
+                            <div className="t-detail-item">
+                              <span className="t-label">Status</span>
+                              <span className="t-value text-emerald-400">Vagas Abertas</span>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Perforation Cutout Line */}
+                        <div className="t-perforation">
+                          <div className="t-perf-line"></div>
+                        </div>
+                      </div>
+
+                      {/* Ticket Stub Bottom */}
+                      <div className="t-stub">
+                        <div className="t-barcode-container">
+                          <div className="t-barcode"></div>
+                          <div className="t-barcode-id">{act.barcodeId}</div>
+                        </div>
+                        <div className="t-admit">
+                          <div className="t-admit-text">{act.admitLabel}</div>
+                          <div className="t-admit-num">{act.admitNum}</div>
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                  <h3 className="font-sans font-bold text-lg text-stone-900 group-hover:text-emerald-700 transition-colors">{act.title}</h3>
-                  <p className="text-stone-600 text-sm leading-relaxed">{act.description}</p>
-                  <p className="text-xs text-stone-500 border-l-2 border-stone-200 pl-3 leading-relaxed italic">
-                    "{act.detail}"
-                  </p>
                 </div>
-                
-                <button 
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleOpenWorkshop(act.id);
-                  }}
-                  className="mt-6 text-sm font-semibold text-emerald-700 hover:text-emerald-800 hover:underline inline-flex items-center gap-1 cursor-pointer w-fit"
-                >
-                  Saiba mais sobre a oficina <ChevronRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
-                </button>
               </motion.div>
             );
           })}
