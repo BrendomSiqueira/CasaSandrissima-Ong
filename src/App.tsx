@@ -16,8 +16,15 @@ import PencilLoader from './components/PencilLoader';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<ActiveTab>('home');
+  const [selectedWorkshopId, setSelectedWorkshopId] = useState<string>('karate');
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [loginReason, setLoginReason] = useState<'galeria' | 'doacoes' | 'portal' | 'geral' | 'aluno_apoiador'>('geral');
+
+  const handleNavigateToWorkshop = (workshopId: string) => {
+    setSelectedWorkshopId(workshopId);
+    setActiveTab('projetos');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   const { confirm } = useModal();
   const { 
@@ -77,7 +84,12 @@ export default function App() {
   const renderActiveView = () => {
     switch (activeTab) {
       case 'home':
-        return <HomeView setActiveTab={setActiveTab} />;
+        return (
+          <HomeView 
+            setActiveTab={setActiveTab} 
+            onSelectWorkshop={handleNavigateToWorkshop}
+          />
+        );
       case 'associacao':
         return (
           <AssociacaoView 
@@ -95,7 +107,13 @@ export default function App() {
           />
         );
       case 'projetos':
-        return <ProjetosView setActiveTab={setActiveTab} />;
+        return (
+          <ProjetosView 
+            setActiveTab={setActiveTab} 
+            selectedProjectId={selectedWorkshopId}
+            onSelectProject={setSelectedWorkshopId}
+          />
+        );
       case 'galeria':
         return (
           <GaleriaView 
@@ -115,7 +133,12 @@ export default function App() {
           />
         );
       default:
-        return <HomeView setActiveTab={setActiveTab} />;
+        return (
+          <HomeView 
+            setActiveTab={setActiveTab} 
+            onSelectWorkshop={handleNavigateToWorkshop}
+          />
+        );
     }
   };
 

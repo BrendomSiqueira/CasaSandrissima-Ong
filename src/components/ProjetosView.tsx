@@ -30,6 +30,8 @@ import { useFirebase } from '../firebaseContext';
 
 interface ProjetosViewProps {
   setActiveTab: (tab: ActiveTab) => void;
+  selectedProjectId?: string;
+  onSelectProject?: (id: string) => void;
 }
 
 const getProjectIcon = (id: string) => {
@@ -65,10 +67,27 @@ const getProjectShortLabel = (id: string) => {
   }
 };
 
-export default function ProjetosView({ setActiveTab: _setActiveTab }: ProjetosViewProps) {
+export default function ProjetosView({ 
+  setActiveTab: _setActiveTab,
+  selectedProjectId: externalSelectedId,
+  onSelectProject
+}: ProjetosViewProps) {
   const { alert } = useModal();
   const { workshops, updateWorkshop, resetWorkshops, isMaster } = useFirebase();
-  const [selectedProjectId, setSelectedProjectId] = useState<string>('karate');
+  const [internalSelectedId, setInternalSelectedId] = useState<string>(externalSelectedId || 'karate');
+
+  // Keep in sync if prop changes
+  React.useEffect(() => {
+    if (externalSelectedId) {
+      setInternalSelectedId(externalSelectedId);
+    }
+  }, [externalSelectedId]);
+
+  const selectedProjectId = internalSelectedId;
+  const setSelectedProjectId = (id: string) => {
+    setInternalSelectedId(id);
+    if (onSelectProject) onSelectProject(id);
+  };
   
   // Master Editing States
   const [isEditingModalOpen, setIsEditingModalOpen] = useState(false);

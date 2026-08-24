@@ -9,10 +9,19 @@ import DonorCommentsShowcase from './DonorCommentsShowcase';
 
 interface HomeViewProps {
   setActiveTab: (tab: ActiveTab) => void;
+  onSelectWorkshop?: (workshopId: string) => void;
 }
 
-export default function HomeView({ setActiveTab }: HomeViewProps) {
+export default function HomeView({ setActiveTab, onSelectWorkshop }: HomeViewProps) {
   const { students, associates, donations } = useFirebase();
+
+  const handleOpenWorkshop = (workshopId: string) => {
+    if (onSelectWorkshop) {
+      onSelectWorkshop(workshopId);
+    } else {
+      setActiveTab('projetos');
+    }
+  };
 
   const activeStudentsCount = students.filter(s => s.status === 'active').length;
   // Fully synchronized stats of live registered members
@@ -36,6 +45,7 @@ export default function HomeView({ setActiveTab }: HomeViewProps) {
 
   const activities = [
     {
+      id: 'karate',
       title: "Aulas de Karatê",
       description: "Aulas gratuitas para promover disciplina, autocontrole, autodefesa e desenvolvimento motor para crianças e jovens.",
       detail: "Mais do que uma simples arte marcial, é uma ferramenta poderosa de transformação pessoal e cidadania.",
@@ -44,6 +54,7 @@ export default function HomeView({ setActiveTab }: HomeViewProps) {
       iconColor: "text-orange-600 bg-orange-100",
     },
     {
+      id: 'english',
       title: "Aulas de Inglês",
       description: "Aulas preparatórias e dinâmicas que ensinam do vocabulário essencial às práticas de conversação reais.",
       detail: "Aprender um novo idioma vai muito além de conhecer novas palavras — é abrir portas para um mundo de oportunidades.",
@@ -52,6 +63,7 @@ export default function HomeView({ setActiveTab }: HomeViewProps) {
       iconColor: "text-blue-600 bg-blue-100",
     },
     {
+      id: 'sewing',
       title: "Aulas de Costura",
       description: "Oficinas práticas focadas no desenvolvimento técnico de modelagem, corte, costura e customizações.",
       detail: "Facilita a autonomia, geração de renda e reintegração com criatividade na comunidade local.",
@@ -60,6 +72,7 @@ export default function HomeView({ setActiveTab }: HomeViewProps) {
       iconColor: "text-purple-600 bg-purple-100",
     },
     {
+      id: 'pilates',
       title: "Aulas de Pilates",
       description: "Toda sexta-feira, das 09h às 10h da manhã. Sessões focadas em postura, flexibilidade e fortalecimento do core/powerhouse de forma segura.",
       detail: "Apenas 40 reais mensais! Sede: Rua Filomena Ana Rita, 390 - Jardim Ipanema.",
@@ -68,6 +81,7 @@ export default function HomeView({ setActiveTab }: HomeViewProps) {
       iconColor: "text-teal-600 bg-teal-100",
     },
     {
+      id: 'embroidery',
       title: "Aulas de Bordados",
       description: "Toda terça-feira, das 13h às 16h. Curso de bordado livre, artístico e tradicional, aproximando afeto, terapia ocupacional e arte.",
       detail: "Totalmente de graça! Ideal para desenvolvimento pessoal, terapia, socialização e geração de renda.",
@@ -148,31 +162,139 @@ export default function HomeView({ setActiveTab }: HomeViewProps) {
 
           <div className="lg:col-span-5 flex justify-center">
             {/* Visual Abstract Semente Graphic */}
-            <div className="relative w-72 h-72 md:w-80 md:h-80 bg-stone-55 rounded-full border border-stone-200/50 p-2 flex items-center justify-center shadow-md shadow-stone-200/40" id="hero-visual-graphic">
-              <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-emerald-100/10 via-stone-100/30 to-emerald-50/10 animate-pulse"></div>
+            <div className="relative w-72 h-72 md:w-80 md:h-80 bg-stone-55 rounded-full border border-stone-200/60 p-2 flex items-center justify-center shadow-lg shadow-stone-200/50" id="hero-visual-graphic">
+              {/* Animated subtle outer orbit rings */}
+              <motion.div 
+                animate={{ rotate: 360 }}
+                transition={{ duration: 40, repeat: Infinity, ease: "linear" }}
+                className="absolute inset-[-14px] rounded-full border border-dashed border-emerald-300/40 pointer-events-none"
+              />
+              <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-emerald-100/20 via-stone-100/30 to-emerald-50/20 animate-pulse pointer-events-none"></div>
+              
               <img
                 src={logoImg}
                 alt="Logo Casa Sandríssima"
-                className="relative z-10 w-full h-full rounded-full object-cover shadow-sm hover:scale-[1.02] hover:rotate-2 transition-transform duration-305"
+                className="relative z-10 w-full h-full rounded-full object-cover shadow-sm hover:scale-[1.02] transition-transform duration-300 select-none"
                 referrerPolicy="no-referrer"
               />
               
-              {/* Floating tags */}
-              <div className="absolute -top-2 left-6 z-20 bg-white py-1.5 px-3 rounded-full shadow-md text-xs font-semibold text-stone-700 border border-stone-100 flex items-center gap-1.5 animate-bounce">
-                🥋 Karatê Grátis
-              </div>
-              <div className="absolute top-1/3 -right-8 z-20 bg-white py-1.5 px-3 rounded-full shadow-md text-xs font-semibold text-stone-700 border border-stone-100 flex items-center gap-1.5">
-                Inglês
-              </div>
-              <div className="absolute bottom-16 -right-4 z-20 bg-white py-1.5 px-3 rounded-full shadow-md text-xs font-semibold text-stone-700 border border-stone-100 flex items-center gap-1.5">
-                🧘 Pilates
-              </div>
-              <div className="absolute -bottom-2 left-1/3 z-20 bg-white py-1.5 px-3 rounded-full shadow-md text-xs font-semibold text-stone-700 border border-stone-100 flex items-center gap-1.5">
-                🪡 Bordados
-              </div>
-              <div className="absolute bottom-14 -left-6 z-20 bg-white py-1.5 px-3 rounded-full shadow-md text-xs font-semibold text-stone-700 border border-stone-100 flex items-center gap-1.5">
-                🧵 Costura
-              </div>
+              {/* Floating interactive course tags */}
+              {/* 1. Karatê */}
+              <motion.button
+                id="hero-orbit-karate"
+                onClick={() => handleOpenWorkshop('karate')}
+                animate={{ 
+                  y: [0, -8, 0],
+                  scale: [1, 1.03, 1]
+                }}
+                transition={{ 
+                  duration: 3.2, 
+                  repeat: Infinity, 
+                  ease: "easeInOut" 
+                }}
+                whileHover={{ scale: 1.12, y: -10 }}
+                whileTap={{ scale: 0.95 }}
+                title="Ver detalhes da oficina de Karatê"
+                className="absolute -top-3 left-4 z-20 bg-white/95 backdrop-blur-xs py-1.5 px-3.5 rounded-full shadow-lg hover:shadow-orange-200/60 text-xs font-bold text-stone-800 border border-orange-200/80 flex items-center gap-1.5 cursor-pointer transition-colors hover:border-orange-400 group"
+              >
+                <span className="text-sm group-hover:scale-125 transition-transform">🥋</span>
+                <span>Karatê Grátis</span>
+                <span className="w-1.5 h-1.5 rounded-full bg-orange-500 animate-ping ml-0.5" />
+              </motion.button>
+
+              {/* 2. Inglês */}
+              <motion.button
+                id="hero-orbit-english"
+                onClick={() => handleOpenWorkshop('english')}
+                animate={{ 
+                  y: [0, -7, 0],
+                  x: [0, 4, 0],
+                  scale: [1, 1.03, 1]
+                }}
+                transition={{ 
+                  duration: 3.8, 
+                  repeat: Infinity, 
+                  ease: "easeInOut",
+                  delay: 0.4
+                }}
+                whileHover={{ scale: 1.12, y: -8 }}
+                whileTap={{ scale: 0.95 }}
+                title="Ver detalhes do curso de Inglês"
+                className="absolute top-1/4 -right-10 z-20 bg-white/95 backdrop-blur-xs py-1.5 px-3.5 rounded-full shadow-lg hover:shadow-blue-200/60 text-xs font-bold text-stone-800 border border-blue-200/80 flex items-center gap-1.5 cursor-pointer transition-colors hover:border-blue-400 group"
+              >
+                <span className="text-sm group-hover:scale-125 transition-transform">🇬🇧</span>
+                <span>Inglês</span>
+              </motion.button>
+
+              {/* 3. Pilates */}
+              <motion.button
+                id="hero-orbit-pilates"
+                onClick={() => handleOpenWorkshop('pilates')}
+                animate={{ 
+                  y: [0, -8, 0],
+                  scale: [1, 1.04, 1]
+                }}
+                transition={{ 
+                  duration: 4.2, 
+                  repeat: Infinity, 
+                  ease: "easeInOut",
+                  delay: 0.9
+                }}
+                whileHover={{ scale: 1.12, y: -10 }}
+                whileTap={{ scale: 0.95 }}
+                title="Ver detalhes das aulas de Pilates"
+                className="absolute bottom-12 -right-6 z-20 bg-white/95 backdrop-blur-xs py-1.5 px-3.5 rounded-full shadow-lg hover:shadow-teal-200/60 text-xs font-bold text-stone-800 border border-teal-200/80 flex items-center gap-1.5 cursor-pointer transition-colors hover:border-teal-400 group"
+              >
+                <span className="text-sm group-hover:scale-125 transition-transform">🧘</span>
+                <span>Pilates</span>
+              </motion.button>
+
+              {/* 4. Bordados */}
+              <motion.button
+                id="hero-orbit-embroidery"
+                onClick={() => handleOpenWorkshop('embroidery')}
+                animate={{ 
+                  y: [0, 8, 0],
+                  scale: [1, 1.03, 1]
+                }}
+                transition={{ 
+                  duration: 3.5, 
+                  repeat: Infinity, 
+                  ease: "easeInOut",
+                  delay: 1.3
+                }}
+                whileHover={{ scale: 1.12, y: 10 }}
+                whileTap={{ scale: 0.95 }}
+                title="Ver detalhes da oficina de Bordados"
+                className="absolute -bottom-3 left-1/3 z-20 bg-white/95 backdrop-blur-xs py-1.5 px-3.5 rounded-full shadow-lg hover:shadow-rose-200/60 text-xs font-bold text-stone-800 border border-rose-200/80 flex items-center gap-1.5 cursor-pointer transition-colors hover:border-rose-400 group"
+              >
+                <span className="text-sm group-hover:scale-125 transition-transform">🪡</span>
+                <span>Bordados</span>
+              </motion.button>
+
+              {/* 5. Costura */}
+              <motion.button
+                id="hero-orbit-sewing"
+                onClick={() => handleOpenWorkshop('sewing')}
+                animate={{ 
+                  y: [0, -7, 0],
+                  x: [0, -3, 0],
+                  scale: [1, 1.03, 1]
+                }}
+                transition={{ 
+                  duration: 3.9, 
+                  repeat: Infinity, 
+                  ease: "easeInOut",
+                  delay: 0.7
+                }}
+                whileHover={{ scale: 1.12, y: -9 }}
+                whileTap={{ scale: 0.95 }}
+                title="Ver detalhes da oficina de Costura"
+                className="absolute bottom-16 -left-8 z-20 bg-white/95 backdrop-blur-xs py-1.5 px-3.5 rounded-full shadow-lg hover:shadow-purple-200/60 text-xs font-bold text-stone-800 border border-purple-200/80 flex items-center gap-1.5 cursor-pointer transition-colors hover:border-purple-400 group"
+              >
+                <span className="text-sm group-hover:scale-125 transition-transform">🧵</span>
+                <span>Costura</span>
+              </motion.button>
             </div>
           </div>
         </div>
@@ -216,15 +338,16 @@ export default function HomeView({ setActiveTab }: HomeViewProps) {
               <motion.div 
                 key={index}
                 variants={itemVariants}
-                whileHover={{ y: -5, transition: { duration: 0.2 } }}
+                whileHover={{ y: -6, transition: { duration: 0.2 } }}
                 id={`activity-card-${index}`}
-                className="bg-white rounded-2xl p-6 border border-stone-150 hover:border-emerald-100 hover:shadow-xl hover:shadow-emerald-500/5 transition-all text-left flex flex-col justify-between"
+                onClick={() => handleOpenWorkshop(act.id)}
+                className="bg-white rounded-2xl p-6 border border-stone-150 hover:border-emerald-200 hover:shadow-xl hover:shadow-emerald-500/10 transition-all text-left flex flex-col justify-between cursor-pointer group"
               >
                 <div className="space-y-4">
-                  <div className={`w-fit p-3 rounded-xl ${act.iconColor}`}>
+                  <div className={`w-fit p-3 rounded-xl ${act.iconColor} group-hover:scale-110 transition-transform duration-200`}>
                     <Icon className="h-6 w-6" />
                   </div>
-                  <h3 className="font-sans font-bold text-lg text-stone-900">{act.title}</h3>
+                  <h3 className="font-sans font-bold text-lg text-stone-900 group-hover:text-emerald-700 transition-colors">{act.title}</h3>
                   <p className="text-stone-600 text-sm leading-relaxed">{act.description}</p>
                   <p className="text-xs text-stone-500 border-l-2 border-stone-200 pl-3 leading-relaxed italic">
                     "{act.detail}"
@@ -232,10 +355,13 @@ export default function HomeView({ setActiveTab }: HomeViewProps) {
                 </div>
                 
                 <button 
-                  onClick={() => setActiveTab('projetos')}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleOpenWorkshop(act.id);
+                  }}
                   className="mt-6 text-sm font-semibold text-emerald-700 hover:text-emerald-800 hover:underline inline-flex items-center gap-1 cursor-pointer w-fit"
                 >
-                  Saiba mais sobre a oficina <ChevronRight className="h-4 w-4" />
+                  Saiba mais sobre a oficina <ChevronRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
                 </button>
               </motion.div>
             );
