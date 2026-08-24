@@ -160,14 +160,14 @@ export default function HomeView({ setActiveTab, onSelectWorkshop }: HomeViewPro
             </div>
           </div>
 
-          <div className="lg:col-span-5 flex justify-center">
+          <div className="lg:col-span-5 flex flex-col items-center justify-center">
             {/* Visual Abstract Semente Graphic */}
-            <div className="relative w-72 h-72 md:w-80 md:h-80 bg-stone-55 rounded-full border border-stone-200/60 p-2 flex items-center justify-center shadow-lg shadow-stone-200/50" id="hero-visual-graphic">
+            <div className="relative w-64 h-64 sm:w-72 sm:h-72 md:w-80 md:h-80 bg-stone-55 rounded-full border border-stone-200/60 p-2 flex items-center justify-center shadow-lg shadow-stone-200/50 my-4 sm:my-0" id="hero-visual-graphic">
               {/* Animated subtle outer orbit rings */}
               <motion.div 
                 animate={{ rotate: 360 }}
                 transition={{ duration: 40, repeat: Infinity, ease: "linear" }}
-                className="absolute inset-[-14px] rounded-full border border-dashed border-emerald-300/40 pointer-events-none"
+                className="absolute inset-[-10px] sm:inset-[-14px] rounded-full border border-dashed border-emerald-300/40 pointer-events-none"
               />
               <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-emerald-100/20 via-stone-100/30 to-emerald-50/20 animate-pulse pointer-events-none"></div>
               
@@ -178,13 +178,13 @@ export default function HomeView({ setActiveTab, onSelectWorkshop }: HomeViewPro
                 referrerPolicy="no-referrer"
               />
               
-              {/* Floating interactive course tags */}
+              {/* Floating interactive course tags - desktop & tablet absolute floating */}
               {/* 1. Karatê */}
               <motion.button
                 id="hero-orbit-karate"
                 onClick={() => handleOpenWorkshop('karate')}
                 animate={{ 
-                  y: [0, -8, 0],
+                  y: [0, -6, 0],
                   scale: [1, 1.03, 1]
                 }}
                 transition={{ 
@@ -192,14 +192,14 @@ export default function HomeView({ setActiveTab, onSelectWorkshop }: HomeViewPro
                   repeat: Infinity, 
                   ease: "easeInOut" 
                 }}
-                whileHover={{ scale: 1.12, y: -10 }}
+                whileHover={{ scale: 1.1, y: -8 }}
                 whileTap={{ scale: 0.95 }}
                 title="Ver detalhes da oficina de Karatê"
-                className="absolute -top-3 left-4 z-20 bg-white/95 backdrop-blur-xs py-1.5 px-3.5 rounded-full shadow-lg hover:shadow-orange-200/60 text-xs font-bold text-stone-800 border border-orange-200/80 flex items-center gap-1.5 cursor-pointer transition-colors hover:border-orange-400 group"
+                className="absolute -top-2.5 left-2 sm:-top-3 sm:left-4 z-20 bg-white/95 backdrop-blur-xs py-1 sm:py-1.5 px-2.5 sm:px-3.5 rounded-full shadow-lg hover:shadow-orange-200/60 text-[11px] sm:text-xs font-bold text-stone-800 border border-orange-200/80 flex items-center gap-1 sm:gap-1.5 cursor-pointer transition-colors hover:border-orange-400 group"
               >
-                <span className="text-sm group-hover:scale-125 transition-transform">🥋</span>
-                <span>Karatê Grátis</span>
-                <span className="w-1.5 h-1.5 rounded-full bg-orange-500 animate-ping ml-0.5" />
+                <span className="text-xs sm:text-sm group-hover:scale-125 transition-transform">🥋</span>
+                <span className="whitespace-nowrap">Karatê Grátis</span>
+                <span className="w-1.5 h-1.5 rounded-full bg-orange-500 animate-ping ml-0.5 hidden sm:inline-block" />
               </motion.button>
 
               {/* 2. Inglês */}
@@ -207,8 +207,8 @@ export default function HomeView({ setActiveTab, onSelectWorkshop }: HomeViewPro
                 id="hero-orbit-english"
                 onClick={() => handleOpenWorkshop('english')}
                 animate={{ 
-                  y: [0, -7, 0],
-                  x: [0, 4, 0],
+                  y: [0, -5, 0],
+                  x: [0, 3, 0],
                   scale: [1, 1.03, 1]
                 }}
                 transition={{ 
@@ -217,13 +217,13 @@ export default function HomeView({ setActiveTab, onSelectWorkshop }: HomeViewPro
                   ease: "easeInOut",
                   delay: 0.4
                 }}
-                whileHover={{ scale: 1.12, y: -8 }}
+                whileHover={{ scale: 1.1, y: -7 }}
                 whileTap={{ scale: 0.95 }}
                 title="Ver detalhes do curso de Inglês"
-                className="absolute top-1/4 -right-10 z-20 bg-white/95 backdrop-blur-xs py-1.5 px-3.5 rounded-full shadow-lg hover:shadow-blue-200/60 text-xs font-bold text-stone-800 border border-blue-200/80 flex items-center gap-1.5 cursor-pointer transition-colors hover:border-blue-400 group"
+                className="absolute top-1/4 -right-4 sm:-right-8 md:-right-10 z-20 bg-white/95 backdrop-blur-xs py-1 sm:py-1.5 px-2.5 sm:px-3.5 rounded-full shadow-lg hover:shadow-blue-200/60 text-[11px] sm:text-xs font-bold text-stone-800 border border-blue-200/80 flex items-center gap-1 sm:gap-1.5 cursor-pointer transition-colors hover:border-blue-400 group"
               >
-                <span className="text-sm group-hover:scale-125 transition-transform">🇬🇧</span>
-                <span>Inglês</span>
+                <span className="text-xs sm:text-sm group-hover:scale-125 transition-transform">🇬🇧</span>
+                <span className="whitespace-nowrap">Inglês</span>
               </motion.button>
 
               {/* 3. Pilates */}
@@ -231,7 +231,7 @@ export default function HomeView({ setActiveTab, onSelectWorkshop }: HomeViewPro
                 id="hero-orbit-pilates"
                 onClick={() => handleOpenWorkshop('pilates')}
                 animate={{ 
-                  y: [0, -8, 0],
+                  y: [0, -6, 0],
                   scale: [1, 1.04, 1]
                 }}
                 transition={{ 
@@ -240,13 +240,13 @@ export default function HomeView({ setActiveTab, onSelectWorkshop }: HomeViewPro
                   ease: "easeInOut",
                   delay: 0.9
                 }}
-                whileHover={{ scale: 1.12, y: -10 }}
+                whileHover={{ scale: 1.1, y: -8 }}
                 whileTap={{ scale: 0.95 }}
                 title="Ver detalhes das aulas de Pilates"
-                className="absolute bottom-12 -right-6 z-20 bg-white/95 backdrop-blur-xs py-1.5 px-3.5 rounded-full shadow-lg hover:shadow-teal-200/60 text-xs font-bold text-stone-800 border border-teal-200/80 flex items-center gap-1.5 cursor-pointer transition-colors hover:border-teal-400 group"
+                className="absolute bottom-8 -right-3 sm:bottom-12 sm:-right-6 z-20 bg-white/95 backdrop-blur-xs py-1 sm:py-1.5 px-2.5 sm:px-3.5 rounded-full shadow-lg hover:shadow-teal-200/60 text-[11px] sm:text-xs font-bold text-stone-800 border border-teal-200/80 flex items-center gap-1 sm:gap-1.5 cursor-pointer transition-colors hover:border-teal-400 group"
               >
-                <span className="text-sm group-hover:scale-125 transition-transform">🧘</span>
-                <span>Pilates</span>
+                <span className="text-xs sm:text-sm group-hover:scale-125 transition-transform">🧘</span>
+                <span className="whitespace-nowrap">Pilates</span>
               </motion.button>
 
               {/* 4. Bordados */}
@@ -254,7 +254,7 @@ export default function HomeView({ setActiveTab, onSelectWorkshop }: HomeViewPro
                 id="hero-orbit-embroidery"
                 onClick={() => handleOpenWorkshop('embroidery')}
                 animate={{ 
-                  y: [0, 8, 0],
+                  y: [0, 6, 0],
                   scale: [1, 1.03, 1]
                 }}
                 transition={{ 
@@ -263,13 +263,13 @@ export default function HomeView({ setActiveTab, onSelectWorkshop }: HomeViewPro
                   ease: "easeInOut",
                   delay: 1.3
                 }}
-                whileHover={{ scale: 1.12, y: 10 }}
+                whileHover={{ scale: 1.1, y: 8 }}
                 whileTap={{ scale: 0.95 }}
                 title="Ver detalhes da oficina de Bordados"
-                className="absolute -bottom-3 left-1/3 z-20 bg-white/95 backdrop-blur-xs py-1.5 px-3.5 rounded-full shadow-lg hover:shadow-rose-200/60 text-xs font-bold text-stone-800 border border-rose-200/80 flex items-center gap-1.5 cursor-pointer transition-colors hover:border-rose-400 group"
+                className="absolute -bottom-2.5 left-1/4 sm:-bottom-3 sm:left-1/3 z-20 bg-white/95 backdrop-blur-xs py-1 sm:py-1.5 px-2.5 sm:px-3.5 rounded-full shadow-lg hover:shadow-rose-200/60 text-[11px] sm:text-xs font-bold text-stone-800 border border-rose-200/80 flex items-center gap-1 sm:gap-1.5 cursor-pointer transition-colors hover:border-rose-400 group"
               >
-                <span className="text-sm group-hover:scale-125 transition-transform">🪡</span>
-                <span>Bordados</span>
+                <span className="text-xs sm:text-sm group-hover:scale-125 transition-transform">🪡</span>
+                <span className="whitespace-nowrap">Bordados</span>
               </motion.button>
 
               {/* 5. Costura */}
@@ -277,8 +277,8 @@ export default function HomeView({ setActiveTab, onSelectWorkshop }: HomeViewPro
                 id="hero-orbit-sewing"
                 onClick={() => handleOpenWorkshop('sewing')}
                 animate={{ 
-                  y: [0, -7, 0],
-                  x: [0, -3, 0],
+                  y: [0, -5, 0],
+                  x: [0, -2, 0],
                   scale: [1, 1.03, 1]
                 }}
                 transition={{ 
@@ -287,14 +287,20 @@ export default function HomeView({ setActiveTab, onSelectWorkshop }: HomeViewPro
                   ease: "easeInOut",
                   delay: 0.7
                 }}
-                whileHover={{ scale: 1.12, y: -9 }}
+                whileHover={{ scale: 1.1, y: -7 }}
                 whileTap={{ scale: 0.95 }}
                 title="Ver detalhes da oficina de Costura"
-                className="absolute bottom-16 -left-8 z-20 bg-white/95 backdrop-blur-xs py-1.5 px-3.5 rounded-full shadow-lg hover:shadow-purple-200/60 text-xs font-bold text-stone-800 border border-purple-200/80 flex items-center gap-1.5 cursor-pointer transition-colors hover:border-purple-400 group"
+                className="absolute bottom-10 -left-4 sm:bottom-16 sm:-left-8 z-20 bg-white/95 backdrop-blur-xs py-1 sm:py-1.5 px-2.5 sm:px-3.5 rounded-full shadow-lg hover:shadow-purple-200/60 text-[11px] sm:text-xs font-bold text-stone-800 border border-purple-200/80 flex items-center gap-1 sm:gap-1.5 cursor-pointer transition-colors hover:border-purple-400 group"
               >
-                <span className="text-sm group-hover:scale-125 transition-transform">🧵</span>
-                <span>Costura</span>
+                <span className="text-xs sm:text-sm group-hover:scale-125 transition-transform">🧵</span>
+                <span className="whitespace-nowrap">Costura</span>
               </motion.button>
+            </div>
+
+            {/* Mobile quick scroll pill helper */}
+            <div className="flex sm:hidden items-center justify-center gap-1.5 text-[11px] text-stone-500 font-medium mt-3 bg-stone-100/80 px-3 py-1 rounded-full">
+              <span>Toque em qualquer curso para ver a ementa</span>
+              <ChevronRight className="h-3 w-3 text-emerald-600" />
             </div>
           </div>
         </div>

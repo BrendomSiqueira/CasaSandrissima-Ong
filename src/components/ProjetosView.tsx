@@ -296,23 +296,25 @@ export default function ProjetosView({
         </p>
       </section>
 
-      {/* Selector Tabs */}
-      <section className="flex flex-wrap justify-center gap-3" id="projects-horizontal-tabs">
-        {workshops.map((proj) => (
-          <button
-            key={proj.id}
-            id={`tab-btn-${proj.id}`}
-            onClick={() => setSelectedProjectId(proj.id)}
-            className={`px-5 py-3 rounded-xl border text-sm font-bold tracking-tight transition-all cursor-pointer flex items-center gap-2 ${
-              selectedProjectId === proj.id 
-                ? 'bg-stone-900 border-stone-900 text-white shadow-md shadow-stone-900/10 scale-102' 
-                : 'bg-white border-stone-200 hover:bg-stone-50 text-stone-600'
-            }`}
-          >
-            <span>{getProjectEmoji(proj.id)}</span>
-            <span>{getProjectShortLabel(proj.id)}</span>
-          </button>
-        ))}
+      {/* Selector Tabs - with mobile horizontal smooth scroll support */}
+      <section className="w-full overflow-x-auto no-scrollbar pb-2" id="projects-horizontal-tabs">
+        <div className="flex sm:flex-wrap sm:justify-center items-center gap-2 sm:gap-3 min-w-max sm:min-w-0 px-2 sm:px-0">
+          {workshops.map((proj) => (
+            <button
+              key={proj.id}
+              id={`tab-btn-${proj.id}`}
+              onClick={() => setSelectedProjectId(proj.id)}
+              className={`px-4 sm:px-5 py-2.5 sm:py-3 rounded-xl border text-xs sm:text-sm font-bold tracking-tight transition-all cursor-pointer flex items-center gap-1.5 sm:gap-2 shrink-0 ${
+                selectedProjectId === proj.id 
+                  ? 'bg-stone-900 border-stone-900 text-white shadow-md shadow-stone-900/10 scale-102 ring-2 ring-emerald-500/20' 
+                  : 'bg-white border-stone-200 hover:bg-stone-50 text-stone-700'
+              }`}
+            >
+              <span className="text-base sm:text-lg">{getProjectEmoji(proj.id)}</span>
+              <span>{getProjectShortLabel(proj.id)}</span>
+            </button>
+          ))}
+        </div>
       </section>
 
       {/* Main Feature Layout */}
