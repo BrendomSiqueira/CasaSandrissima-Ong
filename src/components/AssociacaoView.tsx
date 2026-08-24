@@ -4,6 +4,7 @@ import { Target, Compass, Sparkles, UserPlus, CheckCircle2, ShieldCheck, HeartHa
 import { Associate } from '../types';
 import { useModal } from './ModalContext';
 import TactileButton from './TactileButton';
+import Interactive3DCard from './Interactive3DCard';
 
 interface AssociacaoViewProps {
   onAddAssociate: (associate: Associate) => void;
@@ -79,54 +80,51 @@ export default function AssociacaoView({ onAddAssociate, associatesList }: Assoc
         </p>
       </section>
 
-      {/* Grid: Mission, Objectives, Values */}
-      <section className="grid grid-cols-1 md:grid-cols-3 gap-8" id="institution-culture">
+      {/* Grid: Mission, Objectives, Values with 3D Kinetic Mouse Tracking */}
+      <section className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8" id="institution-culture">
         
         {/* Mission card */}
-        <div className="bg-white/85 backdrop-blur-md rounded-2xl p-6 border border-emerald-100/70 shadow-sm relative overflow-hidden" id="card-culture-mission">
-          <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-50/50 rounded-full translate-x-8 -translate-y-8"></div>
-          <div className="space-y-4 relative z-10">
-            <div className="bg-emerald-105 p-3 rounded-xl w-fit text-emerald-600">
-              <Compass className="h-6 w-6" />
-            </div>
-            <h3 className="font-sans font-bold text-lg text-stone-900">Nossa Missão</h3>
-            <p className="text-stone-600 text-sm leading-relaxed">
-              Promover o desenvolvimento social, educativo, moral e cultural de famílias em situação de vulnerabilidade, por meio da educação popular participativa, da disciplina e da capacitação manual.
-            </p>
-          </div>
-        </div>
+        <Interactive3DCard
+          id="card-culture-mission"
+          variant="emerald"
+          badge="01 • Propósito"
+          title="Nossa Missão"
+          icon={<Compass className="h-6 w-6" />}
+        >
+          <p className="text-stone-600 text-sm leading-relaxed">
+            Promover o desenvolvimento social, educativo, moral e cultural de famílias em situação de vulnerabilidade, por meio da educação popular participativa, da disciplina e da capacitação manual.
+          </p>
+        </Interactive3DCard>
 
         {/* Objective card */}
-        <div className="bg-white/85 backdrop-blur-md rounded-2xl p-6 border border-emerald-100/70 shadow-sm relative overflow-hidden" id="card-culture-objective">
-          <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-50/50 rounded-full translate-x-8 -translate-y-8"></div>
-          <div className="space-y-4 relative z-10">
-            <div className="bg-emerald-105 p-3 rounded-xl w-fit text-emerald-600">
-              <Target className="h-6 w-6" />
-            </div>
-            <h3 className="font-sans font-bold text-lg text-stone-900">Nosso Objetivo</h3>
-            <p className="text-stone-600 text-sm leading-relaxed">
-              Semear dignidade, expandindo nossa rede de proteção para acolher cada vez mais famílias. Ajudando-os com monitoramento, fornecimento de materiais didáticos e inserção em oficinas qualificadoras.
-            </p>
-          </div>
-        </div>
+        <Interactive3DCard
+          id="card-culture-objective"
+          variant="teal"
+          badge="02 • Compromisso"
+          title="Nosso Objetivo"
+          icon={<Target className="h-6 w-6" />}
+        >
+          <p className="text-stone-600 text-sm leading-relaxed">
+            Semear dignidade, expandindo nossa rede de proteção para acolher cada vez mais famílias. Ajudando-os com monitoramento, fornecimento de materiais didáticos e inserção em oficinas qualificadoras.
+          </p>
+        </Interactive3DCard>
 
         {/* Values card */}
-        <div className="bg-white/85 backdrop-blur-md rounded-2xl p-6 border border-emerald-100/70 shadow-sm relative overflow-hidden" id="card-culture-values">
-          <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-50/50 rounded-full translate-x-8 -translate-y-8"></div>
-          <div className="space-y-4 relative z-10">
-            <div className="bg-emerald-105 p-3 rounded-xl w-fit text-emerald-600">
-              <Sparkles className="h-6 w-6" />
-            </div>
-            <h3 className="font-sans font-bold text-lg text-stone-900">Nossos Valores</h3>
-            <ul className="text-stone-600 text-sm leading-relaxed space-y-1.5 list-disc pl-4">
-              <li>Dignidade Humana e Alento</li>
-              <li>Respeito Incondicional à Diversidade</li>
-              <li>Coletividade e Compartilhamento</li>
-              <li>Educação Popular Emancipadora</li>
-              <li>Ética e Governança Aberta</li>
-            </ul>
-          </div>
-        </div>
+        <Interactive3DCard
+          id="card-culture-values"
+          variant="amber"
+          badge="03 • Pilares Éticos"
+          title="Nossos Valores"
+          icon={<Sparkles className="h-6 w-6" />}
+        >
+          <ul className="text-stone-600 text-sm leading-relaxed space-y-1.5 list-disc pl-4 marker:text-amber-500 font-medium">
+            <li>Dignidade Humana e Alento</li>
+            <li>Respeito Incondicional à Diversidade</li>
+            <li>Coletividade e Compartilhamento</li>
+            <li>Educação Popular Emancipadora</li>
+            <li>Ética e Governança Aberta</li>
+          </ul>
+        </Interactive3DCard>
 
       </section>
 
