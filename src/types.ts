@@ -90,3 +90,22 @@ export interface Donation {
   date: string;
   approved?: boolean;
 }
+
+export interface Workshop {
+  id: 'karate' | 'english' | 'sewing' | 'pilates' | 'embroidery' | string;
+  title: string;
+  subTitle: string;
+  description: string;
+  longDesc: string;
+  color: string;
+  accentBg: string;
+  timetable: string;
+  targetPublic: string;
+  requirements: string;
+  cost: string;
+  items: string[];
+  stats?: { students: number; volunteers: number; limit: number };
+  imageUrl?: string;
+  updatedAt?: string;
+  updatedBy?: string;
+}

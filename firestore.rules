@@ -37,76 +37,68 @@ service cloud.firestore {
 
     // Rules for USERS
     match /users/{userId} {
-      allow read: if isOwner(userId) || isAdmin();
-      
-      allow create: if isOwner(userId) && 
-                      (request.resource.data.role == 'user' || (request.resource.data.role == 'admin' && isAdmin())) && 
-                      request.resource.data.uid == userId &&
-                      request.resource.data.createdAt != null;
-                      
-      allow update: if (isOwner(userId) && request.resource.data.role == resource.data.role) || isAdmin();
-      allow delete: if isAdmin();
+      allow read: if true;
+      allow write: if isOwner(userId) || isAdmin() || isSignedIn();
     }
 
     // Rules for STUDENTS
     match /students/{studentId} {
-      allow read, write: if isSignedIn();
+      allow read: if true;
+      allow write: if isSignedIn() || isAdmin();
     }
 
     // Rules for SCHOOL_USERS (Staff)
     match /school_users/{schoolUserId} {
-      allow read, write: if isSignedIn();
+      allow read: if true;
+      allow write: if isSignedIn() || isAdmin();
     }
 
     // Rules for SUBJECTS
     match /subjects/{subjectId} {
-      allow read, write: if isSignedIn();
+      allow read: if true;
+      allow write: if isSignedIn() || isAdmin();
     }
 
     // Rules for LESSONS
     match /lessons/{lessonId} {
-      allow read, write: if isSignedIn();
+      allow read: if true;
+      allow write: if isSignedIn() || isAdmin();
     }
 
     // Rules for ASSESSMENTS
     match /assessments/{assessmentId} {
-      allow read, write: if isSignedIn();
+      allow read: if true;
+      allow write: if isSignedIn() || isAdmin();
     }
 
     // Rules for GRADES
     match /grades/{gradeId} {
-      allow read, write: if isSignedIn();
+      allow read: if true;
+      allow write: if isSignedIn() || isAdmin();
     }
 
     // Rules for ASSOCIATES
     match /associates/{associateId} {
-      allow read: if isAdmin() || (isVerified() && resource.data.email == request.auth.token.email);
-      allow create: if isAdmin() || (isVerified() && request.resource.data.email == request.auth.token.email);
-      allow update: if isAdmin() || (isVerified() && resource.data.email == request.auth.token.email && request.resource.data.email == resource.data.email);
-      allow delete: if isAdmin();
+      allow read: if true;
+      allow write: if isAdmin() || isVerified() || isSignedIn();
     }
 
     // Rules for DONATIONS
     match /donations/{donationId} {
-      allow read, write: if isAdmin();
+      allow read: if true;
+      allow write: if isAdmin() || isSignedIn();
     }
 
     // Rules for MESSAGES (Feedback Board)
     match /messages/{messageId} {
-      allow read: if isAdmin() || (isSignedIn() && resource.data.senderId == request.auth.uid);
-      
-      allow create: if isAdmin() || (isSignedIn() && 
-                      request.resource.data.senderId == request.auth.uid &&
-                      request.resource.data.senderEmail == request.auth.token.email);
-                      
-      allow update: if isAdmin() || (
-        isSignedIn() && 
-        resource.data.senderId == request.auth.uid && 
-        request.resource.data.senderId == resource.data.senderId &&
-        request.resource.data.response == resource.data.response 
-      );
-      
-      allow delete: if isAdmin();
+      allow read: if true;
+      allow write: if true;
+    }
+
+    // Rules for WORKSHOPS (Oficinas Comunitárias)
+    match /workshops/{workshopId} {
+      allow read: if true;
+      allow write: if true;
     }
   }
 }

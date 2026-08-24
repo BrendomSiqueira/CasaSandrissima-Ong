@@ -130,8 +130,10 @@ export async function signInWithEmail(email: string, pass: string): Promise<User
   try {
     const cred = await signInWithEmailAndPassword(auth, email.trim(), pass);
     return cred.user;
-  } catch (error) {
-    console.error("Error signing in with email: ", error);
+  } catch (error: any) {
+    if (error?.code !== 'auth/operation-not-allowed') {
+      console.warn("Notice signing in with email:", error?.message || error);
+    }
     throw error;
   }
 }
@@ -145,8 +147,10 @@ export async function signUpWithEmail(email: string, pass: string, displayName: 
       });
     }
     return cred.user;
-  } catch (error) {
-    console.error("Error creating user with email: ", error);
+  } catch (error: any) {
+    if (error?.code !== 'auth/operation-not-allowed') {
+      console.warn("Notice creating user with email:", error?.message || error);
+    }
     throw error;
   }
 }
@@ -154,8 +158,10 @@ export async function signUpWithEmail(email: string, pass: string, displayName: 
 export async function sendPasswordReset(email: string): Promise<void> {
   try {
     await sendPasswordResetEmail(auth, email.trim());
-  } catch (error) {
-    console.error("Error sending password reset email: ", error);
+  } catch (error: any) {
+    if (error?.code !== 'auth/operation-not-allowed') {
+      console.warn("Notice sending password reset email:", error?.message || error);
+    }
     throw error;
   }
 }

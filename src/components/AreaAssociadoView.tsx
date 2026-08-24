@@ -8,7 +8,7 @@ import {
 } from 'lucide-react';
 import { Student, Associate, Donation, SchoolUser, Subject, Lesson, Assessment, Grade } from '../types';
 import { useFirebase } from '../firebaseContext';
-import { signInWithGoogle, logoutUser } from '../firebase';
+import { logoutUser } from '../firebase';
 import { encryptPassword, decryptPassword } from '../lib/crypto';
 import { useModal } from './ModalContext';
 import PencilLoader from './PencilLoader';
@@ -36,7 +36,7 @@ export default function AreaAssociadoView({
     user, 
     profile, 
     loading, 
-    isAdmin: isGoogleAdmin, 
+    isAdmin, 
     isAssociate, 
     messages, 
     addMessage, 
@@ -44,6 +44,8 @@ export default function AreaAssociadoView({
     addAssociate,
     addDonation,
     deleteDonation,
+    loginWithEmail,
+    registerWithEmail,
 
     // School SGE tables and methods
     addStudent,
@@ -77,13 +79,23 @@ export default function AreaAssociadoView({
     updateDonation
   } = useFirebase();
 
-  // Authentication mode: 'google' (associados) or 'school' (super_admin, admin, professor)
-  const [loginMethod, setLoginMethod] = useState<'google' | 'school'>('school');
+  // Authentication mode: 'site' (alunos/apoiadores) or 'school' (super_admin, admin, professor)
+  const [loginMethod, setLoginMethod] = useState<'site' | 'school'>('school');
   
   // Credentials custom credentials login state
   const [credentials, setCredentials] = useState({ email: '', password: '' });
   const [showPassword, setShowPassword] = useState(false);
   const [loginError, setLoginError] = useState('');
+
+  // Site Email/Password Authentication (for supporters/students)
+  const [siteAuthMode, setSiteAuthMode] = useState<'login' | 'register'>('login');
+  const [siteName, setSiteName] = useState('');
+  const [siteEmail, setSiteEmail] = useState('');
+  const [sitePassword, setSitePassword] = useState('');
+  const [siteConfirmPassword, setSiteConfirmPassword] = useState('');
+  const [siteShowPassword, setSiteShowPassword] = useState(false);
+  const [siteIsSubmitting, setSiteIsSubmitting] = useState(false);
+  const [siteError, setSiteError] = useState('');
 
   // Active School user session
   const [loggedInStaff, setLoggedInStaff] = useState<SchoolUser | null>(() => {
@@ -154,35 +166,55 @@ export default function AreaAssociadoView({
   const [financeSearch, setFinanceSearch] = useState('');
   const [financeTypeFilter, setFinanceTypeFilter] = useState('all');
 
-  // Authentication triggers
-  const handleGoogleLogin = async () => {
-    try {
-      await signInWithGoogle();
-    } catch (e: any) {
-      if (e?.code === 'auth/popup-closed-by-user' || e?.code === 'auth/cancelled-popup-request') {
+  // Authentication for Site Users (Alunos e Apoiadores)
+  const handleSiteAuthSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSiteError('');
+
+    const cleanEmail = siteEmail.trim();
+    if (!cleanEmail || !sitePassword) {
+      setSiteError('Por favor, informe seu e-mail e senha.');
+      return;
+    }
+
+    if (siteAuthMode === 'register') {
+      if (!siteName.trim()) {
+        setSiteError('Por favor, informe seu nome completo.');
         return;
       }
-      if (e?.code === 'auth/unauthorized-domain') {
-        await alert(
-          `O domínio atual (${typeof window !== 'undefined' ? window.location.hostname : ''}) não está autorizado no Firebase Console. Utilize a aba "Acesso por Senha" ou adicione o domínio em Authentication > Settings.`,
-          "Domínio não autorizado",
-          "warn"
-        );
-      } else if (e?.code === 'auth/popup-blocked') {
-        const openTab = await confirm(
-          "A janela pop-up do Google foi bloqueada pelo navegador no iframe. Deseja abrir a aplicação em uma nova aba para autenticar?",
-          "Janela Bloqueada",
-          "info"
-        );
-        if (openTab && typeof window !== 'undefined') {
-          window.open(window.location.href, '_blank');
+      if (sitePassword.length < 6) {
+        setSiteError('A senha deve ter no mínimo 6 caracteres.');
+        return;
+      }
+      if (sitePassword !== siteConfirmPassword) {
+        setSiteError('As senhas digitadas não conferem.');
+        return;
+      }
+
+      setSiteIsSubmitting(true);
+      try {
+        await registerWithEmail(cleanEmail, sitePassword, siteName.trim());
+        setSiteIsSubmitting(false);
+      } catch (err: any) {
+        setSiteIsSubmitting(false);
+        const code = err?.code || '';
+        if (code === 'auth/email-already-in-use') {
+          setSiteError('Este e-mail já possui cadastro. Faça login na aba "Entrar".');
+        } else if (code === 'auth/weak-password') {
+          setSiteError('A senha deve conter no mínimo 6 caracteres.');
+        } else {
+          setSiteError('Não foi possível realizar o cadastro. Verifique os dados e tente novamente.');
         }
-      } else {
-        await alert(
-          "Não foi possível autenticar com o Google. Você também pode acessar diretamente com seu e-mail e senha na aba ao lado.",
-          "Autenticação Social",
-          "error"
-        );
+      }
+    } else {
+      // Login
+      setSiteIsSubmitting(true);
+      try {
+        await loginWithEmail(cleanEmail, sitePassword);
+        setSiteIsSubmitting(false);
+      } catch (err: any) {
+        setSiteIsSubmitting(false);
+        setSiteError('E-mail ou senha incorretos. Se não possui conta, mude para a aba "Cadastrar".');
       }
     }
   };
@@ -691,20 +723,20 @@ export default function AreaAssociadoView({
           {/* Tab Selector */}
           <div className="flex bg-stone-100 rounded-xl p-1 gap-1">
             <button
-              onClick={() => { setLoginMethod('school'); setLoginError(''); }}
+              onClick={() => { setLoginMethod('school'); setLoginError(''); setSiteError(''); }}
               className={`flex-1 py-1.5 rounded-lg text-xs font-bold transition-all ${
                 loginMethod === 'school' ? 'bg-white text-stone-900 shadow-sm' : 'text-stone-500 hover:text-stone-850'
               }`}
             >
-              💼 Professores e Coordenação
+              💼 Professores & SGE
             </button>
             <button
-              onClick={() => { setLoginMethod('google'); setLoginError(''); }}
+              onClick={() => { setLoginMethod('site'); setLoginError(''); setSiteError(''); }}
               className={`flex-1 py-1.5 rounded-lg text-xs font-bold transition-all ${
-                loginMethod === 'google' ? 'bg-white text-stone-900 shadow-sm' : 'text-stone-500 hover:text-stone-850'
+                loginMethod === 'site' ? 'bg-white text-stone-900 shadow-sm' : 'text-stone-500 hover:text-stone-850'
               }`}
             >
-              🤝 Apoiadores (Google)
+              🤝 Alunos & Apoiadores
             </button>
           </div>
 
@@ -751,7 +783,7 @@ export default function AreaAssociadoView({
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3.5 top-3 text-stone-400 hover:text-stone-600"
+                      className="absolute right-3.5 top-3 text-stone-400 hover:text-stone-600 cursor-pointer"
                     >
                       {showPassword ? <EyeOff className="h-4.5 w-4.5" /> : <Eye className="h-4.5 w-4.5" />}
                     </button>
@@ -773,31 +805,122 @@ export default function AreaAssociadoView({
                 </div>
               </motion.form>
             ) : (
-              <motion.div 
-                key="google-login-form"
+              <motion.form 
+                key="site-user-form"
                 initial={{ opacity: 0, y: 5 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -5 }}
-                className="space-y-4"
+                onSubmit={handleSiteAuthSubmit}
+                className="space-y-3.5 text-left"
               >
-                <button
-                  type="button"
-                  onClick={handleGoogleLogin}
-                  className="w-full flex items-center justify-center gap-3 bg-stone-900 hover:bg-stone-850 text-white font-bold h-12 px-4 rounded-xl shadow-lg transition-all transform hover:-translate-y-0.5 cursor-pointer text-sm"
-                >
-                  <svg className="h-5 w-5 fill-current shrink-0" viewBox="0 0 24 24">
-                    <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
-                    <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
-                    <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l3.66-2.85z" fill="#FBBC05" />
-                    <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" fill="#EA4335" />
-                  </svg>
-                  Login do Associado Google
-                </button>
-                <div className="bg-stone-50 border border-stone-200 rounded-2xl p-4 text-xs text-stone-550 leading-relaxed text-center">
-                  <p className="font-semibold text-stone-700">Apoiadores & Voluntários</p>
-                  Ideal para cadastrar manifestos de ajuda, registrar doações recebidas ou dar sugestões rápidas para a gestão executiva da Casa.
+                {/* Switch between site login and register */}
+                <div className="flex bg-stone-100 rounded-xl p-1 gap-1">
+                  <button
+                    type="button"
+                    onClick={() => { setSiteAuthMode('login'); setSiteError(''); }}
+                    className={`flex-1 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                      siteAuthMode === 'login' ? 'bg-white text-emerald-800 shadow-xs' : 'text-stone-500 hover:text-stone-800'
+                    }`}
+                  >
+                    Entrar na Conta
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => { setSiteAuthMode('register'); setSiteError(''); }}
+                    className={`flex-1 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                      siteAuthMode === 'register' ? 'bg-white text-emerald-800 shadow-xs' : 'text-stone-500 hover:text-stone-800'
+                    }`}
+                  >
+                    Criar Novo Cadastro
+                  </button>
                 </div>
-              </motion.div>
+
+                {siteError && (
+                  <div className="bg-red-50 border border-red-200 text-red-800 p-3 rounded-xl text-xs font-semibold flex items-center gap-1.5">
+                    <AlertTriangle className="h-4 w-4 shrink-0" />
+                    {siteError}
+                  </div>
+                )}
+
+                {siteAuthMode === 'register' && (
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-bold font-mono text-stone-600 uppercase block">Nome Completo</label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="Ex: João da Silva"
+                      value={siteName}
+                      onChange={e => setSiteName(e.target.value)}
+                      className="w-full h-10 px-3.5 bg-stone-50 border border-stone-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+                    />
+                  </div>
+                )}
+
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold font-mono text-stone-600 uppercase block">E-mail</label>
+                  <input
+                    type="email"
+                    required
+                    placeholder="seu.email@exemplo.com"
+                    value={siteEmail}
+                    onChange={e => setSiteEmail(e.target.value)}
+                    className="w-full h-10 px-3.5 bg-stone-50 border border-stone-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold font-mono text-stone-600 uppercase block">Senha</label>
+                  <div className="relative">
+                    <input
+                      type={siteShowPassword ? 'text' : 'password'}
+                      required
+                      placeholder="Mínimo 6 caracteres"
+                      value={sitePassword}
+                      onChange={e => setSitePassword(e.target.value)}
+                      className="w-full h-10 pl-3.5 pr-10 bg-stone-50 border border-stone-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setSiteShowPassword(!siteShowPassword)}
+                      className="absolute right-3.5 top-2.5 text-stone-400 hover:text-stone-600 cursor-pointer"
+                    >
+                      {siteShowPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </button>
+                  </div>
+                </div>
+
+                {siteAuthMode === 'register' && (
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-bold font-mono text-stone-600 uppercase block">Confirmar Senha</label>
+                    <input
+                      type={siteShowPassword ? 'text' : 'password'}
+                      required
+                      placeholder="Repita sua senha"
+                      value={siteConfirmPassword}
+                      onChange={e => setSiteConfirmPassword(e.target.value)}
+                      className="w-full h-10 px-3.5 bg-stone-50 border border-stone-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+                    />
+                  </div>
+                )}
+
+                <button
+                  type="submit"
+                  disabled={siteIsSubmitting}
+                  className="w-full select-none h-11 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-bold rounded-xl text-xs uppercase tracking-wider transition-all shadow-md active:scale-[0.98] cursor-pointer mt-1"
+                >
+                  {siteIsSubmitting 
+                    ? 'Processando...' 
+                    : siteAuthMode === 'register' 
+                      ? 'Cadastrar Minha Conta' 
+                      : 'Entrar no Site'}
+                </button>
+
+                <p className="text-[11px] text-stone-500 text-center">
+                  {siteAuthMode === 'login' 
+                    ? 'Acesso para alunos, voluntários e doadores cadastrados no site.' 
+                    : 'Cadastre-se para participar da comunidade da Casa Sandríssima.'}
+                </p>
+              </motion.form>
             )}
           </AnimatePresence>
         </div>
@@ -2625,7 +2748,7 @@ export default function AreaAssociadoView({
               <div>
                 <h3 className="font-sans font-black text-lg text-stone-900">Oficialize sua Associação</h3>
                 <p className="text-xs text-stone-500 mt-1 leading-relaxed">
-                  Ainda não identificamos seu e-mail do Google em nosso cadastro de apoiadores. Complete seu perfil para participar da ouvidoria de propostas.
+                  Ainda não identificamos seu e-mail em nosso cadastro de apoiadores. Complete seu perfil para participar da ouvidoria de propostas.
                 </p>
               </div>
 
