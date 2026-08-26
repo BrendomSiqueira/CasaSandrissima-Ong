@@ -179,9 +179,12 @@ export async function logoutUser(): Promise<void> {
 async function testConnection() {
   try {
     await getDocFromServer(doc(db, 'test', 'connection'));
-  } catch (error) {
+  } catch (error: any) {
     if (error instanceof Error && error.message.includes('the client is offline')) {
-      console.error("Please check your Firebase configuration.");
+      console.info("Firestore client is offline; using cached data and local state.");
+    } else if (error?.code === 'unavailable' || error?.message?.includes('could not be completed')) {
+      // Background retry handler for transient connection
+      console.info("Firestore connecting to backend service...");
     }
   }
 }

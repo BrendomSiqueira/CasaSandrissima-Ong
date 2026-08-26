@@ -100,5 +100,11 @@ service cloud.firestore {
       allow read: if true;
       allow write: if true;
     }
+
+    // Rules for Test connection
+    match /test/{testId} {
+      allow read: if true;
+      allow write: if false;
+    }
   }
 }
