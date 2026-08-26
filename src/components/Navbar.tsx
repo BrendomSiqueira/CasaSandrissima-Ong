@@ -22,12 +22,19 @@ interface NavbarProps {
   activeTab: ActiveTab;
   setActiveTab: (tab: ActiveTab) => void;
   onOpenLoginModal: (reason?: 'galeria' | 'doacoes' | 'portal' | 'geral' | 'aluno_apoiador') => void;
+  onNavigateToSgeTab?: (tab: 'students' | 'users' | 'subjects' | 'lessons' | 'grades' | 'boletim' | 'messages' | 'associates' | 'finance') => void;
 }
 
-export default function Navbar({ activeTab, setActiveTab, onOpenLoginModal }: NavbarProps) {
-  const { user, logout } = useFirebase();
+export default function Navbar({ activeTab, setActiveTab, onOpenLoginModal, onNavigateToSgeTab }: NavbarProps) {
+  const { user, logout, isMaster } = useFirebase();
   const [isOpen, setIsOpen] = useState(false);
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
+
+  // Check if current authenticated user has Master privileges
+  const isMasterUser = isMaster || 
+    user?.email?.toLowerCase() === 'brendomdev@gmail.com' || 
+    user?.email?.toLowerCase() === 'brendomsiqueira96@gmail.com' || 
+    user?.email?.toLowerCase() === 'hardcoders@gmail.com';
 
   // Clean public navigation tabs
   const navItems = [
@@ -208,6 +215,32 @@ export default function Navbar({ activeTab, setActiveTab, onOpenLoginModal }: Na
                           <span>Histórico de Apoio / Doações</span>
                         </button>
 
+                        {/* Master Shortcut: Cadastro de Alunos nas Turmas */}
+                        {isMasterUser && (
+                          <button
+                            id="user-dropdown-cadastro-alunos"
+                            onClick={() => {
+                              if (onNavigateToSgeTab) {
+                                onNavigateToSgeTab('students');
+                              } else {
+                                setActiveTab('area_associado');
+                              }
+                              setUserDropdownOpen(false);
+                            }}
+                            className="w-full flex items-center justify-between px-3 py-2 text-xs font-bold text-emerald-900 bg-emerald-50 hover:bg-emerald-100/90 rounded-xl transition-all border border-emerald-200/80 cursor-pointer shadow-2xs group"
+                          >
+                            <div className="flex items-center gap-2.5">
+                              <div className="p-1 rounded-lg bg-emerald-600 text-white shadow-2xs group-hover:scale-105 transition-transform">
+                                <Users className="h-3.5 w-3.5" />
+                              </div>
+                              <span className="text-left font-extrabold text-emerald-950">Cadastro de Alunos</span>
+                            </div>
+                            <span className="text-[9px] px-1.5 py-0.5 bg-emerald-700 text-white rounded font-mono font-black uppercase tracking-wider">
+                              Master
+                            </span>
+                          </button>
+                        )}
+
                         <button
                           onClick={() => {
                             setActiveTab('area_associado');
@@ -372,6 +405,28 @@ export default function Navbar({ activeTab, setActiveTab, onOpenLoginModal }: Na
               {/* Discreet Mobile Admin Portal Entry (Only if user is logged in) */}
               {user && (
                 <div className="pt-2 border-t border-stone-100 space-y-1">
+                  {isMasterUser && (
+                    <button
+                      onClick={() => {
+                        if (onNavigateToSgeTab) {
+                          onNavigateToSgeTab('students');
+                        } else {
+                          setActiveTab('area_associado');
+                        }
+                        setIsOpen(false);
+                      }}
+                      className="w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-bold bg-emerald-50 text-emerald-950 border border-emerald-200 transition-colors cursor-pointer"
+                    >
+                      <div className="flex items-center gap-3">
+                        <Users className="h-5 w-5 text-emerald-600" />
+                        <span>Cadastro de Alunos nas Turmas</span>
+                      </div>
+                      <span className="text-[10px] px-2 py-0.5 bg-emerald-700 text-white rounded-md font-mono font-bold uppercase tracking-wider">
+                        Master
+                      </span>
+                    </button>
+                  )}
+
                   <button
                     onClick={() => {
                       setActiveTab('area_associado');

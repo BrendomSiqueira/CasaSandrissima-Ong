@@ -152,7 +152,7 @@ const defaultStudentsList: Student[] = [
 ];
 
 const defaultSchoolUsers: SchoolUser[] = [
-  { id: 'su_1', email: 'Brendomdev@gmail.com', password: '123', name: 'Brendom Siqueira Dev', role: 'super_admin', title: 'Diretor Geral - Master', createdAt: new Date().toISOString() },
+  { id: 'su_1', email: 'brendomdev@gmail.com', password: '123', name: 'Brendom Siqueira Dev', role: 'super_admin', title: 'Diretor Geral - Master', createdAt: new Date().toISOString() },
   { id: 'su_2', email: 'sandra@casa.org', password: '123', name: 'Ana Sandra Abreu', role: 'admin', title: 'Coordenadora Pedagógica', createdAt: new Date().toISOString() },
   { id: 'su_3', email: 'marcelo@casa.org', password: '123', name: 'Prof. Marcelo Rodrigues', role: 'professor', title: 'Língua Inglesa & Karatê', createdAt: new Date().toISOString() },
   { id: 'su_4', email: 'carla@casa.org', password: '123', name: 'Profa. Carla Antunes', role: 'professor', title: 'Oficinas de Costura & Bordado', createdAt: new Date().toISOString() }

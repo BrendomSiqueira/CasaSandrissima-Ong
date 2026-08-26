@@ -12,16 +12,34 @@ export interface GalleryPhoto {
   tags: string[];
 }
 
+export interface ClassTurma {
+  id: string;
+  name: string;
+  course: 'karate' | 'english' | 'sewing' | 'pilates' | 'embroidery';
+  courseName: string;
+  schedule: string;
+  maxCapacity: number;
+  room?: string;
+  teacherName?: string;
+  description?: string;
+}
+
 export interface Student {
   id: string;
   name: string;
   matricula: string;
-  turma: string; // e.g., "Turma A", "Turma B"
+  turma: string; // e.g., "Turma A", "Turma B" or custom turma name
+  turmaId?: string;
   age: number;
   course: 'karate' | 'english' | 'sewing' | 'pilates' | 'embroidery';
   status: 'active' | 'inactive';
   joinedAt: string;
   guardianName?: string;
+  guardianPhone?: string;
+  phone?: string;
+  birthDate?: string;
+  address?: string;
+  notes?: string;
   attendanceCount: number;
   totalClasses: number;
 }

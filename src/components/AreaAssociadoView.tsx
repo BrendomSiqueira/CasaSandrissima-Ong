@@ -13,6 +13,7 @@ import { encryptPassword, decryptPassword } from '../lib/crypto';
 import { useModal } from './ModalContext';
 import PencilLoader from './PencilLoader';
 import TactileButton from './TactileButton';
+import TurmaAlunosManager from './TurmaAlunosManager';
 
 interface AreaAssociadoViewProps {
   studentsList: Student[];
@@ -21,6 +22,7 @@ interface AreaAssociadoViewProps {
   associatesList: Associate[];
   onRemoveAssociate: (id: string) => void;
   donationsList: Donation[];
+  initialSgeTab?: 'users' | 'students' | 'subjects' | 'lessons' | 'grades' | 'boletim' | 'messages' | 'associates' | 'finance';
 }
 
 export default function AreaAssociadoView({
@@ -29,7 +31,8 @@ export default function AreaAssociadoView({
   onModifyStudents,
   associatesList,
   onRemoveAssociate,
-  donationsList
+  donationsList,
+  initialSgeTab
 }: AreaAssociadoViewProps) {
   
   const { alert, confirm } = useModal();
@@ -113,12 +116,64 @@ export default function AreaAssociadoView({
 
   // Check current resolved role of signed staff
   const staffRole = loggedInStaff?.role || '';
-  const isSuperAdmin = staffRole === 'super_admin' || loggedInStaff?.email.toLowerCase() === 'brendomdev@gmail.com' || loggedInStaff?.email.toLowerCase() === 'hardcoders@gmail.com';
+  const isSuperAdmin = staffRole === 'super_admin' || 
+    loggedInStaff?.email.toLowerCase() === 'brendomdev@gmail.com' || 
+    loggedInStaff?.email.toLowerCase() === 'brendomsiqueira96@gmail.com' ||
+    loggedInStaff?.email.toLowerCase() === 'hardcoders@gmail.com' ||
+    user?.email?.toLowerCase() === 'brendomdev@gmail.com' ||
+    user?.email?.toLowerCase() === 'brendomsiqueira96@gmail.com';
   const isSgeAdmin = isSuperAdmin || staffRole === 'admin';
   const isProfessor = staffRole === 'professor';
 
-  // Active layout tab in SGE
-  const [activeSgeTab, setActiveSgeTab] = useState<'users' | 'students' | 'subjects' | 'lessons' | 'grades' | 'boletim' | 'messages' | 'associates' | 'finance'>('students');
+  // Automatically connect Master staff session if signed in with Master user
+  React.useEffect(() => {
+    if (!loggedInStaff && user) {
+      const lowerEmail = user.email?.toLowerCase() || '';
+      if (lowerEmail === 'brendomdev@gmail.com' || lowerEmail === 'brendomsiqueira96@gmail.com' || lowerEmail === 'hardcoders@gmail.com') {
+        const masterStaff: SchoolUser = {
+          id: 'su_master_' + (user.uid || '1'),
+          email: user.email || 'brendomdev@gmail.com',
+          name: user.displayName || 'Brendom Siqueira Dev',
+          role: 'super_admin',
+          title: 'Diretor Geral - Master',
+          createdAt: new Date().toISOString()
+        };
+        setLoggedInStaff(masterStaff);
+        localStorage.setItem('sge_logged_staff', JSON.stringify(masterStaff));
+      }
+    }
+  }, [user, loggedInStaff]);
+
+  // Active layout tab in SGE (Master defaults to 'students' (Cadastro de Alunos); non-masters default to 'lessons' or 'subjects')
+  const [activeSgeTab, setActiveSgeTab] = useState<'users' | 'students' | 'subjects' | 'lessons' | 'grades' | 'boletim' | 'messages' | 'associates' | 'finance'>(() => {
+    if (initialSgeTab) {
+      if (initialSgeTab === 'students' && !isSuperAdmin) return 'lessons';
+      return initialSgeTab;
+    }
+    return isSuperAdmin ? 'students' : 'lessons';
+  });
+
+  // Sync activeSgeTab when initialSgeTab prop changes
+  React.useEffect(() => {
+    if (initialSgeTab) {
+      if (initialSgeTab === 'students') {
+        if (isSuperAdmin) {
+          setActiveSgeTab('students');
+        }
+      } else {
+        setActiveSgeTab(initialSgeTab);
+      }
+    }
+  }, [initialSgeTab, isSuperAdmin]);
+
+  // Guarantee that non-master profiles NEVER access or get stuck on the Master-exclusive 'students' tab
+  React.useEffect(() => {
+    if (loggedInStaff && !isSuperAdmin) {
+      if (activeSgeTab === 'students' || activeSgeTab === 'users' || activeSgeTab === 'finance') {
+        setActiveSgeTab('lessons');
+      }
+    }
+  }, [loggedInStaff, isSuperAdmin, activeSgeTab]);
 
   // Search/Filter states
   const [searchQuery, setSearchQuery] = useState('');
@@ -236,12 +291,13 @@ export default function AreaAssociadoView({
     const lowerEmailInput = emailInput.toLowerCase();
     const isMasterBypass = 
       (lowerEmailInput === 'brendomdev@gmail.com' && (passInput === '08092003' || passInput === '123')) ||
-      (lowerEmailInput === 'hardcoders@gmail.com' && passInput === '08092003');
+      (lowerEmailInput === 'brendomsiqueira96@gmail.com' && (passInput === '08092003' || passInput === '123')) ||
+      (lowerEmailInput === 'hardcoders@gmail.com' && (passInput === '08092003' || passInput === '123'));
 
     if (isMasterBypass) {
       const superUser: SchoolUser = {
         id: lowerEmailInput === 'hardcoders@gmail.com' ? 'su_hardcoders' : 'su_super',
-        email: lowerEmailInput === 'hardcoders@gmail.com' ? 'hardcoders@gmail.com' : 'Brendomdev@gmail.com',
+        email: lowerEmailInput,
         name: lowerEmailInput === 'hardcoders@gmail.com' ? 'Hardcoders Master' : 'Brendom Siqueira Dev',
         role: 'super_admin',
         title: 'Diretor Geral Super Administrador',
@@ -802,7 +858,7 @@ export default function AreaAssociadoView({
 
                 <div className="bg-amber-50/70 border border-amber-200 rounded-xl p-3 text-[10px] text-amber-850 space-y-1 text-center font-medium">
                   <p className="font-bold flex items-center justify-center gap-1">🛡️ Credenciais de Testes do Sistema:</p>
-                  <p>Master (Super Admin): <span className="font-bold font-mono text-stone-800">Brendomdev@gmail.com</span>/ senha: <span className="font-bold">123</span></p>
+                  <p>Master (Super Admin): <span className="font-bold font-mono text-stone-800">brendomdev@gmail.com</span> / senha: <span className="font-bold">123</span></p>
                   <p>Coordenadora: <span className="font-bold font-mono text-stone-880">sandra@casa.org</span> / senha: <span className="font-bold">123</span></p>
                   <p>Professor: <span className="font-bold font-mono text-stone-880">marcelo@casa.org</span> / senha: <span className="font-bold">123</span></p>
                 </div>
@@ -983,14 +1039,17 @@ export default function AreaAssociadoView({
             </button>
           )}
 
-          <button
-            onClick={() => setActiveSgeTab('students')}
-            className={`py-2.5 px-4 font-bold border-b-2 transition-all flex items-center gap-1.5 shrink-0 cursor-pointer ${
-              activeSgeTab === 'students' ? 'border-emerald-600 text-emerald-700 font-extrabold' : 'border-transparent text-stone-500 hover:text-stone-800'
-            }`}
-          >
-            <Users className="h-4 w-4" /> Alunos ({studentsList.length})
-          </button>
+          {/* Sge Super Admin (Master) exclusive Tab: Cadastro de Alunos */}
+          {isSuperAdmin && (
+            <button
+              onClick={() => setActiveSgeTab('students')}
+              className={`py-2.5 px-4 font-bold border-b-2 transition-all flex items-center gap-1.5 shrink-0 cursor-pointer ${
+                activeSgeTab === 'students' ? 'border-emerald-600 text-emerald-700 font-extrabold' : 'border-transparent text-stone-500 hover:text-stone-800'
+              }`}
+            >
+              <GraduationCap className="h-4 w-4 text-emerald-600" /> Cadastro de Alunos ({studentsList.length})
+            </button>
+          )}
 
           <button
             onClick={() => setActiveSgeTab('subjects')}
@@ -1237,217 +1296,19 @@ export default function AreaAssociadoView({
           </div>
         )}
 
-        {/* 2. GESTÃO DE ALUNOS */}
-        {activeSgeTab === 'students' && (
-          <div className="space-y-6 text-left" id="sge-students-tab">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-white p-4 rounded-xl border border-stone-200 gap-3">
-              <div>
-                <h3 className="font-sans font-bold text-stone-900 text-base">Controle e Matrículas de Estudantes</h3>
-                <p className="text-stone-500 text-xs">Inscrições com matrícula formal, idade e divisão das turmas escolares.</p>
-              </div>
-              {isSgeAdmin && (
-                <button
-                  onClick={() => {
-                    setEditingStudent(null);
-                    setStudentForm({ name: '', age: '', matricula: 'MAT-' + new Date().getFullYear() + '-' + Math.floor(100 + Math.random() * 900), turma: 'Turma A', course: 'english', guardianName: '' });
-                    setIsAddingStudent(true);
-                  }}
-                  className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs flex items-center gap-1.5 cursor-pointer shadow-md"
-                >
-                  <Plus className="h-4 w-4" /> Cadastrar Estudante
-                </button>
-              )}
-            </div>
-
-            {isAddingStudent && (
-              <form onSubmit={handleSaveStudent} className="bg-white p-5 rounded-2xl border border-emerald-150/50 shadow-sm space-y-4 max-w-xl">
-                <h4 className="font-bold text-xs uppercase tracking-wider text-emerald-850">{editingStudent ? 'Editar Aluno' : 'Cadastrar Aluno'}</h4>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
-                  <div className="space-y-1 font-bold">
-                    <label className="text-[10px] font-semibold text-stone-500 block uppercase">Nome Completo</label>
-                    <input
-                      type="text"
-                      required
-                      placeholder="Ex: Gabriel Siqueira"
-                      value={studentForm.name}
-                      onChange={e => setStudentForm({ ...studentForm, name: e.target.value })}
-                      className="w-full h-10 px-3 bg-stone-50 border border-stone-200 rounded-xl"
-                    />
-                  </div>
-                  <div className="space-y-1">
-                    <label className="text-[10px] font-semibold text-stone-500 block uppercase">Matrícula Escolar</label>
-                    <input
-                      type="text"
-                      required
-                      placeholder="Ex: MAT-2026-118"
-                      value={studentForm.matricula}
-                      onChange={e => setStudentForm({ ...studentForm, matricula: e.target.value })}
-                      className="w-full h-10 px-3 bg-stone-50 border border-stone-200 rounded-xl font-mono text-xs"
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs">
-                  <div className="space-y-1">
-                    <label className="text-[10px] uppercase font-semibold text-stone-505 block">Idade</label>
-                    <input
-                      type="number"
-                      placeholder="Anos"
-                      value={studentForm.age}
-                      onChange={e => setStudentForm({ ...studentForm, age: e.target.value })}
-                      className="w-full h-10 px-3 bg-stone-50 border border-stone-200 rounded-xl"
-                    />
-                  </div>
-                  <div className="space-y-1">
-                    <label className="text-[10px] uppercase font-semibold text-stone-505 block">Turma</label>
-                    <select
-                      value={studentForm.turma}
-                      onChange={e => setStudentForm({ ...studentForm, turma: e.target.value })}
-                      className="w-full h-10 px-2 bg-stone-50 border border-stone-200 rounded-xl font-sans"
-                    >
-                      <option value="Turma A">Turma A</option>
-                      <option value="Turma B">Turma B</option>
-                      <option value="Turma C">Turma C</option>
-                    </select>
-                  </div>
-                  <div className="space-y-1 col-span-2">
-                    <label className="text-[10px] uppercase font-semibold text-stone-505 block">Oficina Principal</label>
-                    <select
-                      value={studentForm.course}
-                      onChange={e => setStudentForm({ ...studentForm, course: e.target.value as any })}
-                      className="w-full h-10 px-2 bg-stone-50 border border-stone-200 rounded-xl font-sans"
-                    >
-                      <option value="english">Inglês</option>
-                      <option value="karate">🥋 Karatê</option>
-                      <option value="sewing">🧵 Costura</option>
-                      <option value="pilates">🧘 Pilates</option>
-                      <option value="embroidery">🪡 Bordados</option>
-                    </select>
-                  </div>
-                </div>
-
-                <div className="space-y-1 text-xs">
-                  <label className="text-[10px] uppercase font-semibold text-stone-505 block">Responsável / Tutor Legal</label>
-                  <input
-                    type="text"
-                    placeholder="Ex: Carla Siqueira S."
-                    value={studentForm.guardianName}
-                    onChange={e => setStudentForm({ ...studentForm, guardianName: e.target.value })}
-                    className="w-full h-10 px-3 bg-stone-50 border border-stone-200 rounded-xl"
-                  />
-                </div>
-
-                <div className="flex gap-2 justify-end pt-2 text-xs">
-                  <button
-                    type="button"
-                    onClick={() => setIsAddingStudent(false)}
-                    className="px-3.5 py-2 bg-stone-100 text-stone-600 rounded-xl font-bold cursor-pointer"
-                  >
-                    Cancelar
-                  </button>
-                  <button
-                    type="submit"
-                    className="px-4 py-2 bg-emerald-600 text-white rounded-xl font-bold cursor-pointer hover:bg-emerald-700 shadow-sm"
-                  >
-                    Salvar Aluno
-                  </button>
-                </div>
-              </form>
-            )}
-
-            {/* List with filters */}
-            <div className="bg-white rounded-xl border border-stone-200 shadow-sm overflow-hidden text-xs">
-              <div className="p-4 bg-stone-50 border-b border-stone-150 flex flex-col md:flex-row gap-3 justify-between items-center">
-                <div className="relative w-full sm:max-w-xs">
-                  <Search className="absolute left-3 top-2.5 h-4 w-4 text-stone-400" />
-                  <input
-                    type="text"
-                    placeholder="Buscar por nome ou matrícula..."
-                    value={searchQuery}
-                    onChange={e => setSearchQuery(e.target.value)}
-                    className="w-full pl-9 pr-3 py-1.5 border border-stone-200 bg-white rounded-xl text-xs"
-                  />
-                </div>
-
-                <div className="flex gap-2 w-full sm:w-auto">
-                  <select
-                    value={filterTurma}
-                    onChange={e => setFilterTurma(e.target.value)}
-                    className="px-3 py-1.5 border border-stone-200 bg-white rounded-xl text-xs"
-                  >
-                    <option value="all">Filtro: Todas as Turmas</option>
-                    <option value="Turma A">Turma A</option>
-                    <option value="Turma B">Turma B</option>
-                    <option value="Turma C">Turma C</option>
-                  </select>
-                </div>
-              </div>
-
-              <table className="w-full border-collapse">
-                <thead>
-                  <tr className="bg-stone-50/55 text-[10px] font-mono text-stone-500 uppercase tracking-wider border-b border-stone-150">
-                    <th className="py-2.5 px-4 text-left">Aluno</th>
-                    <th className="py-2.5 px-4 text-left">Matrícula</th>
-                    <th className="py-2.5 px-4 text-left">Turma</th>
-                    <th className="py-2.5 px-4 text-left">Oficina</th>
-                    <th className="py-2.5 px-4 text-left">Idade</th>
-                    <th className="py-2.5 px-4 text-left">Frequência Total</th>
-                    {isSgeAdmin && <th className="py-2.5 px-4 text-right">Ação</th>}
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-stone-100">
-                  {filteredStudentsList.map(st => (
-                    <tr key={st.id} className="hover:bg-stone-500/5">
-                      <td className="py-3 px-4 font-bold text-stone-900">
-                        {st.name}
-                        {st.guardianName && <span className="block text-[10px] font-normal text-stone-400 font-sans">Responsável: {st.guardianName}</span>}
-                      </td>
-                      <td className="py-3 px-4 font-mono font-bold text-emerald-800 text-[11px]">{st.matricula || 'MAT-SGE-001'}</td>
-                      <td className="py-3 px-4 font-semibold text-stone-605">{st.turma || 'Turma A'}</td>
-                      <td className="py-3 px-4 text-stone-600 font-medium">{getCourseText(st.course)}</td>
-                      <td className="py-3 px-4 font-medium">{st.age} anos</td>
-                      <td className="py-3 px-4 font-mono">
-                        {st.attendanceCount}/{st.totalClasses} classes 
-                        <span className="text-[10px] text-stone-400 font-sans pl-1">({Math.round((st.attendanceCount/st.totalClasses)*100)}%)</span>
-                      </td>
-                      {isSgeAdmin && (
-                        <td className="py-3 px-4 text-right flex justify-end gap-1">
-                          <button
-                            onClick={() => {
-                              setEditingStudent(st);
-                              setStudentForm({
-                                name: st.name,
-                                age: st.age.toString(),
-                                matricula: st.matricula || '',
-                                turma: st.turma || 'Turma A',
-                                course: st.course,
-                                guardianName: st.guardianName || ''
-                              });
-                              setIsAddingStudent(true);
-                            }}
-                            className="p-1.5 text-emerald-700 hover:bg-emerald-50 rounded"
-                          >
-                            <Edit3 className="h-4 w-4" />
-                          </button>
-                          <button
-                            onClick={() => handleDeleteStudentAction(st.id)}
-                            className="p-1.5 text-red-500 hover:bg-red-50 rounded"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </button>
-                        </td>
-                      )}
-                    </tr>
-                  ))}
-                  {filteredStudentsList.length === 0 && (
-                    <tr>
-                      <td colSpan={7} className="py-8 text-center text-stone-400 font-medium">Nenhum educando localizado para os parâmetros informados.</td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </div>
+        {/* 2. CADASTRO E GESTÃO DE ALUNOS NAS TURMAS (Exclusivo Master) */}
+        {activeSgeTab === 'students' && isSuperAdmin && (
+          <TurmaAlunosManager
+            isMaster={isSuperAdmin}
+            studentsList={studentsList}
+            onAddStudent={addStudent}
+            onUpdateStudent={updateStudent}
+            onDeleteStudent={deleteStudent}
+            schoolUsers={schoolUsers}
+            grades={grades}
+            assessments={assessments}
+            subjects={subjects}
+          />
         )}
 
         {/* 3. MATÉRIAS (Disciplinas escolares) */}

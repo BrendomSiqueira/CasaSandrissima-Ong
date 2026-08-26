@@ -17,12 +17,19 @@ import PencilLoader from './components/PencilLoader';
 export default function App() {
   const [activeTab, setActiveTab] = useState<ActiveTab>('home');
   const [selectedWorkshopId, setSelectedWorkshopId] = useState<string>('karate');
+  const [sgeTargetTab, setSgeTargetTab] = useState<'users' | 'students' | 'subjects' | 'lessons' | 'grades' | 'boletim' | 'messages' | 'associates' | 'finance'>('students');
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [loginReason, setLoginReason] = useState<'galeria' | 'doacoes' | 'portal' | 'geral' | 'aluno_apoiador'>('geral');
 
   const handleNavigateToWorkshop = (workshopId: string) => {
     setSelectedWorkshopId(workshopId);
     setActiveTab('projetos');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleNavigateToSgeTab = (tab: 'users' | 'students' | 'subjects' | 'lessons' | 'grades' | 'boletim' | 'messages' | 'associates' | 'finance') => {
+    setSgeTargetTab(tab);
+    setActiveTab('area_associado');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -130,6 +137,7 @@ export default function App() {
             associatesList={associates}
             onRemoveAssociate={handleRemoveAssociate}
             donationsList={donations}
+            initialSgeTab={sgeTargetTab}
           />
         );
       default:
@@ -168,6 +176,7 @@ export default function App() {
         activeTab={activeTab} 
         setActiveTab={setActiveTab} 
         onOpenLoginModal={handleOpenLoginModal} 
+        onNavigateToSgeTab={handleNavigateToSgeTab}
       />
       
       {/* Subtle Glowing Header Accent Bar */}
