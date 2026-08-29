@@ -18,8 +18,9 @@ Principais objetivos do sistema:
 
 - **TypeScript** — linguagem principal do projeto
 - **React** — biblioteca para construção da interface
+- **Vite** — build tool e servidor de desenvolvimento
 - **CSS** — estilização
-- **Firebase** — autenticação e banco de dados
+- **Firebase** — autenticação, banco de dados e regras de segurança (Firestore)
 - **Vercel** — hospedagem e deploy contínuo
 
 > ⚠️ Nota: o projeto está em processo de migração do Firebase para um banco de dados gerenciado, então esta seção pode mudar em breve.
@@ -28,7 +29,7 @@ Principais objetivos do sistema:
 
 ```bash
 # Clone o repositório
-git clone https:[//github.com/BrendomSiqueira/CasaSandrissima-Ong)
+git clone [https://github.com/BrendomSiqueira/CasaSandrissima-Ong.git)
 
 # Acesse a pasta do projeto
 cd casa-sandrissima
@@ -60,17 +61,18 @@ VITE_FIREBASE_APP_ID=
 
 ```
 casa-sandrissima/
-├── src/
-│   ├── components/     # Componentes reutilizáveis
-│   ├── pages/          # Páginas da aplicação
-│   ├── services/       # Integração com Firebase
-│   ├── hooks/          # Hooks customizados
-│   ├── types/          # Tipagens TypeScript
-│   └── App.tsx
-├── public/
-├── .env.example
+├── src/                        # Código-fonte da aplicação
+├── .env.example                # Modelo das variáveis de ambiente
+├── .gitignore
+├── firebase-applet-config.json # Configuração do app Firebase
+├── firebase-blueprint.json     # Blueprint do projeto Firebase
+├── firestore.rules             # Regras de segurança do Firestore
+├── index.html
+├── metadata.json
+├── package.json
+├── package-lock.json
 ├── tsconfig.json
-└── package.json
+└── vite.config.ts
 ```
 
 ## 👥 Equipe
