@@ -16,7 +16,9 @@ Principais objetivos do sistema:
 
 ## 🚀 Tecnologias utilizadas
 
+- **TypeScript** — linguagem principal do projeto
 - **React** — biblioteca para construção da interface
+- **CSS** — estilização
 - **Firebase** — autenticação e banco de dados
 - **Vercel** — hospedagem e deploy contínuo
 
@@ -26,7 +28,7 @@ Principais objetivos do sistema:
 
 ```bash
 # Clone o repositório
-git clone https://github.com/seu-usuario/casa-sandrissima.git
+git clone https:[//github.com/BrendomSiqueira/CasaSandrissima-Ong)
 
 # Acesse a pasta do projeto
 cd casa-sandrissima
@@ -43,7 +45,7 @@ npm run dev
 
 ## 🔑 Variáveis de ambiente
 
-Crie um arquivo `.env` na raiz do projeto com as credenciais do Firebase:
+Crie um arquivo `.env` na raiz do projeto (nunca commitado — veja o `.gitignore`) com as credenciais do Firebase:
 
 ```env
 VITE_FIREBASE_API_KEY=
@@ -63,9 +65,11 @@ casa-sandrissima/
 │   ├── pages/          # Páginas da aplicação
 │   ├── services/       # Integração com Firebase
 │   ├── hooks/          # Hooks customizados
-│   └── App.jsx
+│   ├── types/          # Tipagens TypeScript
+│   └── App.tsx
 ├── public/
 ├── .env.example
+├── tsconfig.json
 └── package.json
 ```
 
