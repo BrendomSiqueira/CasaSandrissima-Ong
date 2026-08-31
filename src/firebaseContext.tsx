@@ -1082,6 +1082,7 @@ export const FirebaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       console.warn("Firebase Auth signout error:", e);
     }
     localStorage.removeItem('casa_sandrissima_auth_user');
+    localStorage.removeItem('sge_logged_staff');
     setUser(null);
     setProfile(null);
   };

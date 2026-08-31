@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import HomeView from './components/HomeView';
@@ -13,6 +13,7 @@ import { ActiveTab, Student, Associate, Donation } from './types';
 import { useFirebase } from './firebaseContext';
 import { useModal } from './components/ModalContext';
 import PencilLoader from './components/PencilLoader';
+import { ShapeOverlaysTransition, ShapeOverlaysHandle } from './components/ShapeOverlaysTransition';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<ActiveTab>('home');
@@ -20,17 +21,47 @@ export default function App() {
   const [sgeTargetTab, setSgeTargetTab] = useState<'users' | 'students' | 'subjects' | 'lessons' | 'grades' | 'boletim' | 'messages' | 'associates' | 'finance'>('students');
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [loginReason, setLoginReason] = useState<'galeria' | 'doacoes' | 'portal' | 'geral' | 'aluno_apoiador'>('geral');
+  const shapeOverlaysRef = useRef<ShapeOverlaysHandle | null>(null);
+
+  const handleTabChange = (newTab: ActiveTab) => {
+    if (newTab === activeTab) return;
+    if (shapeOverlaysRef.current) {
+      shapeOverlaysRef.current.triggerTransition(() => {
+        setActiveTab(newTab);
+        window.scrollTo({ top: 0, behavior: 'instant' });
+      });
+    } else {
+      setActiveTab(newTab);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
 
   const handleNavigateToWorkshop = (workshopId: string) => {
-    setSelectedWorkshopId(workshopId);
-    setActiveTab('projetos');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (shapeOverlaysRef.current) {
+      shapeOverlaysRef.current.triggerTransition(() => {
+        setSelectedWorkshopId(workshopId);
+        setActiveTab('projetos');
+        window.scrollTo({ top: 0, behavior: 'instant' });
+      });
+    } else {
+      setSelectedWorkshopId(workshopId);
+      setActiveTab('projetos');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   };
 
   const handleNavigateToSgeTab = (tab: 'users' | 'students' | 'subjects' | 'lessons' | 'grades' | 'boletim' | 'messages' | 'associates' | 'finance') => {
-    setSgeTargetTab(tab);
-    setActiveTab('area_associado');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (shapeOverlaysRef.current) {
+      shapeOverlaysRef.current.triggerTransition(() => {
+        setSgeTargetTab(tab);
+        setActiveTab('area_associado');
+        window.scrollTo({ top: 0, behavior: 'instant' });
+      });
+    } else {
+      setSgeTargetTab(tab);
+      setActiveTab('area_associado');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   };
 
   const { confirm } = useModal();
@@ -93,7 +124,7 @@ export default function App() {
       case 'home':
         return (
           <HomeView 
-            setActiveTab={setActiveTab} 
+            setActiveTab={handleTabChange} 
             onSelectWorkshop={handleNavigateToWorkshop}
           />
         );
@@ -116,7 +147,7 @@ export default function App() {
       case 'projetos':
         return (
           <ProjetosView 
-            setActiveTab={setActiveTab} 
+            setActiveTab={handleTabChange} 
             selectedProjectId={selectedWorkshopId}
             onSelectProject={setSelectedWorkshopId}
           />
@@ -124,7 +155,7 @@ export default function App() {
       case 'galeria':
         return (
           <GaleriaView 
-            setActiveTab={setActiveTab} 
+            setActiveTab={handleTabChange} 
             onOpenLoginModal={handleOpenLoginModal} 
           />
         );
@@ -143,7 +174,7 @@ export default function App() {
       default:
         return (
           <HomeView 
-            setActiveTab={setActiveTab} 
+            setActiveTab={handleTabChange} 
             onSelectWorkshop={handleNavigateToWorkshop}
           />
         );
@@ -153,6 +184,9 @@ export default function App() {
   return (
     <div className="min-h-screen flex flex-col relative text-stone-800 font-sans selection:bg-emerald-200 selection:text-emerald-900 overflow-x-hidden" id="app-root-container">
       
+      {/* Morphing Shape Overlays Fluid Wave Transition System (Entrance & Tab Navigation) */}
+      <ShapeOverlaysTransition ref={shapeOverlaysRef} />
+
       {/* Dynamic Ambient Background: Soft White-to-Green Gradient & Glows */}
       <div className="fixed inset-0 -z-10 pointer-events-none overflow-hidden" aria-hidden="true" id="site-ambient-background">
         {/* Core Vertical Gradient: Crisp Pure White at Top -> Delicate Mint Mist -> Refreshing Soft Green at Base */}
@@ -174,7 +208,7 @@ export default function App() {
       {/* Dynamic Navbar */}
       <Navbar 
         activeTab={activeTab} 
-        setActiveTab={setActiveTab} 
+        setActiveTab={handleTabChange} 
         onOpenLoginModal={handleOpenLoginModal} 
         onNavigateToSgeTab={handleNavigateToSgeTab}
       />
@@ -191,7 +225,7 @@ export default function App() {
 
       {/* Stateful Footer */}
       <Footer 
-        setActiveTab={setActiveTab} 
+        setActiveTab={handleTabChange} 
         onOpenLoginModal={handleOpenLoginModal} 
       />
 

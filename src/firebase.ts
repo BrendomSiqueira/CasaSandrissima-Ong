@@ -12,7 +12,7 @@ import {
   signOut, 
   User 
 } from 'firebase/auth';
-import { getFirestore, doc, getDocFromServer } from 'firebase/firestore';
+import { getFirestore } from 'firebase/firestore';
 import firebaseConfig from '../firebase-applet-config.json';
 
 const app = initializeApp(firebaseConfig);
@@ -174,18 +174,3 @@ export async function logoutUser(): Promise<void> {
     throw error;
   }
 }
-
-// Validate Connection to Firestore on startup
-async function testConnection() {
-  try {
-    await getDocFromServer(doc(db, 'test', 'connection'));
-  } catch (error: any) {
-    if (error instanceof Error && error.message.includes('the client is offline')) {
-      console.info("Firestore client is offline; using cached data and local state.");
-    } else if (error?.code === 'unavailable' || error?.message?.includes('could not be completed')) {
-      // Background retry handler for transient connection
-      console.info("Firestore connecting to backend service...");
-    }
-  }
-}
-testConnection();

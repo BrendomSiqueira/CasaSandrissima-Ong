@@ -19,6 +19,21 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* Morphing Shape Overlays Fluid Wave Transition System */
+.shape-overlays {
+  width: 100vw;
+  height: 100vh;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 9999;
+  pointer-events: none;
+}
+
+.shape-overlays__path {
+  will-change: d;
+}
+
 /* Custom modern scrollbar with emerald accent */
 ::-webkit-scrollbar {
   width: 10px;

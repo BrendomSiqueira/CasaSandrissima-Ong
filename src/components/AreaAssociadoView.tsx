@@ -324,15 +324,18 @@ export default function AreaAssociadoView({
   };
 
   const handleLogout = async () => {
-    if (loggedInStaff) {
-      setLoggedInStaff(null);
+    try {
       localStorage.removeItem('sge_logged_staff');
-    } else {
-      try {
+      localStorage.removeItem('casa_sandrissima_auth_user');
+      setLoggedInStaff(null);
+      setCredentials({ email: '', password: '' });
+      setLoginError('');
+      setSiteError('');
+      if (user) {
         await logoutUser();
-      } catch (err) {
-        console.error("Erro ao deslogar:", err);
       }
+    } catch (err) {
+      console.error("Erro ao deslogar:", err);
     }
   };
 
