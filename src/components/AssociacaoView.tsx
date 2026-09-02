@@ -71,11 +71,15 @@ export default function AssociacaoView({ onAddAssociate, associatesList }: Assoc
     >
       
       {/* Intro Header */}
-      <section className="text-center max-w-3xl mx-auto space-y-4">
-        <h1 className="font-sans font-extrabold text-3xl md:text-4.2xl text-stone-900 tracking-tight" id="associacao-title">
+      <section className="text-center max-w-3xl mx-auto space-y-3 bg-white/90 backdrop-blur-md rounded-3xl p-6 sm:p-8 border border-emerald-100/90 shadow-xs">
+        <div className="inline-flex items-center gap-2 px-3 py-1 bg-emerald-100/70 text-emerald-800 border border-emerald-200/80 rounded-full text-xs font-bold uppercase tracking-wider mx-auto">
+          <Sparkles className="h-3.5 w-3.5 text-emerald-700" />
+          <span>Faça a Diferença Conosco</span>
+        </div>
+        <h1 className="font-sans font-extrabold text-3xl md:text-4xl text-stone-900 tracking-tight" id="associacao-title">
           Conecte-se com a Nossa Causa
         </h1>
-        <p className="text-stone-600 text-sm md:text-base leading-relaxed">
+        <p className="text-stone-700 text-sm md:text-base leading-relaxed font-medium">
           Venha fazer parte do comitê de apoio da <strong>Casa Sandríssima</strong>. Conheça nossa missão institucional e descubra como as suas habilidades ou doações estruturam nossas atividades diárias.
         </p>
       </section>
@@ -91,7 +95,7 @@ export default function AssociacaoView({ onAddAssociate, associatesList }: Assoc
           title="Nossa Missão"
           icon={<Compass className="h-6 w-6" />}
         >
-          <p className="text-stone-600 text-sm leading-relaxed">
+          <p className="text-stone-700 text-sm leading-relaxed font-medium">
             Promover o desenvolvimento social, educativo, moral e cultural de famílias em situação de vulnerabilidade, por meio da educação popular participativa, da disciplina e da capacitação manual.
           </p>
         </Interactive3DCard>
@@ -104,7 +108,7 @@ export default function AssociacaoView({ onAddAssociate, associatesList }: Assoc
           title="Nosso Objetivo"
           icon={<Target className="h-6 w-6" />}
         >
-          <p className="text-stone-600 text-sm leading-relaxed">
+          <p className="text-stone-700 text-sm leading-relaxed font-medium">
             Semear dignidade, expandindo nossa rede de proteção para acolher cada vez mais famílias. Ajudando-os com monitoramento, fornecimento de materiais didáticos e inserção em oficinas qualificadoras.
           </p>
         </Interactive3DCard>
@@ -117,7 +121,7 @@ export default function AssociacaoView({ onAddAssociate, associatesList }: Assoc
           title="Nossos Valores"
           icon={<Sparkles className="h-6 w-6" />}
         >
-          <ul className="text-stone-600 text-sm leading-relaxed space-y-1.5 list-disc pl-4 marker:text-amber-500 font-medium">
+          <ul className="text-stone-700 text-sm leading-relaxed space-y-1.5 list-disc pl-4 marker:text-amber-500 font-medium">
             <li>Dignidade Humana e Alento</li>
             <li>Respeito Incondicional à Diversidade</li>
             <li>Coletividade e Compartilhamento</li>
@@ -129,51 +133,64 @@ export default function AssociacaoView({ onAddAssociate, associatesList }: Assoc
       </section>
 
       {/* Main Content Area: Form & Dynamic Info Showcase */}
-      <section className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start" id="associacao-workflow">
+      <section className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start" id="associacao-workflow">
         
-        {/* Left Column: Context guidelines */}
-        <div className="lg:col-span-5 space-y-6 text-left">
-          <h2 className="font-sans font-extrabold text-2xl text-stone-900 leading-tight">
+        {/* Left Column: Context guidelines with high-contrast frosted card */}
+        <div className="lg:col-span-5 bg-white/95 backdrop-blur-md rounded-3xl border border-emerald-100/90 shadow-md p-6 sm:p-8 space-y-6 text-left" id="associacao-left-panel">
+          <div className="inline-flex items-center gap-2 px-3 py-1 bg-emerald-100/70 text-emerald-800 border border-emerald-200/80 rounded-full text-xs font-bold uppercase tracking-wider">
+            <HeartHandshake className="h-3.5 w-3.5 text-emerald-700" />
+            <span>Engajamento Comunitário</span>
+          </div>
+
+          <h2 className="font-sans font-extrabold text-2xl sm:text-3xl text-stone-900 leading-tight">
             Como funciona a Associação?
           </h2>
-          <p className="text-stone-600 text-sm md:text-base leading-relaxed">
+          <p className="text-stone-700 text-sm sm:text-base leading-relaxed font-medium">
             Se associar à Casa Sandríssima representa assumir um compromisso comunitário. Você decide seu papel de atuação conforme sua rotina e objetivos:
           </p>
 
-          <div className="space-y-4" id="associacao-roles-desc">
-            <div className="flex gap-3">
-              <div className="h-2.5 w-2.5 bg-emerald-500 rounded-full mt-2 shrink-0"></div>
+          <div className="space-y-3.5" id="associacao-roles-desc">
+            <div className="flex gap-3.5 bg-stone-50/90 p-4 rounded-2xl border border-stone-200/80 hover:border-emerald-200 transition-colors">
+              <div className="h-3.5 w-3.5 bg-emerald-500 rounded-full mt-1 shrink-0 ring-4 ring-emerald-100"></div>
               <div>
-                <p className="font-semibold text-sm text-stone-900">Apoio Regular</p>
-                <p className="text-xs text-stone-500">Ajude mensalmente com repasses Pix de qualquer quantia para a manutenção hidráulica, compra de moldes de costura e livros de inglês.</p>
+                <p className="font-bold text-sm text-stone-900">Apoio Regular</p>
+                <p className="text-xs text-stone-600 leading-relaxed mt-0.5 font-medium">
+                  Ajude mensalmente com repasses Pix de qualquer quantia para a manutenção hidráulica, compra de moldes de costura e livros de inglês.
+                </p>
               </div>
             </div>
-            <div className="flex gap-3">
-              <div className="h-2.5 w-2.5 bg-emerald-500 rounded-full mt-2 shrink-0"></div>
+
+            <div className="flex gap-3.5 bg-stone-50/90 p-4 rounded-2xl border border-stone-200/80 hover:border-emerald-200 transition-colors">
+              <div className="h-3.5 w-3.5 bg-emerald-500 rounded-full mt-1 shrink-0 ring-4 ring-emerald-100"></div>
               <div>
-                <p className="font-semibold text-sm text-stone-900">Voluntariado Técnico</p>
-                <p className="text-xs text-stone-500">Doe algumas horas semanais para auxiliar nas monitorias de karatê, palestras informativas ou aulas de apoio.</p>
+                <p className="font-bold text-sm text-stone-900">Voluntariado Técnico</p>
+                <p className="text-xs text-stone-600 leading-relaxed mt-0.5 font-medium">
+                  Doe algumas horas semanais para auxiliar nas monitorias de karatê, palestras informativas ou aulas de apoio.
+                </p>
               </div>
             </div>
-            <div className="flex gap-3">
-              <div className="h-2.5 w-2.5 bg-emerald-500 rounded-full mt-2 shrink-0"></div>
+
+            <div className="flex gap-3.5 bg-stone-50/90 p-4 rounded-2xl border border-stone-200/80 hover:border-emerald-200 transition-colors">
+              <div className="h-3.5 w-3.5 bg-emerald-500 rounded-full mt-1 shrink-0 ring-4 ring-emerald-100"></div>
               <div>
-                <p className="font-semibold text-sm text-stone-900">Conselho Consultivo</p>
-                <p className="text-xs text-stone-500">Ajude na organização dos cadastros, acompanhamento escolar das crianças e estruturação dos relatórios anuais.</p>
+                <p className="font-bold text-sm text-stone-900">Conselho Consultivo</p>
+                <p className="text-xs text-stone-600 leading-relaxed mt-0.5 font-medium">
+                  Ajude na organização dos cadastros, acompanhamento escolar das crianças e estruturação dos relatórios anuais.
+                </p>
               </div>
             </div>
           </div>
 
-          <div className="p-4 bg-emerald-50/40 rounded-xl border border-emerald-100 flex items-start gap-3">
-            <ShieldCheck className="h-5 w-5 text-emerald-650 shrink-0 mt-0.5" />
-            <p className="text-xs text-emerald-800 leading-relaxed">
-              Todos os associados cadastrados pelo formulário ao lado são registrados localmente nesta sessão e podem ser vistos e auditados na <strong>Área de Associados</strong> em tempo real.
+          <div className="p-4 bg-emerald-50/90 rounded-2xl border border-emerald-200/90 flex items-start gap-3 shadow-2xs">
+            <ShieldCheck className="h-5 w-5 text-emerald-700 shrink-0 mt-0.5" />
+            <p className="text-xs text-emerald-950 leading-relaxed font-semibold">
+              Todos os associados cadastrados pelo formulário ao lado são registrados com segurança nesta sessão e podem ser vistos e auditados na <strong>Área de Associados</strong> em tempo real.
             </p>
           </div>
         </div>
 
         {/* Right Column: Portal Registration Form */}
-        <div className="lg:col-span-7 bg-white/85 backdrop-blur-md rounded-2xl border border-emerald-100/80 shadow-md p-6 md:p-8" id="associate-form-card">
+        <div className="lg:col-span-7 bg-white/95 backdrop-blur-md rounded-3xl border border-emerald-100/90 shadow-md p-6 md:p-8" id="associate-form-card">
           
           <AnimatePresence mode="wait">
             {!isSuccess ? (

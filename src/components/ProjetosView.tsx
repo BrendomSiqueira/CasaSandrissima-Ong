@@ -288,11 +288,14 @@ export default function ProjetosView({
       )}
       
       {/* Page header */}
-      <section className="text-center max-w-3xl mx-auto space-y-4">
+      <section className="text-center max-w-3xl mx-auto space-y-3 bg-white/90 backdrop-blur-md rounded-3xl p-6 sm:p-8 border border-emerald-100/90 shadow-xs">
+        <div className="inline-flex items-center gap-2 px-3 py-1 bg-emerald-100/70 text-emerald-800 border border-emerald-200/80 rounded-full text-xs font-bold uppercase tracking-wider mx-auto">
+          <span>📚 Inclusão e Saber</span>
+        </div>
         <h1 className="font-sans font-extrabold text-3xl md:text-4xl text-stone-900 tracking-tight" id="projetos-title">
           Nossas Oficinas Comunitárias
         </h1>
-        <p className="text-stone-600 text-sm md:text-base leading-relaxed">
+        <p className="text-stone-700 text-sm md:text-base leading-relaxed font-medium">
           Nossas turmas são formadas com o máximo aproveitamento pedagógico e de infraestrutura. Clique abaixo para explorar a ementa técnica, quadro de horários e requisitos de cada oficina.
         </p>
       </section>

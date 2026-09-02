@@ -7,10 +7,11 @@ export interface ShapeOverlaysHandle {
 
 interface ShapeOverlaysTransitionProps {
   onInitialComplete?: () => void;
+  autoPlayOnMount?: boolean;
 }
 
 export const ShapeOverlaysTransition = forwardRef<ShapeOverlaysHandle, ShapeOverlaysTransitionProps>(
-  ({ onInitialComplete }, ref) => {
+  ({ onInitialComplete, autoPlayOnMount = false }, ref) => {
     const svgRef = useRef<SVGSVGElement | null>(null);
     const pathRefs = useRef<(SVGPathElement | null)[]>([]);
     const [isAnimating, setIsAnimating] = useState(false);
@@ -192,8 +193,24 @@ export const ShapeOverlaysTransition = forwardRef<ShapeOverlaysHandle, ShapeOver
       triggerTransition
     }));
 
-    // Initial site entrance animation on mount
+    // Initial site entrance animation on mount (only when autoPlayOnMount is enabled)
     useEffect(() => {
+      if (!autoPlayOnMount) {
+        for (let i = 0; i < numPaths; i++) {
+          for (let j = 0; j < numPoints; j++) {
+            if (allPointsRef.current[i]) {
+              allPointsRef.current[i][j] = 100;
+            }
+          }
+        }
+        setIsAnimating(false);
+        isBusyRef.current = false;
+        if (onInitialComplete) {
+          onInitialComplete();
+        }
+        return;
+      }
+
       // Start with paths completely covering the viewport (top: 0)
       for (let i = 0; i < numPaths; i++) {
         for (let j = 0; j < numPoints; j++) {

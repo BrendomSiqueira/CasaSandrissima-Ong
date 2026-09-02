@@ -373,14 +373,14 @@ export default function HomeView({ setActiveTab, onSelectWorkshop }: HomeViewPro
 
       {/* Offered Activities / 3D Holographic Workshop Passes */}
       <section className="space-y-10" id="workshops-list">
-        <div className="text-center max-w-2xl mx-auto space-y-3">
-          <div className="inline-flex items-center gap-2 px-3 py-1 bg-emerald-50 text-emerald-800 border border-emerald-200/80 rounded-full text-xs font-bold uppercase tracking-wider">
+        <div className="text-center max-w-2xl mx-auto space-y-3 bg-white/90 backdrop-blur-md rounded-3xl border border-emerald-100/90 p-6 sm:p-8 shadow-xs">
+          <div className="inline-flex items-center gap-2 px-3 py-1 bg-emerald-100/70 text-emerald-800 border border-emerald-200/80 rounded-full text-xs font-bold uppercase tracking-wider mx-auto">
             <span>🎟️ Passaportes do Saber</span>
           </div>
           <h2 className="font-sans font-extrabold text-2xl md:text-4xl text-stone-900 tracking-tight">
             Nossos Cursos e Oficinas Comunitárias
           </h2>
-          <p className="text-stone-600 text-sm md:text-base leading-relaxed">
+          <p className="text-stone-700 text-sm md:text-base leading-relaxed font-medium">
             Selecione seu passaporte comunitário para conferir a ementa detalhada, horários, fotos e garantir sua inscrição gratuita.
           </p>
         </div>

@@ -18,7 +18,9 @@ export default function Footer({ setActiveTab, onOpenLoginModal }: FooterProps) 
   };
 
   return (
-    <footer className="bg-stone-900 text-stone-450 border-t border-stone-800" id="main-footer">
+    <footer className="bg-stone-900 text-stone-400 border-t border-stone-800 relative z-20 shadow-2xl" id="main-footer">
+      {/* Brand Accent Top Stripe */}
+      <div className="h-1 w-full bg-gradient-to-r from-emerald-600 via-lime-400 via-40% to-teal-700" />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           
@@ -77,7 +79,7 @@ export default function Footer({ setActiveTab, onOpenLoginModal }: FooterProps) 
               <li>
                 <button 
                   onClick={() => window.dispatchEvent(new Event('open-cookie-preferences'))} 
-                  className="hover:text-emerald-400 cursor-pointer transition-colors text-xs text-stone-450"
+                  className="hover:text-emerald-400 cursor-pointer transition-colors text-xs text-stone-400"
                   id="footer-cookie-pref-btn"
                 >
                   Privacidade & Cookies
@@ -176,7 +178,7 @@ export default function Footer({ setActiveTab, onOpenLoginModal }: FooterProps) 
         </div>
 
         {/* Footer Bottom copyright & discreet admin trigger */}
-        <div className="mt-12 pt-8 border-t border-stone-800 text-center text-xs text-stone-550 flex flex-col sm:flex-row justify-between items-center gap-4" id="footer-bottom-copyright">
+        <div className="mt-12 pt-8 border-t border-stone-800 text-center text-xs text-stone-400 flex flex-col sm:flex-row justify-between items-center gap-4" id="footer-bottom-copyright">
           <p>© {currentYear} Casa Sandríssima. Todos os direitos reservados.</p>
           <div className="flex items-center gap-4">
             <span className="font-mono text-stone-600">Desenvolvido pelo Time HardCoders • Projeto Social com Propósito</span>

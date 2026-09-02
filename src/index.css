@@ -8,13 +8,13 @@
 
 html {
   scroll-behavior: smooth;
-  background-color: #fbfdfc;
+  background-color: #064e3b;
 }
 
 body {
   margin: 0;
   padding: 0;
-  background-color: #fbfdfc;
+  background-color: transparent;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }

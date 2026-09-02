@@ -202,11 +202,15 @@ export default function DoacaoView({ onAddDonation, onUpdateDonation, donationsL
     >
       
       {/* Page Header */}
-      <section className="text-center max-w-3xl mx-auto space-y-4" id="doacao-intro">
-        <h1 className="font-sans font-extrabold text-3xl md:text-4.2xl text-stone-900 tracking-tight">
+      <section className="text-center max-w-3xl mx-auto space-y-3 bg-white/90 backdrop-blur-md rounded-3xl p-6 sm:p-8 border border-emerald-100/90 shadow-xs" id="doacao-intro">
+        <div className="inline-flex items-center gap-2 px-3 py-1 bg-emerald-100/70 text-emerald-800 border border-emerald-200/80 rounded-full text-xs font-bold uppercase tracking-wider mx-auto">
+          <Heart className="h-3.5 w-3.5 fill-emerald-600 text-emerald-600" />
+          <span>Solidariedade em Ação</span>
+        </div>
+        <h1 className="font-sans font-extrabold text-3xl md:text-4xl text-stone-900 tracking-tight">
           Transforme Vidas com Sua Doação!
         </h1>
-        <p className="text-stone-600 text-sm md:text-base leading-relaxed">
+        <p className="text-stone-700 text-sm md:text-base leading-relaxed font-medium">
           Cada pequena contribuição é uma valiosa ajuda para continuarmos a semear dignidade, autonomia e carinho. Escolha abaixo a melhor forma de apoiar a <strong>Casa Sandríssima</strong>.
         </p>
       </section>
