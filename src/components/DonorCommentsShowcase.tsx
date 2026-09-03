@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Heart, ChevronLeft, ChevronRight, MessageSquare, Share2, Sparkles, User, Layers, Grid, Quote, ExternalLink } from 'lucide-react';
 import { Donation } from '../types';
 import logoImg from '../assets/images/casa_sandrissima_green_white_logo_1779323893215.png';
+import logoWhiteImg from '../assets/images/casa_sandrissima_white_logo.png';
 import TactileButton from './TactileButton';
 
 interface DonorCommentsShowcaseProps {
@@ -75,16 +76,11 @@ export default function DonorCommentsShowcase({ donations, setActiveTab }: Donor
 
   return (
     <section 
-      className="donor-comments-showcase-section relative overflow-hidden rounded-3xl p-6 sm:p-8 lg:p-12 border border-emerald-100/90 shadow-lg bg-gradient-to-b from-white via-emerald-50/40 to-emerald-100/30" 
+      className="donor-comments-showcase-section relative overflow-hidden bg-white/80 backdrop-blur-md rounded-3xl p-6 sm:p-8 lg:p-12 border border-emerald-100/80 shadow-sm hover:shadow-md transition-shadow" 
       id="donor-gratitude-wall"
     >
-      {/* Ambient Green Gradient Animated Waves Background */}
-      <div className="absolute inset-0 -z-10 overflow-hidden pointer-events-none" aria-hidden="true">
-        <div className="comments-ambient-gradient absolute inset-0 opacity-40 mix-blend-multiply" />
-        <div className="absolute -top-24 -left-24 w-96 h-96 rounded-full bg-emerald-200/50 blur-3xl animate-pulse" />
-        <div className="absolute -bottom-24 -right-24 w-96 h-96 rounded-full bg-teal-200/40 blur-3xl" />
-        <div className="absolute inset-0 bg-[radial-gradient(#059669_0.7px,transparent_0.7px)] [background-size:24px_24px] opacity-15" />
-      </div>
+      {/* Subtle Radial Glow identical to Hero card */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-emerald-100/35 via-transparent to-transparent opacity-70 pointer-events-none -z-10" />
 
       {/* Header bar with counter and mode toggle */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-6 mb-6 border-b border-emerald-100">
@@ -285,24 +281,24 @@ export default function DonorCommentsShowcase({ donations, setActiveTab }: Donor
                   >
                     {/* Glowing Top Orbs / Decorative Badges */}
                     <div className="flex items-start justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className={`w-12 h-12 rounded-2xl p-1 flex items-center justify-center shadow-inner ${
-                          isFront ? 'bg-white/15 border border-white/30 backdrop-blur-md' : 'bg-emerald-600/10 border border-emerald-600/20'
+                      <div className="flex items-center gap-3.5 min-w-0">
+                        <div className={`w-12 h-12 rounded-2xl p-1.5 flex items-center justify-center shrink-0 shadow-inner ${
+                          isFront ? 'bg-white/20 border border-white/40 backdrop-blur-md' : 'bg-emerald-900/30 border border-emerald-700/40'
                         }`}>
                           <img
-                            src={logoImg}
+                            src={logoWhiteImg}
                             alt="Logo Casa Sandríssima"
-                            className="w-full h-full object-contain rounded-xl"
+                            className="w-full h-full object-contain filter drop-shadow-xs brightness-0 invert"
                             referrerPolicy="no-referrer"
                           />
                         </div>
-                        <div>
-                          <span className={`text-[10px] font-mono uppercase tracking-wider font-extrabold px-2 py-0.5 rounded-full ${
-                            isFront ? 'bg-emerald-400/20 text-emerald-200 border border-emerald-300/30' : 'bg-emerald-700/10 text-emerald-800'
+                        <div className="min-w-0">
+                          <span className={`text-[10px] font-mono uppercase tracking-wider font-extrabold px-2 py-0.5 rounded-full inline-block ${
+                            isFront ? 'bg-emerald-400/20 text-emerald-200 border border-emerald-300/30' : 'bg-emerald-800/20 text-emerald-900 border border-emerald-700/20'
                           }`}>
                             Apoiador Oficial
                           </span>
-                          <h4 className="font-extrabold text-base sm:text-lg leading-tight mt-1 line-clamp-1">
+                          <h4 className="font-extrabold text-base sm:text-lg leading-tight mt-1 line-clamp-1 truncate">
                             {item.donorName}
                           </h4>
                         </div>
@@ -376,11 +372,11 @@ export default function DonorCommentsShowcase({ donations, setActiveTab }: Donor
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-2.5">
                     <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-emerald-600 to-teal-500 p-0.5 shadow-xs">
-                      <div className="w-full h-full bg-white rounded-[14px] flex items-center justify-center p-1">
+                      <div className="w-full h-full bg-emerald-800 rounded-[14px] flex items-center justify-center p-1.5">
                         <img
-                          src={logoImg}
+                          src={logoWhiteImg}
                           alt="Logo"
-                          className="w-full h-full object-contain"
+                          className="w-full h-full object-contain brightness-0 invert"
                           referrerPolicy="no-referrer"
                         />
                       </div>
@@ -428,17 +424,17 @@ export default function DonorCommentsShowcase({ donations, setActiveTab }: Donor
         </div>
       )}
 
-      {/* Encouragement Footer CTA */}
-      <div className="mt-8 pt-6 border-t border-emerald-100/90 flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left">
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-sm">
-            <MessageSquare className="w-4 h-4" />
+      {/* Encouragement Footer CTA - Crisp, high contrast and fully legible */}
+      <div className="mt-8 pt-6 border-t border-emerald-200/80 flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left bg-gradient-to-r from-emerald-50/90 via-white to-emerald-50/70 p-4 sm:p-5 rounded-2xl border border-emerald-200 shadow-sm relative z-10">
+        <div className="flex items-center gap-3.5">
+          <div className="w-10 h-10 rounded-xl bg-emerald-700 text-white flex items-center justify-center shrink-0 shadow-sm">
+            <MessageSquare className="w-5 h-5" />
           </div>
           <div>
-            <p className="text-xs sm:text-sm font-bold text-stone-900">
+            <p className="text-sm sm:text-base font-extrabold text-stone-900">
               Quer ver seu recado brilhando no nosso mural comunitário?
             </p>
-            <p className="text-[11px] sm:text-xs text-stone-500">
+            <p className="text-xs sm:text-sm text-stone-700 font-semibold mt-0.5">
               Faça sua doação de qualquer valor e deixe sua mensagem de encorajamento.
             </p>
           </div>
