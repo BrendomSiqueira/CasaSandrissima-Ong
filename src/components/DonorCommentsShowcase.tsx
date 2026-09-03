@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Heart, ChevronLeft, ChevronRight, MessageSquare, Share2, Sparkles, User, Layers, Grid, Quote, ExternalLink } from 'lucide-react';
 import { Donation } from '../types';
-import logoImg from '../assets/images/casa_sandrissima_green_white_logo_1779323893215.png';
 import logoWhiteImg from '../assets/images/casa_sandrissima_white_logo.png';
 import TactileButton from './TactileButton';
 
@@ -247,11 +246,11 @@ export default function DonorCommentsShowcase({ donations, setActiveTab }: Donor
                 if (offset > 3) return null;
 
                 const isFront = offset === 0;
-                const cardScale = 1 - offset * 0.08;
-                const translateY = offset * 22;
-                const translateX = offset * 18;
-                const cardRotate = offset * 3;
-                const cardOpacity = 1 - offset * 0.25;
+                const cardScale = 1 - offset * 0.05;
+                const translateY = offset * 14;
+                const translateX = offset * 10;
+                const cardRotate = offset * 1.8;
+                const cardOpacity = 1 - offset * 0.22;
                 const zIndex = 30 - offset * 5;
 
                 return (
@@ -279,69 +278,91 @@ export default function DonorCommentsShowcase({ donations, setActiveTab }: Donor
                       transformOrigin: 'center center',
                     }}
                   >
-                    {/* Glowing Top Orbs / Decorative Badges */}
-                    <div className="flex items-start justify-between">
+                    {/* Harmonious Header: Perfectly Centered Axis, Matching Geometry & Balanced Typography */}
+                    <div className="flex items-center justify-between gap-3 pb-2">
                       <div className="flex items-center gap-3.5 min-w-0">
-                        <div className={`w-12 h-12 rounded-2xl p-1.5 flex items-center justify-center shrink-0 shadow-inner ${
-                          isFront ? 'bg-white/20 border border-white/40 backdrop-blur-md' : 'bg-emerald-900/30 border border-emerald-700/40'
+                        {/* Logo Avatar: Balanced Rounded Box with Pure White Logo */}
+                        <div className={`w-12 h-12 rounded-2xl p-1.5 flex items-center justify-center shrink-0 transition-transform ${
+                          isFront 
+                            ? 'bg-emerald-950/60 border border-white/40 shadow-md shadow-emerald-950/40' 
+                            : 'bg-emerald-900/50 border border-emerald-700/50 shadow-xs'
                         }`}>
                           <img
                             src={logoWhiteImg}
                             alt="Logo Casa Sandríssima"
-                            className="w-full h-full object-contain filter drop-shadow-xs brightness-0 invert"
+                            className="w-full h-full object-contain filter drop-shadow-[0_1px_2px_rgba(0,0,0,0.6)] select-none"
                             referrerPolicy="no-referrer"
                           />
                         </div>
-                        <div className="min-w-0">
-                          <span className={`text-[10px] font-mono uppercase tracking-wider font-extrabold px-2 py-0.5 rounded-full inline-block ${
-                            isFront ? 'bg-emerald-400/20 text-emerald-200 border border-emerald-300/30' : 'bg-emerald-800/20 text-emerald-900 border border-emerald-700/20'
+
+                        {/* Donor Information: Neatly Aligned Pill & Headline */}
+                        <div className="min-w-0 flex flex-col justify-center">
+                          <div className="flex items-center">
+                            <span className={`text-[10px] sm:text-[11px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full inline-flex items-center gap-1 leading-none ${
+                              isFront 
+                                ? 'bg-emerald-500/25 text-emerald-100 border border-emerald-300/40' 
+                                : 'bg-emerald-800/20 text-emerald-900 border border-emerald-700/25'
+                            }`}>
+                              Apoiador Oficial
+                            </span>
+                          </div>
+                          <h4 className={`font-extrabold text-base sm:text-lg leading-snug mt-1 truncate ${
+                            isFront ? 'text-white' : 'text-emerald-950'
                           }`}>
-                            Apoiador Oficial
-                          </span>
-                          <h4 className="font-extrabold text-base sm:text-lg leading-tight mt-1 line-clamp-1 truncate">
                             {item.donorName}
                           </h4>
                         </div>
                       </div>
 
-                      <span className={`p-2 rounded-xl ${
-                        isFront ? 'bg-white/10 text-emerald-200' : 'bg-emerald-800/10 text-emerald-800'
+                      {/* Optical Counterbalance: Symmetrical Rounded Badge on the Right */}
+                      <div className={`w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 shadow-xs transition-colors ${
+                        isFront 
+                          ? 'bg-white/15 border border-white/25 text-emerald-100 backdrop-blur-xs' 
+                          : 'bg-emerald-800/15 border border-emerald-700/30 text-emerald-800'
                       }`}>
                         <Heart className="w-4 h-4 fill-current" />
-                      </span>
+                      </div>
                     </div>
 
-                    {/* Message Quote */}
-                    <div className="my-auto py-2">
-                      <p className={`text-sm sm:text-base italic leading-relaxed line-clamp-4 ${
+                    {/* Message Quote: Centered with Subtle Decorative Quote Icon */}
+                    <div className="flex-1 flex flex-col justify-center py-3 relative">
+                      <Quote className={`w-7 h-7 absolute -top-1 -left-1.5 -rotate-12 pointer-events-none transition-opacity ${
+                        isFront ? 'text-white/20 fill-white/10' : 'text-emerald-800/15 fill-emerald-800/10'
+                      }`} />
+                      <p className={`text-sm sm:text-base italic leading-relaxed relative z-10 pl-2 ${
                         isFront ? 'text-emerald-50 font-medium' : 'text-emerald-950 font-medium'
                       }`}>
                         "{item.description || 'Apoiador oficial da Casa Sandríssima, fortalecendo nossa comunidade!'}"
                       </p>
                     </div>
 
-                    {/* Card Footer with Socials & Action */}
-                    <div className={`pt-4 border-t flex items-center justify-between ${
-                      isFront ? 'border-emerald-500/40 text-emerald-100' : 'border-emerald-300/60 text-emerald-900'
+                    {/* Harmonious Card Footer with Balanced Action Chips */}
+                    <div className={`pt-3.5 border-t flex items-center justify-between gap-2 ${
+                      isFront ? 'border-emerald-400/30 text-emerald-100' : 'border-emerald-300/60 text-emerald-900'
                     }`}>
-                      <div className="flex items-center gap-2">
-                        <a
-                          href="https://www.instagram.com/casasandrissima/"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          onClick={(e) => e.stopPropagation()}
-                          className={`w-7 h-7 rounded-full flex items-center justify-center transition-transform hover:scale-110 ${
-                            isFront ? 'bg-white/20 hover:bg-white/30 text-white' : 'bg-emerald-700/15 text-emerald-900'
-                          }`}
-                          title="Instagram @casasandrissima"
-                        >
-                          <svg className="w-3.5 h-3.5 fill-current" viewBox="0 0 16 16">
-                            <path d="M8 0C5.829 0 5.556.01 4.703.048 3.85.088 3.269.222 2.76.42a3.917 3.917 0 0 0-1.417.923A3.927 3.927 0 0 0 .42 2.76C.222 3.268.087 3.85.048 4.7.01 5.555 0 5.827 0 8.001c0 2.172.01 2.444.048 3.297.04.852.174 1.433.372 1.942.205.526.478.972.923 1.417.444.445.89.719 1.416.923.51.198 1.09.333 1.942.372C5.555 15.99 5.827 16 8 16s2.444-.01 3.298-.048c.851-.04 1.434-.174 1.943-.372a3.916 3.916 0 0 0 1.416-.923c.445-.445.718-.891.923-1.417.197-.509.332-1.09.372-1.942C15.99 10.445 16 10.173 16 8s-.01-2.445-.048-3.299c-.04-.851-.175-1.433-.372-1.941a3.926 3.926 0 0 0-.923-1.417A3.911 3.911 0 0 0 13.24.42c-.51-.198-1.092-.333-1.943-.372C10.443.01 10.172 0 7.998 0h.003zm-.717 1.442h.718c2.136 0 2.389.007 3.232.046.78.035 1.204.166 1.486.275.373.145.64.319.92.599.28.28.453.546.598.92.11.281.24.705.275 1.485.039.843.047 1.096.047 3.231s-.008 2.389-.047 3.232c-.035.78-.166 1.203-.275 1.485a2.47 2.47 0 0 1-.599.919c-.28.28-.546.453-.92.598-.28.11-.704.24-1.485.276-.843.038-1.096.047-3.232.047s-2.39-.009-3.233-.047c-.78-.036-1.203-.166-1.485-.276a2.478 2.478 0 0 1-.92-.598 2.48 2.48 0 0 1-.6-.92c-.109-.281-.24-.705-.275-1.485-.038-.843-.046-1.096-.046-3.233 0-2.136.008-2.388.046-3.231.036-.78.166-1.204.276-1.486.145-.373.319-.64.599-.92.28-.28.546-.453.92-.598.282-.11.705-.24 1.485-.276.738-.034 1.024-.044 2.515-.045v.002zm4.988 1.328a.96.96 0 1 0 0 1.92.96.96 0 0 0 0-1.92zm-4.27 1.122a4.109 4.109 0 1 0 0 8.217 4.109 4.109 0 0 0 0-8.217zm0 1.441a2.667 2.667 0 1 1 0 5.334 2.667 2.667 0 0 1 0-5.334z"/>
-                          </svg>
-                        </a>
-                      </div>
+                      <a
+                        href="https://www.instagram.com/casasandrissima/"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={(e) => e.stopPropagation()}
+                        className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold transition-all hover:scale-105 active:scale-95 ${
+                          isFront 
+                            ? 'bg-white/15 hover:bg-white/25 text-white border border-white/20' 
+                            : 'bg-emerald-700/15 hover:bg-emerald-700/25 text-emerald-900 border border-emerald-700/20'
+                        }`}
+                        title="Instagram @casasandrissima"
+                      >
+                        <svg className="w-3.5 h-3.5 fill-current shrink-0" viewBox="0 0 16 16">
+                          <path d="M8 0C5.829 0 5.556.01 4.703.048 3.85.088 3.269.222 2.76.42a3.917 3.917 0 0 0-1.417.923A3.927 3.927 0 0 0 .42 2.76C.222 3.268.087 3.85.048 4.7.01 5.555 0 5.827 0 8.001c0 2.172.01 2.444.048 3.297.04.852.174 1.433.372 1.942.205.526.478.972.923 1.417.444.445.89.719 1.416.923.51.198 1.09.333 1.942.372C5.555 15.99 5.827 16 8 16s2.444-.01 3.298-.048c.851-.04 1.434-.174 1.943-.372a3.916 3.916 0 0 0 1.416-.923c.445-.445.718-.891.923-1.417.197-.509.332-1.09.372-1.942C15.99 10.445 16 10.173 16 8s-.01-2.445-.048-3.299c-.04-.851-.175-1.433-.372-1.941a3.926 3.926 0 0 0-.923-1.417A3.911 3.911 0 0 0 13.24.42c-.51-.198-1.092-.333-1.943-.372C10.443.01 10.172 0 7.998 0h.003zm-.717 1.442h.718c2.136 0 2.389.007 3.232.046.78.035 1.204.166 1.486.275.373.145.64.319.92.599.28.28.453.546.598.92.11.281.24.705.275 1.485.039.843.047 1.096.047 3.231s-.008 2.389-.047 3.232c-.035.78-.166 1.203-.275 1.485a2.47 2.47 0 0 1-.599.919c-.28.28-.546.453-.92.598-.28.11-.704.24-1.485.276-.843.038-1.096.047-3.232.047s-2.39-.009-3.233-.047c-.78-.036-1.203-.166-1.485-.276a2.478 2.478 0 0 1-.92-.598 2.48 2.48 0 0 1-.6-.92c-.109-.281-.24-.705-.275-1.485-.038-.843-.046-1.096-.046-3.233 0-2.136.008-2.388.046-3.231.036-.78.166-1.204.276-1.486.145-.373.319-.64.599-.92.28-.28.546-.453.92-.598.282-.11.705-.24 1.485-.276.738-.034 1.024-.044 2.515-.045v.002zm4.988 1.328a.96.96 0 1 0 0 1.92.96.96 0 0 0 0-1.92zm-4.27 1.122a4.109 4.109 0 1 0 0 8.217 4.109 4.109 0 0 0 0-8.217zm0 1.441a2.667 2.667 0 1 1 0 5.334 2.667 2.667 0 0 1 0-5.334z"/>
+                        </svg>
+                        <span>@casasandrissima</span>
+                      </a>
 
-                      <span className="text-xs font-bold inline-flex items-center gap-1">
+                      <span className={`inline-flex items-center gap-1 text-xs font-bold px-2.5 py-1 rounded-full ${
+                        isFront 
+                          ? 'bg-emerald-500/25 text-emerald-100 border border-emerald-400/30' 
+                          : 'bg-emerald-800/10 text-emerald-800 border border-emerald-700/20'
+                      }`}>
                         {isFront ? '★ Em Destaque' : 'Clique para Ler'}
                       </span>
                     </div>
@@ -369,29 +390,31 @@ export default function DonorCommentsShowcase({ donations, setActiveTab }: Donor
               <div className="absolute -top-16 -right-16 w-32 h-32 rounded-full bg-emerald-200/40 blur-2xl group-hover:bg-emerald-300/60 transition-all pointer-events-none" />
 
               <div className="space-y-4 relative z-10">
-                <div className="flex items-start justify-between">
-                  <div className="flex items-center gap-2.5">
-                    <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-emerald-600 to-teal-500 p-0.5 shadow-xs">
-                      <div className="w-full h-full bg-emerald-800 rounded-[14px] flex items-center justify-center p-1.5">
-                        <img
-                          src={logoWhiteImg}
-                          alt="Logo"
-                          className="w-full h-full object-contain brightness-0 invert"
-                          referrerPolicy="no-referrer"
-                        />
-                      </div>
+                <div className="flex items-center justify-between gap-2.5">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="w-11 h-11 rounded-2xl bg-emerald-950/80 border border-emerald-700/50 p-1.5 flex items-center justify-center shrink-0 shadow-xs">
+                      <img
+                        src={logoWhiteImg}
+                        alt="Logo Casa Sandríssima"
+                        className="w-full h-full object-contain filter drop-shadow-[0_1px_1px_rgba(0,0,0,0.4)]"
+                        referrerPolicy="no-referrer"
+                      />
                     </div>
-                    <div>
-                      <span className="text-[9px] font-mono font-bold uppercase tracking-wider text-emerald-800 bg-emerald-100/80 px-2 py-0.5 rounded-full">
-                        Apoiador Social
-                      </span>
-                      <h4 className="font-bold text-sm text-stone-900 leading-tight mt-0.5 line-clamp-1">
+                    <div className="min-w-0 flex flex-col justify-center">
+                      <div className="flex items-center">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-800 bg-emerald-100/90 border border-emerald-200/80 px-2 py-0.5 rounded-full inline-block leading-none">
+                          Apoiador Social
+                        </span>
+                      </div>
+                      <h4 className="font-extrabold text-sm text-stone-900 leading-snug mt-1 truncate">
                         {item.donorName}
                       </h4>
                     </div>
                   </div>
 
-                  <Heart className="w-4 h-4 text-emerald-600 fill-emerald-100 group-hover:scale-110 transition-transform" />
+                  <div className="w-8 h-8 rounded-xl bg-emerald-50 border border-emerald-200/80 flex items-center justify-center shrink-0 text-emerald-600">
+                    <Heart className="w-4 h-4 fill-emerald-100 text-emerald-600" />
+                  </div>
                 </div>
 
                 <p className="text-stone-600 text-xs sm:text-sm italic leading-relaxed line-clamp-4 pl-2 border-l-2 border-emerald-300">

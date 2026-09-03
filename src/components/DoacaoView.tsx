@@ -6,6 +6,7 @@ import { generatePixPayload } from '../lib/pix';
 import { useModal } from './ModalContext';
 import { useFirebase } from '../firebaseContext';
 import logoImg from '../assets/images/casa_sandrissima_green_white_logo_1779323893215.png';
+import logoWhiteImg from '../assets/images/casa_sandrissima_white_logo.png';
 import PencilLoader from './PencilLoader';
 import TactileButton from './TactileButton';
 
@@ -920,9 +921,9 @@ export default function DoacaoView({ onAddDonation, onUpdateDonation, donationsL
                       <span className="circle circle4"></span>
                       <span className="circle circle5">
                         <img 
-                          src={logoImg} 
+                          src={logoWhiteImg} 
                           alt="Logo Casa Sandríssima" 
-                          className="w-full h-full object-contain"
+                          className="w-full h-full object-contain filter drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)]"
                           referrerPolicy="no-referrer"
                         />
                       </span>

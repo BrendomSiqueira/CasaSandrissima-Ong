@@ -1,7 +1,7 @@
 import React from 'react';
 import { Phone, Mail, MapPin, Instagram, Facebook, Youtube, Settings } from 'lucide-react';
 import { ActiveTab } from '../types';
-import logoImg from '../assets/images/casa_sandrissima_green_white_logo_1779323893215.png';
+import logoWhiteImg from '../assets/images/casa_sandrissima_white_logo.png';
 import { useFirebase } from '../firebaseContext';
 
 interface FooterProps {
@@ -28,9 +28,9 @@ export default function Footer({ setActiveTab, onOpenLoginModal }: FooterProps) 
           <div className="space-y-4" id="footer-branding">
             <div className="flex items-center gap-3">
               <img 
-                src={logoImg} 
+                src={logoWhiteImg} 
                 alt="Logo Casa Sandríssima" 
-                className="h-10 w-10 sm:h-11 sm:w-11 object-contain" 
+                className="h-10 w-10 sm:h-11 sm:w-11 object-contain filter drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)] select-none" 
                 referrerPolicy="no-referrer"
               />
               <div>

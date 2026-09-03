@@ -327,16 +327,16 @@ export default function HomeView({ setActiveTab, onSelectWorkshop }: HomeViewPro
                 id="hero-orbit-embroidery"
                 onClick={() => handleOpenWorkshop('embroidery')}
                 animate={{ 
-                  y: [0, 5, 0],
+                  y: [0, -5, 0],
                   scale: [1, 1.03, 1]
                 }}
                 transition={{ 
                   duration: 3.6, 
                   repeat: Infinity, 
-                  ease: "easeInOut",
+                  ease: "easeInOut", 
                   delay: 1.2
                 }}
-                whileHover={{ scale: 1.08, y: 7 }}
+                whileHover={{ scale: 1.08, y: -7 }}
                 whileTap={{ scale: 0.95 }}
                 title="Ver detalhes da oficina de Bordados"
                 className="absolute bottom-[10%] -left-1 sm:-left-2 md:-left-4 z-20 bg-white/95 backdrop-blur-xs py-1.5 px-3.5 sm:px-4 rounded-full shadow-md hover:shadow-rose-200/80 text-[11px] sm:text-xs font-bold text-stone-800 border border-rose-200/90 flex items-center gap-1.5 cursor-pointer transition-colors hover:border-rose-400 group whitespace-nowrap"
