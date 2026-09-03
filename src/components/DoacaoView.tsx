@@ -319,12 +319,21 @@ export default function DoacaoView({ onAddDonation, onUpdateDonation, donationsL
             <p className="text-xs text-stone-500 leading-relaxed">
               Você pode visitar a nossa sede social e entregar suprimentos diretamente à nossa junta diretiva. Ficaremos honrados em recebê-lo!
             </p>
-            <div className="text-xs text-stone-600 space-y-1 bg-stone-50 p-3 rounded-xl border border-stone-150 text-left">
-              <p className="font-bold text-stone-855">Endereço de Entrega:</p>
+            <a 
+              href="https://www.google.com/maps/search/?api=1&query=Rua+Filomena+Ana+Rita,+390+-+Jardim+Ipanema,+Franca+-+SP,+14404-225"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-xs text-stone-600 space-y-1 bg-stone-50 hover:bg-emerald-50/60 p-3 rounded-xl border border-stone-150 hover:border-emerald-300 text-left block transition-all group"
+              title="Abrir endereço no Google Maps"
+            >
+              <p className="font-bold text-stone-855 group-hover:text-emerald-800 flex items-center justify-between">
+                <span>Endereço de Entrega:</span>
+                <span className="text-[10px] text-emerald-700 font-semibold underline">Abrir no Maps ↗</span>
+              </p>
               <p>Rua Filomena Ana Rita, 390</p>
               <p>Jardim Ipanema — Franca/SP</p>
               <p>CEP 14404-225</p>
-            </div>
+            </a>
           </div>
           <span className="text-xs text-stone-405 leading-none">Horários: Segunda a Sexta, 08h às 17h</span>
         </div>

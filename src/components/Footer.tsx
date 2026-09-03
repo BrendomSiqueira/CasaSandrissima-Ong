@@ -92,13 +92,21 @@ export default function Footer({ setActiveTab, onOpenLoginModal }: FooterProps) 
           <div className="space-y-4" id="footer-contact">
             <h3 className="text-sm font-semibold tracking-wider text-stone-100 uppercase">Contato</h3>
             <ul className="space-y-3 text-sm text-stone-400">
-              <li className="flex items-start gap-2.5">
-                <MapPin className="h-5 w-5 text-emerald-500 shrink-0 mt-0.5" />
-                <span>
-                  Rua Filomena Ana Rita, 390<br />
-                  Jardim Ipanema — Franca/SP<br />
-                  CEP 14404-225
-                </span>
+              <li id="footer-address-item">
+                <a 
+                  href="https://www.google.com/maps/search/?api=1&query=Rua+Filomena+Ana+Rita,+390+-+Jardim+Ipanema,+Franca+-+SP,+14404-225"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-start gap-2.5 group hover:text-emerald-400 transition-colors cursor-pointer"
+                  title="Abrir endereço no Google Maps"
+                >
+                  <MapPin className="h-5 w-5 text-emerald-500 group-hover:text-emerald-400 group-hover:scale-110 shrink-0 mt-0.5 transition-all" />
+                  <span className="group-hover:underline decoration-emerald-500/50 underline-offset-2">
+                    Rua Filomena Ana Rita, 390<br />
+                    Jardim Ipanema — Franca/SP<br />
+                    CEP 14404-225
+                  </span>
+                </a>
               </li>
               <li className="flex items-center gap-2.5">
                 <Phone className="h-4 w-4 text-emerald-500 shrink-0" />

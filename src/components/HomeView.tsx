@@ -493,15 +493,21 @@ export default function HomeView({ setActiveTab, onSelectWorkshop }: HomeViewPro
             </div>
 
             <div className="flex flex-col sm:flex-row gap-6 pt-4 border-t border-stone-200/60" id="embedded-socials">
-              <div className="flex items-center gap-3">
-                <div className="bg-emerald-100 text-emerald-700 p-2.5 rounded-xl">
+              <a 
+                href="https://www.google.com/maps/search/?api=1&query=Rua+Filomena+Ana+Rita,+390+-+Jardim+Ipanema,+Franca+-+SP,+14404-225"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-3 group hover:opacity-95 transition-all"
+                title="Abrir no Google Maps"
+              >
+                <div className="bg-emerald-100 text-emerald-700 p-2.5 rounded-xl group-hover:bg-emerald-200 group-hover:scale-105 transition-all">
                   <MapPin className="h-5 w-5" />
                 </div>
                 <div>
                   <span className="text-xs font-mono tracking-wider uppercase text-stone-500 block">Sede da Casa</span>
-                  <span className="text-sm font-bold text-stone-850 block">Rua Filomena Ana Rita, 390 • Franca/SP</span>
+                  <span className="text-sm font-bold text-stone-850 block group-hover:text-emerald-700 group-hover:underline underline-offset-2 transition-colors">Rua Filomena Ana Rita, 390 • Franca/SP</span>
                 </div>
-              </div>
+              </a>
               <div className="flex items-center gap-3">
                 <div className="bg-emerald-100 text-emerald-700 p-2.5 rounded-xl">
                   <Phone className="h-5 w-5" />
