@@ -206,20 +206,12 @@ export default function HomeView({ setActiveTab, onSelectWorkshop }: HomeViewPro
           </div>
 
           <div className="lg:col-span-5 flex flex-col items-center justify-center">
-            {/* Visual Abstract Semente Graphic */}
-            <div className="relative w-64 h-64 sm:w-72 sm:h-72 md:w-80 md:h-80 bg-stone-55 rounded-full border border-stone-200/60 p-2 flex items-center justify-center shadow-lg shadow-stone-200/50 my-4 sm:my-0" id="hero-visual-graphic">
-              {/* Animated subtle outer orbit rings */}
-              <motion.div 
-                animate={{ rotate: 360 }}
-                transition={{ duration: 40, repeat: Infinity, ease: "linear" }}
-                className="absolute inset-[-10px] sm:inset-[-14px] rounded-full border border-dashed border-emerald-300/40 pointer-events-none"
-              />
-              <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-emerald-100/20 via-stone-100/30 to-emerald-50/20 animate-pulse pointer-events-none"></div>
-              
+            {/* Visual Abstract Semente Graphic without white round background */}
+            <div className="relative w-64 h-64 sm:w-72 sm:h-72 md:w-80 md:h-80 flex items-center justify-center my-4 sm:my-0" id="hero-visual-graphic">
               <img
                 src={logoImg}
                 alt="Logo Casa Sandríssima"
-                className="relative z-10 w-full h-full rounded-full object-cover shadow-sm hover:scale-[1.02] transition-transform duration-300 select-none"
+                className="relative z-10 w-full h-full object-contain hover:scale-105 transition-transform duration-300 select-none drop-shadow-md"
                 referrerPolicy="no-referrer"
               />
               

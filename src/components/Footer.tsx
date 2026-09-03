@@ -30,7 +30,7 @@ export default function Footer({ setActiveTab, onOpenLoginModal }: FooterProps) 
               <img 
                 src={logoImg} 
                 alt="Logo Casa Sandríssima" 
-                className="h-10 w-10 sm:h-11 sm:w-11 rounded-full object-cover border border-stone-800 shadow-sm" 
+                className="h-10 w-10 sm:h-11 sm:w-11 object-contain" 
                 referrerPolicy="no-referrer"
               />
               <div>

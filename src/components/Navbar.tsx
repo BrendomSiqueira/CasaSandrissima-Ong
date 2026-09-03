@@ -82,7 +82,7 @@ export default function Navbar({ activeTab, setActiveTab, onOpenLoginModal, onNa
             <img 
               src={logoImg} 
               alt="Logo Casa Sandríssima" 
-              className="h-10 w-10 sm:h-12 sm:w-12 rounded-full object-cover border border-stone-200/60 shadow-sm group-hover:scale-105 transition-transform" 
+              className="h-10 w-10 sm:h-12 sm:w-12 object-contain group-hover:scale-105 transition-transform" 
               referrerPolicy="no-referrer"
               id="logo-img"
             />

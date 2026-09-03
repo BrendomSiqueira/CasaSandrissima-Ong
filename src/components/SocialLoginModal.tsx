@@ -273,7 +273,7 @@ export default function SocialLoginModal({
                 <img
                   src={logoImg}
                   alt="Casa Sandríssima"
-                  className="h-13 w-13 rounded-full object-cover border-2 border-emerald-600/30 shadow-md p-0.5 bg-white"
+                  className="h-13 w-13 object-contain"
                   referrerPolicy="no-referrer"
                 />
                 <div className="absolute -bottom-1 -right-1 bg-emerald-600 text-white p-1 rounded-full shadow-sm">

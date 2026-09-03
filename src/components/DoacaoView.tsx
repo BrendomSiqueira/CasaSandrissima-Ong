@@ -922,7 +922,7 @@ export default function DoacaoView({ onAddDonation, onUpdateDonation, donationsL
                         <img 
                           src={logoImg} 
                           alt="Logo Casa Sandríssima" 
-                          className="w-full h-full object-cover rounded-full"
+                          className="w-full h-full object-contain"
                           referrerPolicy="no-referrer"
                         />
                       </span>
