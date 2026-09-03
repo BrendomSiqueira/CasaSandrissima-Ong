@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   Menu, 
@@ -29,6 +29,16 @@ export default function Navbar({ activeTab, setActiveTab, onOpenLoginModal, onNa
   const { user, logout, isMaster } = useFirebase();
   const [isOpen, setIsOpen] = useState(false);
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 8);
+    };
+    handleScroll();
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   // Check if current authenticated user has Master privileges
   const isMasterUser = isMaster || 
@@ -69,7 +79,14 @@ export default function Navbar({ activeTab, setActiveTab, onOpenLoginModal, onNa
   };
 
   return (
-    <nav className="sticky top-0 z-50 bg-white/85 backdrop-blur-md border-b border-emerald-100/60 shadow-xs transition-all" id="main-navbar">
+    <nav 
+      className={`w-full transition-all duration-300 ${
+        isScrolled 
+          ? 'bg-white/95 backdrop-blur-md shadow-md border-b border-emerald-200/80' 
+          : 'bg-white/90 backdrop-blur-md border-b border-emerald-100/60 shadow-xs'
+      }`} 
+      id="main-navbar"
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16 items-center">
           

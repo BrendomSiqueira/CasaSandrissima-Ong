@@ -32,7 +32,6 @@ import TactileButton from './TactileButton';
 interface GaleriaViewProps {
   setActiveTab: (tab: ActiveTab) => void;
   onOpenLoginModal?: (reason?: 'galeria' | 'doacoes' | 'portal' | 'geral') => void;
-  onTriggerWaveTransition?: (onMidpoint?: () => void) => void;
 }
 
 // Curated high-definition photos of Casa Sandríssima's projects and community activities
@@ -127,7 +126,7 @@ const INITIAL_GALLERY_ITEMS: GalleryPhoto[] = [
   }
 ];
 
-export default function GaleriaView({ setActiveTab, onOpenLoginModal, onTriggerWaveTransition }: GaleriaViewProps) {
+export default function GaleriaView({ setActiveTab, onOpenLoginModal }: GaleriaViewProps) {
   const { user } = useFirebase();
   const { alert, confirm } = useModal();
   
@@ -390,13 +389,7 @@ export default function GaleriaView({ setActiveTab, onOpenLoginModal, onTriggerW
             id={`filter-btn-${cat.id}`}
             onClick={() => {
               if (cat.id === selectedCategory) return;
-              if (onTriggerWaveTransition) {
-                onTriggerWaveTransition(() => {
-                  setSelectedCategory(cat.id);
-                });
-              } else {
-                setSelectedCategory(cat.id);
-              }
+              setSelectedCategory(cat.id);
             }}
             className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
               selectedCategory === cat.id

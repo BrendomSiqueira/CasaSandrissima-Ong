@@ -145,13 +145,6 @@ export default function App() {
           <GaleriaView 
             setActiveTab={handleTabChange} 
             onOpenLoginModal={handleOpenLoginModal} 
-            onTriggerWaveTransition={(callback) => {
-              if (shapeOverlaysRef.current) {
-                shapeOverlaysRef.current.triggerTransition(callback);
-              } else if (callback) {
-                callback();
-              }
-            }}
           />
         );
       case 'area_associado':
@@ -177,7 +170,7 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col relative text-stone-800 font-sans selection:bg-emerald-200 selection:text-emerald-900 overflow-x-hidden bg-transparent" id="app-root-container">
+    <div className="min-h-screen flex flex-col relative text-stone-800 font-sans selection:bg-emerald-200 selection:text-emerald-900 overflow-x-clip bg-transparent" id="app-root-container">
       
       {/* Morphing Shape Overlays Fluid Wave Transition System (Restricted exclusively to Galeria) */}
       <ShapeOverlaysTransition ref={shapeOverlaysRef} autoPlayOnMount={false} />
@@ -185,16 +178,17 @@ export default function App() {
       {/* Dynamic Ambient Background: Crafted with reference ribbons, swooshes, waves & tactile micro-texture */}
       <SiteAmbientBackground />
 
-      {/* Dynamic Navbar */}
-      <Navbar 
-        activeTab={activeTab} 
-        setActiveTab={handleTabChange} 
-        onOpenLoginModal={handleOpenLoginModal} 
-        onNavigateToSgeTab={handleNavigateToSgeTab}
-      />
-      
-      {/* Glowing Header Wave Accent Ribbon (Ref. Image 1 & 3) */}
-      <div className="h-1 bg-gradient-to-r from-emerald-600 via-lime-400 via-40% to-teal-700 shadow-[0_2px_10px_rgba(16,185,129,0.4)] relative z-20" />
+      {/* Sticky Header with Navbar and Wave Accent Ribbon */}
+      <header className="sticky top-0 z-40 w-full" id="site-header">
+        <Navbar 
+          activeTab={activeTab} 
+          setActiveTab={handleTabChange} 
+          onOpenLoginModal={handleOpenLoginModal} 
+          onNavigateToSgeTab={handleNavigateToSgeTab}
+        />
+        {/* Glowing Header Wave Accent Ribbon */}
+        <div className="h-1 bg-gradient-to-r from-emerald-600 via-lime-400 via-40% to-teal-700 shadow-[0_2px_10px_rgba(16,185,129,0.4)] relative z-20" />
+      </header>
 
       {/* Screen Frame Content Area */}
       <main className="flex-grow max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-6 mb-12 relative z-10">
