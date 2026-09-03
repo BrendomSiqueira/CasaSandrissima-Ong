@@ -117,7 +117,7 @@ CasaSandrissima-Ong/
 
 ## 👥 Equipe
 
-Projeto desenvolvido por um grupo de 6 estudantes de **Análise e Desenvolvimento de Sistemas** (FATEC Franca — Dr. Thomaz Novelino), como parte de um projeto acadêmico em parceria com a ONG Casa Sandríssima.
+Projeto desenvolvido durante o curso de **Análise e Desenvolvimento de Sistemas** (FATEC Franca — Dr. Thomaz Novelino), como parte de um projeto acadêmico em parceria com a ONG Casa Sandríssima.
 
 ## 📄 Licença
 
