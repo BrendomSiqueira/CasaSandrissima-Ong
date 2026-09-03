@@ -26,7 +26,7 @@ import {
 import { useFirebase } from '../firebaseContext';
 import { useModal } from './ModalContext';
 import { GalleryPhoto, ActiveTab } from '../types';
-import logoImg from '../assets/images/casa_sandrissima_green_white_logo_1779323893215.png';
+import logoImg from '../assets/images/casa_sandrissima_green_white_logo_original.png';
 import TactileButton from './TactileButton';
 
 interface GaleriaViewProps {

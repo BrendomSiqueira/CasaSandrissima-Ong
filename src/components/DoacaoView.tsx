@@ -5,7 +5,7 @@ import { Donation } from '../types';
 import { generatePixPayload } from '../lib/pix';
 import { useModal } from './ModalContext';
 import { useFirebase } from '../firebaseContext';
-import logoImg from '../assets/images/casa_sandrissima_green_white_logo_1779323893215.png';
+import logoImg from '../assets/images/casa_sandrissima_green_white_logo_original.png';
 import logoWhiteImg from '../assets/images/casa_sandrissima_white_logo.png';
 import PencilLoader from './PencilLoader';
 import TactileButton from './TactileButton';

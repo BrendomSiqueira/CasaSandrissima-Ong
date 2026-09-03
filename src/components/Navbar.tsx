@@ -11,11 +11,12 @@ import {
   LogOut, 
   User as UserIcon, 
   ChevronDown,
-  GraduationCap
+  GraduationCap,
+  Sparkles
 } from 'lucide-react';
 import { ActiveTab } from '../types';
 import { useFirebase } from '../firebaseContext';
-import logoImg from '../assets/images/casa_sandrissima_green_white_logo_1779323893215.png';
+import logoImg from '../assets/images/casa_sandrissima_green_white_logo_original.png';
 import TactileButton from './TactileButton';
 
 interface NavbarProps {
@@ -26,7 +27,7 @@ interface NavbarProps {
 }
 
 export default function Navbar({ activeTab, setActiveTab, onOpenLoginModal, onNavigateToSgeTab }: NavbarProps) {
-  const { user, logout, isMaster } = useFirebase();
+  const { user, logout, isMaster, isDemoMode, demoRole, enterDemoMode, exitDemoMode } = useFirebase();
   const [isOpen, setIsOpen] = useState(false);
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
@@ -143,8 +144,8 @@ export default function Navbar({ activeTab, setActiveTab, onOpenLoginModal, onNa
             })}
           </div>
 
-          {/* Desktop Action Buttons: Supporter/Student Login */}
-          <div className="hidden md:flex items-center gap-2.5" id="desktop-auth-section">
+          {/* Desktop Action Buttons: Supporter/Student Login & Demo Mode */}
+          <div className="hidden md:flex items-center gap-2" id="desktop-auth-section">
             
             {/* Supporter & Student Login / Profile Button */}
             {!user ? (
@@ -165,23 +166,32 @@ export default function Navbar({ activeTab, setActiveTab, onOpenLoginModal, onNa
                   type="button"
                   id="btn-user-profile-menu"
                   onClick={handleStudentSupporterClick}
-                  title="Perfil do Usuário"
-                  className="px-3 py-1.5 rounded-xl border border-emerald-200 bg-emerald-50/70 hover:bg-emerald-100/80 text-emerald-900 text-xs font-semibold flex items-center gap-2 transition-all cursor-pointer"
+                  title={isDemoMode ? `Modo Demonstração Ativo (${demoRole})` : "Perfil do Usuário"}
+                  className={`px-3 py-1.5 rounded-xl border text-xs font-semibold flex items-center gap-2 transition-all cursor-pointer ${
+                    isDemoMode
+                      ? 'border-amber-300 bg-amber-50/90 hover:bg-amber-100 text-amber-950 shadow-xs'
+                      : 'border-emerald-200 bg-emerald-50/70 hover:bg-emerald-100/80 text-emerald-900'
+                  }`}
                 >
                   {user.photoURL ? (
                     <img
                       src={user.photoURL}
                       alt=""
-                      className="w-5 h-5 rounded-full object-cover border border-emerald-400"
+                      className={`w-5 h-5 rounded-full object-cover border ${isDemoMode ? 'border-amber-400' : 'border-emerald-400'}`}
                       referrerPolicy="no-referrer"
                     />
                   ) : (
-                    <div className="w-5 h-5 rounded-full bg-emerald-600 text-white flex items-center justify-center text-[10px] font-bold">
+                    <div className={`w-5 h-5 rounded-full text-white flex items-center justify-center text-[10px] font-bold ${isDemoMode ? 'bg-amber-600' : 'bg-emerald-600'}`}>
                       {(user.displayName || user.email || 'U')[0].toUpperCase()}
                     </div>
                   )}
                   <span className="max-w-[100px] truncate">{user.displayName?.split(' ')[0] || 'Aluno / Apoiador'}</span>
-                  <ChevronDown className="h-3 w-3 text-emerald-600" />
+                  {isDemoMode && (
+                    <span className="text-[9px] px-1.5 py-0.5 bg-amber-500 text-stone-950 rounded font-mono font-black uppercase tracking-wider">
+                      Demo
+                    </span>
+                  )}
+                  <ChevronDown className="h-3 w-3 text-stone-500" />
                 </button>
 
                 {/* User Dropdown */}
@@ -195,18 +205,25 @@ export default function Navbar({ activeTab, setActiveTab, onOpenLoginModal, onNa
                       className="absolute right-0 mt-2 w-64 bg-white rounded-2xl shadow-xl border border-stone-150 p-2 z-50 text-left"
                       id="user-dropdown-menu"
                     >
-                      <div className="p-3 border-b border-stone-100">
+                      <div className={`p-3 border-b ${isDemoMode ? 'bg-amber-50/50 border-amber-100 rounded-xl mb-1' : 'border-stone-100'}`}>
                         <div className="flex items-center gap-2">
                           <span className="text-xs font-bold text-stone-900 block truncate">
                             {user.displayName || 'Aluno / Apoiador'}
                           </span>
-                          <span className="text-[10px] px-1.5 py-0.5 bg-emerald-100 text-emerald-800 rounded font-mono font-bold">
-                            Conectado
+                          <span className={`text-[10px] px-1.5 py-0.5 rounded font-mono font-bold ${
+                            isDemoMode ? 'bg-amber-200 text-amber-900 font-extrabold' : 'bg-emerald-100 text-emerald-800'
+                          }`}>
+                            {isDemoMode ? `DEMO • ${demoRole.toUpperCase()}` : 'Conectado'}
                           </span>
                         </div>
                         <span className="text-[11px] text-stone-400 font-mono block truncate mt-0.5">
                           {user.email}
                         </span>
+                        {isDemoMode && (
+                          <span className="text-[10px] text-amber-700 font-medium block mt-1">
+                            ⚡ Operações simuladas (sem gravação no banco)
+                          </span>
+                        )}
                       </div>
 
                       <div className="py-1 space-y-0.5">

@@ -2,11 +2,11 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   X, Lock, ShieldCheck, HeartHandshake, Image as ImageIcon, Sparkles, 
-  AlertCircle, Mail, Key, User as UserIcon, Eye, EyeOff, CheckCircle2, ArrowRight,
-  UserPlus, LogIn, Zap
+  AlertCircle, Mail, Key, User as UserIcon, Eye, EyeOff, CheckCircle2,
+  UserPlus, LogIn, ArrowRight
 } from 'lucide-react';
 import { useFirebase } from '../firebaseContext';
-import logoImg from '../assets/images/casa_sandrissima_green_white_logo_1779323893215.png';
+import logoImg from '../assets/images/casa_sandrissima_green_white_logo_original.png';
 import PencilLoader from './PencilLoader';
 import TactileButton from './TactileButton';
 
@@ -29,8 +29,8 @@ export default function SocialLoginModal({
 }: SocialLoginModalProps) {
   const { loginWithEmail, registerWithEmail, resetPassword } = useFirebase();
   
-  // Auth Modes: 'login' | 'register' | 'quick' | 'forgot'
-  const [authMode, setAuthMode] = useState<'login' | 'register' | 'quick' | 'forgot'>('login');
+  // Auth Modes: 'login' | 'register' | 'forgot'
+  const [authMode, setAuthMode] = useState<'login' | 'register' | 'forgot'>('login');
 
   // Form Fields
   const [name, setName] = useState('');
@@ -207,31 +207,6 @@ export default function SocialLoginModal({
     }
   };
 
-  // Fast demo / quick login helper for instant testing
-  const handleQuickLogin = async (roleEmail: string, rolePass: string, roleName: string) => {
-    setIsSubmitting(true);
-    setErrorMessage(null);
-    try {
-      try {
-        await loginWithEmail(roleEmail, rolePass);
-      } catch (loginErr: any) {
-        // If not created yet in Firebase Auth, auto-register it
-        if (loginErr?.code === 'auth/user-not-found' || loginErr?.code === 'auth/invalid-credential') {
-          await registerWithEmail(roleEmail, rolePass, roleName);
-        } else {
-          throw loginErr;
-        }
-      }
-      setIsSubmitting(false);
-      if (onSuccess) onSuccess();
-      handleClose();
-    } catch (e: any) {
-      setIsSubmitting(false);
-      console.warn("Quick login error: ", e);
-      setErrorMessage(`Não foi possível inicializar o acesso: ${e?.message || 'Erro inesperado'}. Você pode criar uma conta na aba "Criar Conta".`);
-    }
-  };
-
   if (!isOpen) return null;
 
   return (
@@ -344,24 +319,6 @@ export default function SocialLoginModal({
                   <UserPlus className="h-3.5 w-3.5" />
                   <span>Criar Conta</span>
                 </button>
-                <button
-                  type="button"
-                  id="tab-mode-quick"
-                  onClick={() => {
-                    setAuthMode('quick');
-                    setErrorMessage(null);
-                    setSuccessMessage(null);
-                  }}
-                  className={`py-1.5 px-2.5 text-xs font-bold rounded-xl transition-all cursor-pointer flex items-center justify-center gap-1 ${
-                    authMode === 'quick'
-                      ? 'bg-emerald-600 text-white shadow-xs'
-                      : 'text-emerald-700 hover:bg-emerald-50'
-                  }`}
-                  title="Acesso Rápido de Demonstração"
-                >
-                  <Zap className="h-3.5 w-3.5" />
-                  <span>Demo</span>
-                </button>
               </div>
             )}
 
@@ -405,103 +362,12 @@ export default function SocialLoginModal({
                   message={
                     authMode === 'register' 
                       ? 'Cadastrando sua conta no site...'
-                      : authMode === 'quick'
-                        ? 'Entrando com o perfil selecionado...'
-                        : authMode === 'forgot'
-                          ? 'Enviando link de recuperação...'
-                          : 'Validando suas credenciais...'
+                      : authMode === 'forgot'
+                        ? 'Enviando link de recuperação...'
+                        : 'Validando suas credenciais...'
                   }
                   submessage="Autenticação segura Casa Sandríssima"
                 />
-              </div>
-            ) : authMode === 'quick' ? (
-              /* QUICK DEMO LOGIN VIEW */
-              <div className="mt-4 space-y-2.5 text-left" id="quick-demo-access-panel">
-                <div className="p-3 bg-emerald-50/70 border border-emerald-200 rounded-2xl">
-                  <div className="flex items-center gap-1.5 text-xs font-bold text-emerald-900 mb-1">
-                    <Zap className="h-4 w-4 text-emerald-600" />
-                    <span>Acesso Instantâneo para Testes</span>
-                  </div>
-                  <p className="text-[11px] text-emerald-800 leading-snug">
-                    Autentique-se diretamente em 1 clique para testar todos os módulos (painel administrativo, presenças, financeiro e oficinas):
-                  </p>
-                </div>
-
-                <div className="space-y-2">
-                  {/* Diretor Geral Master Admin */}
-                  <button
-                    type="button"
-                    onClick={() => handleQuickLogin('brendomdev@gmail.com', '123456', 'Brendom Siqueira Dev')}
-                    className="w-full p-3 rounded-2xl border border-emerald-300 bg-white hover:bg-emerald-50/50 shadow-2xs hover:shadow transition-all text-left flex items-center justify-between cursor-pointer group"
-                  >
-                    <div className="flex items-center gap-2.5">
-                      <div className="h-8 w-8 rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold text-xs">
-                        👑
-                      </div>
-                      <div>
-                        <div className="text-xs font-bold text-stone-900 group-hover:text-emerald-900">
-                          Diretor Geral & Administrador Master
-                        </div>
-                        <div className="text-[10px] text-stone-500">
-                          brendomdev@gmail.com (Acesso total SGE, Alunos e Finanças)
-                        </div>
-                      </div>
-                    </div>
-                    <ArrowRight className="h-4 w-4 text-emerald-600 group-hover:translate-x-1 transition-transform" />
-                  </button>
-
-                  {/* Coordenadora Pedagógica */}
-                  <button
-                    type="button"
-                    onClick={() => handleQuickLogin('sandra@casa.org', '123456', 'Ana Sandra Abreu')}
-                    className="w-full p-3 rounded-2xl border border-stone-200 bg-white hover:bg-stone-50 shadow-2xs hover:shadow transition-all text-left flex items-center justify-between cursor-pointer group"
-                  >
-                    <div className="flex items-center gap-2.5">
-                      <div className="h-8 w-8 rounded-full bg-teal-100 text-teal-800 flex items-center justify-center font-bold text-xs">
-                        👩‍🏫
-                      </div>
-                      <div>
-                        <div className="text-xs font-bold text-stone-900 group-hover:text-teal-900">
-                          Coordenadora Pedagógica
-                        </div>
-                        <div className="text-[10px] text-stone-500">
-                          sandra@casa.org (Oficinas, Aulas e Avaliações)
-                        </div>
-                      </div>
-                    </div>
-                    <ArrowRight className="h-4 w-4 text-teal-600 group-hover:translate-x-1 transition-transform" />
-                  </button>
-
-                  {/* Apoiador e Voluntário */}
-                  <button
-                    type="button"
-                    onClick={() => handleQuickLogin('roberto.santos@gmail.com', '123456', 'Roberto Santos')}
-                    className="w-full p-3 rounded-2xl border border-stone-200 bg-white hover:bg-stone-50 shadow-2xs hover:shadow transition-all text-left flex items-center justify-between cursor-pointer group"
-                  >
-                    <div className="flex items-center gap-2.5">
-                      <div className="h-8 w-8 rounded-full bg-amber-100 text-amber-800 flex items-center justify-center font-bold text-xs">
-                        🤝
-                      </div>
-                      <div>
-                        <div className="text-xs font-bold text-stone-900 group-hover:text-amber-900">
-                          Voluntário & Apoiador Comunitário
-                        </div>
-                        <div className="text-[10px] text-stone-500">
-                          roberto.santos@gmail.com (Ouvidoria e Galeria)
-                        </div>
-                      </div>
-                    </div>
-                    <ArrowRight className="h-4 w-4 text-amber-600 group-hover:translate-x-1 transition-transform" />
-                  </button>
-                </div>
-
-                <button
-                  type="button"
-                  onClick={() => setAuthMode('login')}
-                  className="w-full py-2 text-xs text-stone-500 hover:text-stone-800 font-semibold text-center cursor-pointer"
-                >
-                  ← Voltar para o Login com E-mail
-                </button>
               </div>
             ) : (
               /* EMAIL & PASSWORD AUTH FORM */

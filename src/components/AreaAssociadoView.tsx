@@ -14,6 +14,7 @@ import { useModal } from './ModalContext';
 import PencilLoader from './PencilLoader';
 import TactileButton from './TactileButton';
 import TurmaAlunosManager from './TurmaAlunosManager';
+import AnimatedCounter from './AnimatedCounter';
 
 interface AreaAssociadoViewProps {
   studentsList: Student[];
@@ -2050,11 +2051,11 @@ export default function AreaAssociadoView({
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               <div className="bg-white p-5 rounded-2xl border border-stone-150 shadow-sm space-y-2 flex flex-col justify-between">
                 <div>
-                  <span className="text-[10px] font-mono font-bold tracking-wider text-stone-400 uppercase block leading-none">Total Arrecado via Site</span>
+                  <span className="text-[10px] font-mono font-bold tracking-wider text-stone-400 uppercase block leading-none">Total Arrecadado via Site</span>
                   <div className="flex items-baseline gap-1 mt-2">
                     <span className="text-xl font-bold font-mono text-emerald-600">R$</span>
                     <span className="text-3xl font-black text-stone-900 tracking-tight">
-                      {donationsList.reduce((sum, d) => sum + (d.amount || 0), 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                      <AnimatedCounter value={Math.round(donationsList.reduce((sum, d) => sum + (d.amount || 0), 0))} />
                     </span>
                   </div>
                 </div>
@@ -2068,7 +2069,9 @@ export default function AreaAssociadoView({
                 <div>
                   <span className="text-[10px] font-mono font-bold tracking-wider text-stone-400 uppercase block leading-none">Apoios Financeiros Únicos (Pix)</span>
                   <div className="mt-2 text-3xl font-black text-stone-900 tracking-tight flex items-baseline gap-1">
-                    <span>{donationsList.filter(d => d.type === 'pix').length}</span>
+                    <span>
+                      <AnimatedCounter value={donationsList.filter(d => d.type === 'pix').length} />
+                    </span>
                     <span className="text-xs text-stone-400 font-medium">unidades</span>
                   </div>
                 </div>
@@ -2085,7 +2088,9 @@ export default function AreaAssociadoView({
                 <div>
                   <span className="text-[10px] font-mono font-bold tracking-wider text-stone-400 uppercase block leading-none">Doações de Suprimentos</span>
                   <div className="mt-2 text-3xl font-black text-emerald-600 tracking-tight flex items-baseline gap-1">
-                    <span>{donationsList.filter(d => d.type !== 'pix').length}</span>
+                    <span>
+                      <AnimatedCounter value={donationsList.filter(d => d.type !== 'pix').length} />
+                    </span>
                     <span className="text-xs text-stone-400 font-medium">doações</span>
                   </div>
                 </div>
@@ -2098,7 +2103,9 @@ export default function AreaAssociadoView({
                 <div>
                   <span className="text-[10px] font-mono font-bold tracking-wider text-stone-400 uppercase block leading-none">Taxa de Conversão por Visitante</span>
                   <div className="mt-2 text-3xl font-black text-teal-600 tracking-tight flex items-baseline gap-1">
-                    <span>{((donationsList.length / Math.max(associatesList.length, 1)) * 100).toFixed(0)}%</span>
+                    <span>
+                      <AnimatedCounter value={Math.round((donationsList.length / Math.max(associatesList.length, 1)) * 100)} suffix="%" />
+                    </span>
                   </div>
                 </div>
                 <div className="pt-2 text-[10px] text-stone-500 border-t border-stone-100">

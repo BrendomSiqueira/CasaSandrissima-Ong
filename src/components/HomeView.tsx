@@ -2,10 +2,11 @@ import React from 'react';
 import { motion } from 'motion/react';
 import { Sprout, BookOpen, Scissors, Trophy, GraduationCap, MapPin, Phone, Mail, ChevronRight, Heart, Activity, Palette, Image as ImageIcon } from 'lucide-react';
 import { ActiveTab } from '../types';
-import logoImg from '../assets/images/casa_sandrissima_green_white_logo_1779323893215.png';
+import logoImg from '../assets/images/casa_sandrissima_green_white_logo_original.png';
 import { useFirebase } from '../firebaseContext';
 import TactileButton from './TactileButton';
 import DonorCommentsShowcase from './DonorCommentsShowcase';
+import AnimatedCounter from './AnimatedCounter';
 
 interface HomeViewProps {
   setActiveTab: (tab: ActiveTab) => void;
@@ -137,9 +138,9 @@ export default function HomeView({ setActiveTab, onSelectWorkshop }: HomeViewPro
   ];
 
   const stats = [
-    { label: "Alunos Cadastrados", value: `${totalStudents}` },
-    { label: "Cursos Oferecidos", value: "5" },
-    { label: "Associados e Apoiadores", value: `${totalAssociates}` },
+    { label: "Alunos Cadastrados", value: totalStudents },
+    { label: "Cursos Oferecidos", value: 5 },
+    { label: "Associados e Apoiadores", value: totalAssociates },
   ];
 
   return (
@@ -360,7 +361,7 @@ export default function HomeView({ setActiveTab, onSelectWorkshop }: HomeViewPro
         {stats.map((stat, idx) => (
           <div key={idx} className="space-y-1.5">
             <span className="block font-mono text-3xl md:text-4xl font-black text-emerald-400 tracking-tight">
-              {stat.value}
+              <AnimatedCounter value={stat.value} delay={idx * 0.15} />
             </span>
             <span className="block text-xs md:text-sm text-stone-400 font-medium">
               {stat.label}

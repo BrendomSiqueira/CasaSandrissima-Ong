@@ -25,7 +25,7 @@ import {
   sendPasswordReset,
   logoutUser 
 } from './firebase';
-import { Student, Associate, Donation, SchoolUser, Subject, Lesson, Assessment, Grade, Workshop } from './types';
+import { Student, Associate, Donation, SchoolUser, Subject, Lesson, Assessment, Grade, Workshop, DemoRole } from './types';
 
 // Helper to recursively scrub undefined properties so Firestore writes do not crash on optional fields
 function cleanUndefined(obj: any): any {
@@ -138,12 +138,20 @@ interface FirebaseContextType {
   addGrade: (gr: Grade) => Promise<void>;
   updateGrade: (gr: Grade) => Promise<void>;
   deleteGrade: (id: string) => Promise<void>;
+
+  // Modo Demonstração (Simulação Visual sem Persistência)
+  isDemoMode: boolean;
+  demoRole: DemoRole;
+  enterDemoMode: (role?: DemoRole) => void;
+  exitDemoMode: () => void;
+  setDemoRole: (role: DemoRole) => void;
+  resetDemoData: () => void;
 }
 
 const FirebaseContext = createContext<FirebaseContextType | undefined>(undefined);
 
 // Baseline initial databases
-const defaultStudentsList: Student[] = [
+export const defaultStudentsList: Student[] = [
   { id: 'stud_1', name: 'João Carlos Lima', matricula: 'MAT-2026-001', turma: 'Turma A', age: 11, course: 'karate', status: 'active', joinedAt: '10/02/2026', guardianName: 'Carlos Lima', attendanceCount: 9, totalClasses: 12 },
   { id: 'stud_2', name: 'Beatriz Sousa', matricula: 'MAT-2026-002', turma: 'Turma A', age: 13, course: 'english', status: 'active', joinedAt: '24/02/2026', guardianName: 'Sandra Sousa', attendanceCount: 11, totalClasses: 12 },
   { id: 'stud_3', name: 'Amanda Alves', matricula: 'MAT-2026-003', turma: 'Turma B', age: 22, course: 'sewing', status: 'active', joinedAt: '18/02/2026', guardianName: undefined, attendanceCount: 6, totalClasses: 12 },
@@ -151,33 +159,33 @@ const defaultStudentsList: Student[] = [
   { id: 'stud_5', name: 'Guilherme Dias Torres', matricula: 'MAT-2026-005', turma: 'Turma A', age: 12, course: 'english', status: 'inactive', joinedAt: '12/03/2026', guardianName: 'Regina Dias', attendanceCount: 4, totalClasses: 12 }
 ];
 
-const defaultSchoolUsers: SchoolUser[] = [
+export const defaultSchoolUsers: SchoolUser[] = [
   { id: 'su_1', email: 'brendomdev@gmail.com', password: '123', name: 'Brendom Siqueira Dev', role: 'super_admin', title: 'Diretor Geral - Master', createdAt: new Date().toISOString() },
   { id: 'su_2', email: 'sandra@casa.org', password: '123', name: 'Ana Sandra Abreu', role: 'admin', title: 'Coordenadora Pedagógica', createdAt: new Date().toISOString() },
   { id: 'su_3', email: 'marcelo@casa.org', password: '123', name: 'Prof. Marcelo Rodrigues', role: 'professor', title: 'Língua Inglesa & Karatê', createdAt: new Date().toISOString() },
   { id: 'su_4', email: 'carla@casa.org', password: '123', name: 'Profa. Carla Antunes', role: 'professor', title: 'Oficinas de Costura & Bordado', createdAt: new Date().toISOString() }
 ];
 
-const defaultSubjects: Subject[] = [
+export const defaultSubjects: Subject[] = [
   { id: 'subj_1', name: 'Oficina de Inglês Básico', description: 'Curso de inglês instrumental para jovens.', teacherId: 'su_3', turma: 'Turma A', createdAt: new Date().toISOString() },
   { id: 'subj_2', name: '🥋 Karatê e Disciplina', description: 'Artes marciais comunitárias.', teacherId: 'su_3', turma: 'Turma A', createdAt: new Date().toISOString() },
   { id: 'subj_3', name: '🧵 Corte e Costura Criativa', description: 'Atividades profissionalizantes de corte e modelagem.', teacherId: 'su_4', turma: 'Turma B', createdAt: new Date().toISOString() }
 ];
 
-const defaultLessons: Lesson[] = [
+export const defaultLessons: Lesson[] = [
   { id: 'les_1', subjectId: 'subj_1', date: '2026-05-18', title: 'Saudações e Present Simple', description: 'Introdução aos cumprimentos habituais em Inglês.', presentStudentIds: ['stud_1', 'stud_2', 'stud_5'] },
   { id: 'les_2', subjectId: 'subj_1', date: '2026-05-20', title: 'Verbo To Be e Pronomes', description: 'Uso do verbo to be com pronomes pessoais.', presentStudentIds: ['stud_1', 'stud_2'] },
   { id: 'les_3', subjectId: 'subj_2', date: '2026-05-19', title: 'Katas Básicos', description: 'Exercícios de condicionamento físico e katas.', presentStudentIds: ['stud_1', 'stud_4'] }
 ];
 
-const defaultAssessments: Assessment[] = [
+export const defaultAssessments: Assessment[] = [
   { id: 'ass_1', subjectId: 'subj_1', title: 'Prova Escrita de Vocabulário', type: 'prova', weight: 3, maxScore: 10, date: '2026-05-10' },
   { id: 'ass_2', subjectId: 'subj_1', title: 'Trabalho de Diálogo Prático', type: 'trabalho', weight: 2, maxScore: 10, date: '2026-05-15' },
   { id: 'ass_3', subjectId: 'subj_2', title: 'Avaliação Postural e Defesa', type: 'prova', weight: 5, maxScore: 10, date: '2026-05-12' },
   { id: 'ass_4', subjectId: 'subj_3', title: 'Atividade de Bainha e Overloque', type: 'atividade', weight: 1, maxScore: 10, date: '2026-05-14' }
 ];
 
-const defaultGrades: Grade[] = [
+export const defaultGrades: Grade[] = [
   { id: 'gr_1', studentId: 'stud_1', assessmentId: 'ass_1', score: 8.5 },
   { id: 'gr_2', studentId: 'stud_2', assessmentId: 'ass_1', score: 9.0 },
   { id: 'gr_3', studentId: 'stud_5', assessmentId: 'ass_1', score: 5.5 },
@@ -188,16 +196,37 @@ const defaultGrades: Grade[] = [
   { id: 'gr_8', studentId: 'stud_3', assessmentId: 'ass_4', score: 9.0 }
 ];
 
-const defaultAssociatesList: Associate[] = [
+export const defaultAssociatesList: Associate[] = [
   { id: 'assoc_1', name: 'Roberto Santos', email: 'roberto.santos@gmail.com', phone: '(16) 99182-3344', role: 'Apoiador', joinedAt: '10/04/2026' },
   { id: 'assoc_2', name: 'Patrícia Oliveira', email: 'patricia.ol@exemplo.com', phone: '(16) 99321-5566', role: 'Voluntário', joinedAt: '15/05/2026' },
   { id: 'assoc_3', name: 'Carlos Alberto Lima', email: 'carlos.limabb@exemplo.com', phone: '(16) 98877-2211', role: 'Doador Regular', contributionType: 'mensal', joinedAt: '02/05/2026' }
 ];
 
-const defaultDonationsList: Donation[] = [
+export const defaultDonationsList: Donation[] = [
   { id: 'don_1', donorName: 'Anônimo', description: 'Que a Casa Sandríssima continue florescendo e ajudando tantas famílias!', date: '18/05/2026', approved: true },
   { id: 'don_2', donorName: 'Roberto Santos', description: 'Muito orgulho em apoiar este projeto incrível de Franca.', date: '19/05/2026', approved: true },
   { id: 'don_4', donorName: 'Carlos Alberto Lima', description: 'Parabéns a todo o time de voluntários e professores!', date: '20/05/2026', approved: true }
+];
+
+export const defaultMessagesList: FeedbackMessage[] = [
+  {
+    id: 'msg_demo_1',
+    senderId: 'demo_assoc_uid',
+    senderName: 'Roberto Santos',
+    senderEmail: 'roberto.santos@gmail.com',
+    message: 'Gostaria de parabenizar toda a coordenação pelo campeonato de karatê solidário! Foi gratificante ver tantas famílias e jovens reunidos com entusiasmo.',
+    response: 'Muito obrigado pelas palavras de incentivo, Roberto! O apoio dos nossos voluntários e associados é o que torna projetos como esse uma realidade na Casa Sandríssima.',
+    createdAt: '2026-05-18T14:30:00.000Z',
+    respondedAt: '2026-05-18T16:00:00.000Z'
+  },
+  {
+    id: 'msg_demo_2',
+    senderId: 'assoc_2',
+    senderName: 'Patrícia Oliveira',
+    senderEmail: 'patricia.ol@exemplo.com',
+    message: 'Olá equipe! Gostaria de saber como posso fazer a doação de novelos de lã e tecidos para a oficina de artesanato e bordado da Profa. Carla.',
+    createdAt: '2026-05-20T10:15:00.000Z'
+  }
 ];
 
 export const defaultWorkshopsList: Workshop[] = [
@@ -328,6 +357,24 @@ const createMockUser = (email: string, displayName: string, uid?: string): User 
 };
 
 export const FirebaseProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [isDemoMode, setIsDemoMode] = useState<boolean>(() => {
+    try {
+      return localStorage.getItem('casa_sandrissima_is_demo_mode') === 'true';
+    } catch {
+      return false;
+    }
+  });
+
+  const [demoRole, setDemoRoleState] = useState<DemoRole>(() => {
+    try {
+      const saved = localStorage.getItem('casa_sandrissima_demo_role') as DemoRole;
+      if (saved && ['master', 'professor', 'associate', 'student'].includes(saved)) {
+        return saved;
+      }
+    } catch {}
+    return 'master';
+  });
+
   const [user, setUser] = useState<User | null>(() => {
     try {
       const saved = localStorage.getItem('casa_sandrissima_auth_user');
@@ -357,10 +404,10 @@ export const FirebaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const [loading, setLoading] = useState(true);
 
   // Synced states
-  const [students, setStudents] = useState<Student[]>([]);
-  const [associates, setAssociates] = useState<Associate[]>([]);
-  const [donations, setDonations] = useState<Donation[]>([]);
-  const [messages, setMessages] = useState<FeedbackMessage[]>([]);
+  const [students, setStudents] = useState<Student[]>(() => isDemoMode ? defaultStudentsList : []);
+  const [associates, setAssociates] = useState<Associate[]>(() => isDemoMode ? defaultAssociatesList : []);
+  const [donations, setDonations] = useState<Donation[]>(() => isDemoMode ? defaultDonationsList : []);
+  const [messages, setMessages] = useState<FeedbackMessage[]>(() => isDemoMode ? defaultMessagesList : []);
   const [workshops, setWorkshops] = useState<Workshop[]>(() => {
     try {
       const saved = localStorage.getItem('casa_sandrissima_workshops');
@@ -373,33 +420,199 @@ export const FirebaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   });
 
   // SGE collections states
-  const [schoolUsers, setSchoolUsers] = useState<SchoolUser[]>([]);
-  const [subjects, setSubjects] = useState<Subject[]>([]);
-  const [lessons, setLessons] = useState<Lesson[]>([]);
-  const [assessments, setAssessments] = useState<Assessment[]>([]);
-  const [grades, setGrades] = useState<Grade[]>([]);
+  const [schoolUsers, setSchoolUsers] = useState<SchoolUser[]>(() => isDemoMode ? defaultSchoolUsers : []);
+  const [subjects, setSubjects] = useState<Subject[]>(() => isDemoMode ? defaultSubjects : []);
+  const [lessons, setLessons] = useState<Lesson[]>(() => isDemoMode ? defaultLessons : []);
+  const [assessments, setAssessments] = useState<Assessment[]>(() => isDemoMode ? defaultAssessments : []);
+  const [grades, setGrades] = useState<Grade[]>(() => isDemoMode ? defaultGrades : []);
 
-  const isAdmin = profile?.role === 'admin';
-  const isAssociate = profile?.role === 'associate' || associates.some(a => a.email.toLowerCase() === user?.email?.toLowerCase());
+  const getMockUser = (role: DemoRole): User => {
+    switch (role) {
+      case 'master':
+        return createMockUser('brendomdev@gmail.com', 'Brendom Siqueira Dev', 'demo_master_uid');
+      case 'professor':
+        return createMockUser('marcelo@casa.org', 'Prof. Marcelo Rodrigues', 'demo_prof_uid');
+      case 'associate':
+        return createMockUser('roberto.santos@gmail.com', 'Roberto Santos', 'demo_assoc_uid');
+      case 'student':
+      default:
+        return createMockUser('joao.carlos@aluno.casa.org', 'João Carlos Lima', 'demo_student_uid');
+    }
+  };
 
-  const isMaster = isAdmin || 
-    user?.email?.toLowerCase() === 'brendomdev@gmail.com' ||
-    user?.email?.toLowerCase() === 'brendomsiqueira96@gmail.com' ||
-    user?.email?.toLowerCase() === 'hardcoders@gmail.com' ||
-    profile?.role === 'admin' ||
-    (() => {
-      try {
-        const sge = localStorage.getItem('sge_logged_staff');
-        if (sge) {
-          const parsed = JSON.parse(sge);
-          if (parsed?.role === 'super_admin' || parsed?.role === 'admin') return true;
-        }
-      } catch {}
-      return false;
-    })();
+  const getMockProfile = (role: DemoRole): FirebaseUser => {
+    switch (role) {
+      case 'master':
+        return {
+          uid: 'demo_master_uid',
+          name: 'Brendom Siqueira Dev',
+          email: 'brendomdev@gmail.com',
+          role: 'admin',
+          createdAt: '2026-01-01T00:00:00.000Z'
+        };
+      case 'professor':
+        return {
+          uid: 'demo_prof_uid',
+          name: 'Prof. Marcelo Rodrigues',
+          email: 'marcelo@casa.org',
+          role: 'user',
+          createdAt: '2026-01-01T00:00:00.000Z'
+        };
+      case 'associate':
+        return {
+          uid: 'demo_assoc_uid',
+          name: 'Roberto Santos',
+          email: 'roberto.santos@gmail.com',
+          role: 'associate',
+          phone: '(16) 99182-3344',
+          createdAt: '2026-01-01T00:00:00.000Z'
+        };
+      case 'student':
+      default:
+        return {
+          uid: 'demo_student_uid',
+          name: 'João Carlos Lima',
+          email: 'joao.carlos@aluno.casa.org',
+          role: 'user',
+          createdAt: '2026-01-01T00:00:00.000Z'
+        };
+    }
+  };
+
+  const activeUser = isDemoMode ? getMockUser(demoRole) : user;
+  const activeProfile = isDemoMode ? getMockProfile(demoRole) : profile;
+
+  const isAdmin = isDemoMode 
+    ? (demoRole === 'master') 
+    : (profile?.role === 'admin');
+
+  const isAssociate = isDemoMode
+    ? (demoRole === 'master' || demoRole === 'associate')
+    : (profile?.role === 'associate' || associates.some(a => a.email.toLowerCase() === user?.email?.toLowerCase()));
+
+  const isMaster = isDemoMode
+    ? (demoRole === 'master')
+    : (isAdmin || 
+      user?.email?.toLowerCase() === 'brendomdev@gmail.com' ||
+      user?.email?.toLowerCase() === 'brendomsiqueira96@gmail.com' ||
+      user?.email?.toLowerCase() === 'hardcoders@gmail.com' ||
+      profile?.role === 'admin' ||
+      (() => {
+        try {
+          const sge = localStorage.getItem('sge_logged_staff');
+          if (sge) {
+            const parsed = JSON.parse(sge);
+            if (parsed?.role === 'super_admin' || parsed?.role === 'admin') return true;
+          }
+        } catch {}
+        return false;
+      })());
+
+  const enterDemoMode = (targetRole: DemoRole = 'master') => {
+    setIsDemoMode(true);
+    setDemoRoleState(targetRole);
+    try {
+      localStorage.setItem('casa_sandrissima_is_demo_mode', 'true');
+      localStorage.setItem('casa_sandrissima_demo_role', targetRole);
+      if (targetRole === 'master') {
+        const superUser: SchoolUser = {
+          id: 'su_1',
+          email: 'brendomdev@gmail.com',
+          password: '123',
+          name: 'Brendom Siqueira Dev',
+          role: 'super_admin',
+          title: 'Diretor Geral - Master',
+          createdAt: new Date().toISOString()
+        };
+        localStorage.setItem('sge_logged_staff', JSON.stringify(superUser));
+      } else if (targetRole === 'professor') {
+        const profUser: SchoolUser = {
+          id: 'su_3',
+          email: 'marcelo@casa.org',
+          password: '123',
+          name: 'Prof. Marcelo Rodrigues',
+          role: 'professor',
+          title: 'Língua Inglesa & Karatê',
+          createdAt: new Date().toISOString()
+        };
+        localStorage.setItem('sge_logged_staff', JSON.stringify(profUser));
+      } else {
+        localStorage.removeItem('sge_logged_staff');
+      }
+    } catch {}
+
+    setStudents(defaultStudentsList);
+    setAssociates(defaultAssociatesList);
+    setDonations(defaultDonationsList);
+    setMessages(defaultMessagesList);
+    setSchoolUsers(defaultSchoolUsers);
+    setSubjects(defaultSubjects);
+    setLessons(defaultLessons);
+    setAssessments(defaultAssessments);
+    setGrades(defaultGrades);
+    setLoading(false);
+  };
+
+  const setDemoRole = (targetRole: DemoRole) => {
+    setDemoRoleState(targetRole);
+    try {
+      localStorage.setItem('casa_sandrissima_demo_role', targetRole);
+      if (targetRole === 'master') {
+        const superUser: SchoolUser = {
+          id: 'su_1',
+          email: 'brendomdev@gmail.com',
+          password: '123',
+          name: 'Brendom Siqueira Dev',
+          role: 'super_admin',
+          title: 'Diretor Geral - Master',
+          createdAt: new Date().toISOString()
+        };
+        localStorage.setItem('sge_logged_staff', JSON.stringify(superUser));
+      } else if (targetRole === 'professor') {
+        const profUser: SchoolUser = {
+          id: 'su_3',
+          email: 'marcelo@casa.org',
+          password: '123',
+          name: 'Prof. Marcelo Rodrigues',
+          role: 'professor',
+          title: 'Língua Inglesa & Karatê',
+          createdAt: new Date().toISOString()
+        };
+        localStorage.setItem('sge_logged_staff', JSON.stringify(profUser));
+      } else {
+        localStorage.removeItem('sge_logged_staff');
+      }
+    } catch {}
+  };
+
+  const resetDemoData = () => {
+    setStudents(defaultStudentsList);
+    setAssociates(defaultAssociatesList);
+    setDonations(defaultDonationsList);
+    setMessages(defaultMessagesList);
+    setSchoolUsers(defaultSchoolUsers);
+    setSubjects(defaultSubjects);
+    setLessons(defaultLessons);
+    setAssessments(defaultAssessments);
+    setGrades(defaultGrades);
+    setWorkshops(defaultWorkshopsList);
+  };
+
+  const exitDemoMode = () => {
+    setIsDemoMode(false);
+    try {
+      localStorage.removeItem('casa_sandrissima_is_demo_mode');
+      localStorage.removeItem('casa_sandrissima_demo_role');
+      localStorage.removeItem('sge_logged_staff');
+    } catch {}
+  };
 
   // Listen to Firebase Auth state
   useEffect(() => {
+    if (isDemoMode) {
+      setLoading(false);
+      return;
+    }
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       if (currentUser) {
         setUser(currentUser);
@@ -473,7 +686,7 @@ export const FirebaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   // Real-time school databases listeners when logged in
   useEffect(() => {
-    if (!user) return;
+    if (!user || isDemoMode) return;
 
     const lowerEmail = user.email?.toLowerCase() || '';
     const isUserAdmin = lowerEmail === 'brendomdev@gmail.com' || lowerEmail === 'brendomsiqueira96@gmail.com' || lowerEmail === 'hardcoders@gmail.com';
@@ -580,6 +793,7 @@ export const FirebaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   // Synchronize donations list in real-time for ALL visitors (including anonymous guests and logged-in users)
   useEffect(() => {
+    if (isDemoMode) return;
     const unsubDonations = onSnapshot(collection(db, 'donations'), (snap) => {
       const fetched: Donation[] = [];
       snap.forEach((doc) => fetched.push(doc.data() as Donation));
@@ -595,10 +809,11 @@ export const FirebaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     });
 
     return () => unsubDonations();
-  }, [user]);
+  }, [user, isDemoMode]);
 
   // Synchronize workshops (Projetos e Oficinas) in real-time for everyone
   useEffect(() => {
+    if (isDemoMode) return;
     const unsubWorkshops = onSnapshot(collection(db, 'workshops'), (snap) => {
       if (!snap.empty) {
         const fetchedMap = new Map<string, Workshop>();
@@ -624,7 +839,7 @@ export const FirebaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     });
 
     return () => unsubWorkshops();
-  }, []);
+  }, [isDemoMode]);
 
   // Seeding tools
   const seedDatabaseIfEmpty = async () => {
@@ -681,6 +896,7 @@ export const FirebaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   // ACTIONS IMPLEMENTATION
   const addStudent = async (student: Student) => {
     setStudents(prev => [...prev.filter(s => s.id !== student.id), student]);
+    if (isDemoMode) return;
     try {
       await setDoc(doc(db, 'students', student.id), student);
     } catch (error) {
@@ -690,6 +906,7 @@ export const FirebaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   const updateStudent = async (student: Student) => {
     setStudents(prev => prev.map(s => s.id === student.id ? student : s));
+    if (isDemoMode) return;
     try {
       await setDoc(doc(db, 'students', student.id), student, { merge: true });
     } catch (error) {
@@ -699,6 +916,7 @@ export const FirebaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   const deleteStudent = async (id: string) => {
     setStudents(prev => prev.filter(s => s.id !== id));
+    if (isDemoMode) return;
     try {
       await deleteDoc(doc(db, 'students', id));
     } catch (error) {
@@ -708,6 +926,7 @@ export const FirebaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   const addAssociate = async (associate: Associate) => {
     setAssociates(prev => [associate, ...prev.filter(a => a.id !== associate.id)]);
+    if (isDemoMode) return;
     try {
       await setDoc(doc(db, 'associates', associate.id), associate);
       if (user && user.email?.toLowerCase() === associate.email.toLowerCase()) {
@@ -724,6 +943,7 @@ export const FirebaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   const removeAssociate = async (id: string) => {
     setAssociates(prev => prev.filter(a => a.id !== id));
+    if (isDemoMode) return;
     try {
       await deleteDoc(doc(db, 'associates', id));
     } catch (error) {
@@ -733,6 +953,7 @@ export const FirebaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   const addDonation = async (donation: Donation) => {
     setDonations(prev => [donation, ...prev.filter(d => d.id !== donation.id)]);
+    if (isDemoMode) return;
     try {
       await setDoc(doc(db, 'donations', donation.id), donation);
     } catch (error) {
@@ -742,6 +963,7 @@ export const FirebaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   const deleteDonation = async (id: string) => {
     setDonations(prev => prev.filter(d => d.id !== id));
+    if (isDemoMode) return;
     try {
       await deleteDoc(doc(db, 'donations', id));
     } catch (error) {
@@ -751,6 +973,7 @@ export const FirebaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   const updateDonation = async (donation: Donation) => {
     setDonations(prev => prev.map(d => d.id === donation.id ? donation : d));
+    if (isDemoMode) return;
     try {
       await setDoc(doc(db, 'donations', donation.id), donation, { merge: true });
     } catch (error) {
@@ -759,17 +982,19 @@ export const FirebaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   };
 
   const addMessage = async (messageText: string) => {
-    if (!user) return;
+    const sender = activeUser;
+    if (!sender) return;
     const msgId = 'msg_' + Math.random().toString(36).substring(2, 11);
     const newMsg: FeedbackMessage = {
       id: msgId,
-      senderId: user.uid,
-      senderName: user.displayName || 'Associado',
-      senderEmail: user.email || '',
+      senderId: sender.uid,
+      senderName: sender.displayName || 'Associado',
+      senderEmail: sender.email || '',
       message: messageText,
       createdAt: new Date().toISOString()
     };
     setMessages(prev => [newMsg, ...prev]);
+    if (isDemoMode) return;
     try {
       await setDoc(doc(db, 'messages', msgId), newMsg);
     } catch (error) {
@@ -779,6 +1004,7 @@ export const FirebaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   const respondToMessage = async (messageId: string, responseText: string) => {
     setMessages(prev => prev.map(m => m.id === messageId ? { ...m, response: responseText, respondedAt: new Date().toISOString() } : m));
+    if (isDemoMode) return;
     try {
       const msgRef = doc(db, 'messages', messageId);
       await setDoc(msgRef, {
@@ -793,6 +1019,7 @@ export const FirebaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   // SGE SCHOOL_USERS
   const addSchoolUser = async (su: SchoolUser) => {
     setSchoolUsers(prev => [...prev.filter(u => u.id !== su.id), su]);
+    if (isDemoMode) return;
     try {
       await setDoc(doc(db, 'school_users', su.id), su);
     } catch (error) {
@@ -802,6 +1029,7 @@ export const FirebaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   const updateSchoolUser = async (su: SchoolUser) => {
     setSchoolUsers(prev => prev.map(u => u.id === su.id ? su : u));
+    if (isDemoMode) return;
     try {
       await setDoc(doc(db, 'school_users', su.id), su, { merge: true });
     } catch (error) {
@@ -811,6 +1039,7 @@ export const FirebaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   const deleteSchoolUser = async (id: string) => {
     setSchoolUsers(prev => prev.filter(u => u.id !== id));
+    if (isDemoMode) return;
     try {
       await deleteDoc(doc(db, 'school_users', id));
     } catch (error) {
@@ -821,6 +1050,7 @@ export const FirebaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   // SUBJECTS
   const addSubject = async (subj: Subject) => {
     setSubjects(prev => [...prev.filter(s => s.id !== subj.id), subj]);
+    if (isDemoMode) return;
     try {
       await setDoc(doc(db, 'subjects', subj.id), subj);
     } catch (error) {
@@ -830,6 +1060,7 @@ export const FirebaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   const updateSubject = async (subj: Subject) => {
     setSubjects(prev => prev.map(s => s.id === subj.id ? subj : s));
+    if (isDemoMode) return;
     try {
       await setDoc(doc(db, 'subjects', subj.id), subj, { merge: true });
     } catch (error) {
@@ -839,6 +1070,7 @@ export const FirebaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   const deleteSubject = async (id: string) => {
     setSubjects(prev => prev.filter(s => s.id !== id));
+    if (isDemoMode) return;
     try {
       await deleteDoc(doc(db, 'subjects', id));
     } catch (error) {
@@ -849,6 +1081,7 @@ export const FirebaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   // LESSONS
   const addLesson = async (les: Lesson) => {
     setLessons(prev => [les, ...prev.filter(l => l.id !== les.id)]);
+    if (isDemoMode) return;
     try {
       await setDoc(doc(db, 'lessons', les.id), les);
     } catch (error) {
@@ -858,6 +1091,7 @@ export const FirebaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   const updateLesson = async (les: Lesson) => {
     setLessons(prev => prev.map(l => l.id === les.id ? les : l));
+    if (isDemoMode) return;
     try {
       await setDoc(doc(db, 'lessons', les.id), les, { merge: true });
     } catch (error) {
@@ -867,6 +1101,7 @@ export const FirebaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   const deleteLesson = async (id: string) => {
     setLessons(prev => prev.filter(l => l.id !== id));
+    if (isDemoMode) return;
     try {
       await deleteDoc(doc(db, 'lessons', id));
     } catch (error) {
@@ -877,6 +1112,7 @@ export const FirebaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   // ASSESSMENTS
   const addAssessment = async (ass: Assessment) => {
     setAssessments(prev => [ass, ...prev.filter(a => a.id !== ass.id)]);
+    if (isDemoMode) return;
     try {
       await setDoc(doc(db, 'assessments', ass.id), ass);
     } catch (error) {
@@ -886,6 +1122,7 @@ export const FirebaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   const updateAssessment = async (ass: Assessment) => {
     setAssessments(prev => prev.map(a => a.id === ass.id ? ass : a));
+    if (isDemoMode) return;
     try {
       await setDoc(doc(db, 'assessments', ass.id), ass, { merge: true });
     } catch (error) {
@@ -895,6 +1132,7 @@ export const FirebaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   const deleteAssessment = async (id: string) => {
     setAssessments(prev => prev.filter(a => a.id !== id));
+    if (isDemoMode) return;
     try {
       await deleteDoc(doc(db, 'assessments', id));
     } catch (error) {
@@ -905,6 +1143,7 @@ export const FirebaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   // GRADES
   const addGrade = async (gr: Grade) => {
     setGrades(prev => [...prev.filter(g => g.id !== gr.id), gr]);
+    if (isDemoMode) return;
     try {
       await setDoc(doc(db, 'grades', gr.id), gr);
     } catch (error) {
@@ -914,6 +1153,7 @@ export const FirebaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   const updateGrade = async (gr: Grade) => {
     setGrades(prev => prev.map(g => g.id === gr.id ? gr : g));
+    if (isDemoMode) return;
     try {
       await setDoc(doc(db, 'grades', gr.id), gr, { merge: true });
     } catch (error) {
@@ -923,6 +1163,7 @@ export const FirebaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   const deleteGrade = async (id: string) => {
     setGrades(prev => prev.filter(g => g.id !== id));
+    if (isDemoMode) return;
     try {
       await deleteDoc(doc(db, 'grades', id));
     } catch (error) {
@@ -935,7 +1176,7 @@ export const FirebaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     const updatedWithMeta: Workshop = {
       ...workshop,
       updatedAt: new Date().toISOString(),
-      updatedBy: profile?.name || user?.displayName || user?.email || 'Master'
+      updatedBy: activeProfile?.name || activeUser?.displayName || activeUser?.email || 'Master'
     };
     
     setWorkshops(prev => {
@@ -944,6 +1185,8 @@ export const FirebaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       localStorage.setItem('casa_sandrissima_workshops', JSON.stringify(next));
       return next;
     });
+
+    if (isDemoMode) return;
 
     try {
       await setDoc(doc(db, 'workshops', workshop.id), updatedWithMeta, { merge: true });
@@ -955,6 +1198,7 @@ export const FirebaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const resetWorkshops = async () => {
     setWorkshops(defaultWorkshopsList);
     localStorage.setItem('casa_sandrissima_workshops', JSON.stringify(defaultWorkshopsList));
+    if (isDemoMode) return;
     try {
       for (const ws of defaultWorkshopsList) {
         await setDoc(doc(db, 'workshops', ws.id), ws);
@@ -1076,6 +1320,10 @@ export const FirebaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   };
 
   const handleLogout = async () => {
+    if (isDemoMode) {
+      exitDemoMode();
+      return;
+    }
     try {
       await logoutUser();
     } catch (e) {
@@ -1089,8 +1337,8 @@ export const FirebaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   return (
     <FirebaseContext.Provider value={{
-      user,
-      profile,
+      user: activeUser,
+      profile: activeProfile,
       loading,
       isAdmin,
       isAssociate,
@@ -1105,6 +1353,14 @@ export const FirebaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       lessons,
       assessments,
       grades,
+
+      // Demo Mode controls
+      isDemoMode,
+      demoRole,
+      enterDemoMode,
+      exitDemoMode,
+      setDemoRole,
+      resetDemoData,
 
       loginWithSocial: signInWithSocial,
       signInWithGoogle,

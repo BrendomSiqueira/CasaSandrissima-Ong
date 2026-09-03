@@ -15,6 +15,7 @@ import { useModal } from './components/ModalContext';
 import PencilLoader from './components/PencilLoader';
 import { ShapeOverlaysTransition, ShapeOverlaysHandle } from './components/ShapeOverlaysTransition';
 import SiteAmbientBackground from './components/SiteAmbientBackground';
+import DemoModeBanner from './components/DemoModeBanner';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<ActiveTab>('home');
@@ -178,8 +179,13 @@ export default function App() {
       {/* Dynamic Ambient Background: Crafted with reference ribbons, swooshes, waves & tactile micro-texture */}
       <SiteAmbientBackground />
 
-      {/* Sticky Header with Navbar and Wave Accent Ribbon */}
+      {/* Sticky Header with Navbar, Demo Mode Banner and Wave Accent Ribbon */}
       <header className="sticky top-0 z-40 w-full" id="site-header">
+        {/* Interactive Demo Mode Banner (Simulated, zero-persistence mode) */}
+        <DemoModeBanner 
+          onNavigateToTab={handleTabChange} 
+          onNavigateToSgeTab={handleNavigateToSgeTab} 
+        />
         <Navbar 
           activeTab={activeTab} 
           setActiveTab={handleTabChange} 

@@ -1,5 +1,7 @@
 export type ActiveTab = 'home' | 'associacao' | 'doacoes' | 'projetos' | 'galeria' | 'area_associado';
 
+export type DemoRole = 'master' | 'professor' | 'associate' | 'student';
+
 export interface GalleryPhoto {
   id: string;
   title: string;

@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import { Student, ClassTurma, SchoolUser, Grade, Assessment, Subject } from '../types';
 import { useModal } from './ModalContext';
+import AnimatedCounter from './AnimatedCounter';
 
 // Default initial turmas with specific schedules, capacity limits, and instructors
 export const defaultTurmasList: ClassTurma[] = [
@@ -556,20 +557,28 @@ export default function TurmaAlunosManager({
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-6 pt-5 border-t border-white/10 text-xs">
           <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-3 border border-white/10">
             <span className="text-[10px] uppercase font-mono text-emerald-200 block font-semibold">Total de Alunos Ativos</span>
-            <span className="font-mono font-black text-xl text-white mt-0.5 block">{totalEnrolled}</span>
+            <span className="font-mono font-black text-xl text-white mt-0.5 block">
+              <AnimatedCounter value={totalEnrolled} />
+            </span>
           </div>
           <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-3 border border-white/10">
             <span className="text-[10px] uppercase font-mono text-emerald-200 block font-semibold">Capacidade Total</span>
-            <span className="font-mono font-black text-xl text-white mt-0.5 block">{totalCapacity} vagas</span>
+            <span className="font-mono font-black text-xl text-white mt-0.5 block">
+              <AnimatedCounter value={totalCapacity} suffix=" vagas" />
+            </span>
           </div>
           <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-3 border border-white/10">
             <span className="text-[10px] uppercase font-mono text-emerald-200 block font-semibold">Vagas Disponíveis</span>
-            <span className="font-mono font-black text-xl text-emerald-300 mt-0.5 block">{totalAvailable} livres</span>
+            <span className="font-mono font-black text-xl text-emerald-300 mt-0.5 block">
+              <AnimatedCounter value={totalAvailable} suffix=" livres" />
+            </span>
           </div>
           <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-3 border border-white/10">
             <span className="text-[10px] uppercase font-mono text-emerald-200 block font-semibold">Taxa de Ocupação</span>
             <div className="flex items-center gap-2 mt-0.5">
-              <span className="font-mono font-black text-xl text-white">{overallOccupancyPercent}%</span>
+              <span className="font-mono font-black text-xl text-white">
+                <AnimatedCounter value={overallOccupancyPercent} suffix="%" />
+              </span>
               <div className="flex-1 bg-white/20 h-2 rounded-full overflow-hidden">
                 <div 
                   className={`h-full rounded-full ${overallOccupancyPercent >= 90 ? 'bg-red-400' : overallOccupancyPercent >= 70 ? 'bg-amber-400' : 'bg-emerald-300'}`}
@@ -1498,9 +1507,22 @@ export default function TurmaAlunosManager({
 
                         <div className="bg-stone-50 p-4 rounded-2xl border border-stone-200 space-y-1.5">
                           <span className="text-[10px] uppercase font-mono font-bold text-stone-400 block">Endereço Residencial</span>
-                          <p className="font-medium text-stone-800 text-xs leading-relaxed">
-                            {viewingStudent.address || 'Endereço não informado / Cadastro preliminar'}
-                          </p>
+                          {viewingStudent.address ? (
+                            <a
+                              href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(viewingStudent.address + ', Franca - SP')}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-start gap-1.5 text-xs font-semibold text-emerald-800 hover:text-emerald-950 hover:underline leading-relaxed group transition-colors"
+                              title="Abrir endereço no Google Maps"
+                            >
+                              <MapPin className="h-3.5 w-3.5 text-emerald-600 group-hover:scale-110 transition-transform shrink-0 mt-0.5" />
+                              <span>{viewingStudent.address}</span>
+                            </a>
+                          ) : (
+                            <p className="font-medium text-stone-500 text-xs leading-relaxed italic">
+                              Endereço não informado / Cadastro preliminar
+                            </p>
+                          )}
                           {viewingStudent.birthDate && (
                             <p className="text-[11px] text-stone-500 font-mono">
                               Nascido em: {new Date(viewingStudent.birthDate + 'T12:00:00').toLocaleDateString('pt-BR')}
