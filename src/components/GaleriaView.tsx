@@ -382,7 +382,7 @@ export default function GaleriaView({ setActiveTab, onOpenLoginModal }: GaleriaV
       </section>
 
       {/* Categories Filter Tabs */}
-      <section className="flex flex-wrap items-center justify-center gap-2" id="galeria-category-filters">
+      <section className="flex overflow-x-auto no-scrollbar sm:flex-wrap items-center sm:justify-center gap-2 py-1 px-1 -mx-2 sm:mx-0" id="galeria-category-filters">
         {categories.map((cat) => (
           <button
             key={cat.id}
@@ -391,7 +391,7 @@ export default function GaleriaView({ setActiveTab, onOpenLoginModal }: GaleriaV
               if (cat.id === selectedCategory) return;
               setSelectedCategory(cat.id);
             }}
-            className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+            className={`px-3.5 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer shrink-0 flex items-center gap-1.5 touch-manipulation active:scale-95 ${
               selectedCategory === cat.id
                 ? 'bg-emerald-600 text-white shadow-md shadow-emerald-200/50'
                 : 'bg-white text-stone-600 border border-stone-200 hover:bg-stone-50'

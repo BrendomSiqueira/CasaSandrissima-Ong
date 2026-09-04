@@ -153,32 +153,33 @@ export default function HomeView({ setActiveTab, onSelectWorkshop }: HomeViewPro
     >
       
       {/* Hero / Banner Section */}
-      <section className="relative overflow-hidden bg-white/80 backdrop-blur-md rounded-3xl p-8 md:p-16 border border-emerald-100/80 shadow-sm hover:shadow-md transition-shadow" id="hero-section">
+      <section className="relative overflow-hidden bg-white/80 backdrop-blur-md rounded-3xl p-5 sm:p-8 md:p-14 lg:p-16 border border-emerald-100/80 shadow-sm hover:shadow-md transition-shadow" id="hero-section">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-emerald-100/35 via-transparent to-transparent opacity-70"></div>
         
-        <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 xl:gap-16 items-center">
-          <div className="lg:col-span-7 space-y-6 lg:pr-4">
+        <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 xl:gap-16 items-center">
+          <div className="lg:col-span-7 space-y-5 sm:space-y-6 lg:pr-4 text-left">
             <div className="inline-flex items-center gap-2 px-3 py-1 bg-emerald-100/60 rounded-full border border-emerald-200">
               <Sprout className="h-4 w-4 text-emerald-700 animate-pulse" />
               <span className="text-xs font-semibold text-emerald-800 tracking-wide uppercase">Seja bem-vindo</span>
             </div>
             
-            <h1 className="font-sans font-extrabold text-3xl md:text-5xl leading-tight text-stone-900 tracking-tight" id="hero-tagline">
-              Imensidão de uma <span className="text-emerald-600 border-b-2 border-emerald-200">semente</span>. <br />
+            <h1 className="font-sans font-extrabold text-2xl sm:text-4xl md:text-5xl leading-tight text-stone-900 tracking-tight" id="hero-tagline">
+              Imensidão de uma <span className="text-emerald-600 border-b-2 border-emerald-200">semente</span>. <br className="hidden sm:inline" />
               Semear dignidade, cultivar inclusão, florescer em comunidade.
             </h1>
             
-            <p className="text-stone-600 text-base md:text-lg leading-relaxed max-w-xl">
+            <p className="text-stone-600 text-sm sm:text-base md:text-lg leading-relaxed max-w-xl font-medium">
               A <strong>Casa Sandríssima</strong> é uma organização comunitária que busca melhorar a qualidade de vida de famílias em situação de risco e vulnerabilidade no bairro Jardim Ipanema em Franca - SP. Apoiamos a inclusão e transformação por meio da educação popular.
             </p>
 
-            <div className="flex flex-wrap gap-4 pt-2">
+            <div className="flex flex-col sm:flex-row flex-wrap gap-2.5 sm:gap-4 pt-2 w-full">
               <TactileButton 
                 id="hero-donate-btn"
                 variant="primary"
                 size="md"
                 onClick={() => setActiveTab('doacoes')}
                 icon={<Heart className="h-4 w-4 fill-white" />}
+                className="w-full sm:w-auto"
               >
                 Quero Apoiar a Causa
               </TactileButton>
@@ -190,6 +191,7 @@ export default function HomeView({ setActiveTab, onSelectWorkshop }: HomeViewPro
                 onClick={() => setActiveTab('projetos')}
                 icon={<ChevronRight className="h-4 w-4 text-stone-500" />}
                 iconPosition="right"
+                className="w-full sm:w-auto"
               >
                 Ver Projetos
               </TactileButton>
@@ -200,6 +202,7 @@ export default function HomeView({ setActiveTab, onSelectWorkshop }: HomeViewPro
                 size="md"
                 onClick={() => setActiveTab('galeria')}
                 icon={<ImageIcon className="h-4 w-4 text-emerald-700" />}
+                className="w-full sm:w-auto"
               >
                 Galeria de Fotos
               </TactileButton>
@@ -208,7 +211,7 @@ export default function HomeView({ setActiveTab, onSelectWorkshop }: HomeViewPro
 
           <div className="lg:col-span-5 flex flex-col items-center justify-center w-full">
             {/* Visual Centered Logo Stage with Harmonious Orbital Constellation */}
-            <div className="relative w-80 h-80 sm:w-[360px] sm:h-[360px] md:w-[390px] md:h-[390px] lg:w-[410px] lg:h-[410px] flex items-center justify-center my-4 sm:my-0 select-none" id="hero-visual-graphic">
+            <div className="relative w-64 h-64 sm:w-80 sm:h-80 md:w-[360px] md:h-[360px] lg:w-[410px] lg:h-[410px] max-w-full flex items-center justify-center my-2 sm:my-0 select-none" id="hero-visual-graphic">
               
               {/* Centered Soft Radial Halo */}
               <div className="absolute inset-2 sm:inset-3 rounded-full bg-radial from-emerald-100/75 via-emerald-50/30 to-transparent pointer-events-none" />
@@ -228,7 +231,7 @@ export default function HomeView({ setActiveTab, onSelectWorkshop }: HomeViewPro
                 referrerPolicy="no-referrer"
               />
               
-              {/* Symmetrically Distributed Orbital Course Pills (5-point harmonious constellation) */}
+              {/* Symmetrically Distributed Orbital Course Pills (Desktop/Tablet) */}
               {/* 1. Karatê Grátis - Top Center Apex (12 o'clock) */}
               <motion.button
                 id="hero-orbit-karate"
@@ -245,14 +248,14 @@ export default function HomeView({ setActiveTab, onSelectWorkshop }: HomeViewPro
                 whileHover={{ scale: 1.08, y: -7 }}
                 whileTap={{ scale: 0.95 }}
                 title="Ver detalhes da oficina de Karatê"
-                className="absolute -top-2 sm:-top-3 left-1/2 -translate-x-1/2 z-20 bg-white/95 backdrop-blur-xs py-1.5 px-3.5 sm:px-4 rounded-full shadow-md hover:shadow-orange-200/80 text-[11px] sm:text-xs font-bold text-stone-800 border border-orange-200/90 flex items-center gap-1.5 cursor-pointer transition-colors hover:border-orange-400 group whitespace-nowrap"
+                className="hidden sm:flex absolute -top-2 sm:-top-3 left-1/2 -translate-x-1/2 z-20 bg-white/95 backdrop-blur-xs py-1.5 px-3.5 sm:px-4 rounded-full shadow-md hover:shadow-orange-200/80 text-[11px] sm:text-xs font-bold text-stone-800 border border-orange-200/90 items-center gap-1.5 cursor-pointer transition-colors hover:border-orange-400 group whitespace-nowrap"
               >
                 <span className="text-xs sm:text-sm group-hover:scale-125 transition-transform">🥋</span>
                 <span>Karatê Grátis</span>
                 <span className="w-1.5 h-1.5 rounded-full bg-orange-500 animate-ping ml-0.5 hidden sm:inline-block" />
               </motion.button>
 
-              {/* 2. Inglês - Upper Right (approx. 2 o'clock) */}
+              {/* 2. Inglês - Upper Right */}
               <motion.button
                 id="hero-orbit-english"
                 onClick={() => handleOpenWorkshop('english')}
@@ -270,13 +273,13 @@ export default function HomeView({ setActiveTab, onSelectWorkshop }: HomeViewPro
                 whileHover={{ scale: 1.08, y: -7 }}
                 whileTap={{ scale: 0.95 }}
                 title="Ver detalhes do curso de Inglês"
-                className="absolute top-[20%] -right-2 sm:-right-3 md:-right-5 z-20 bg-white/95 backdrop-blur-xs py-1.5 px-3.5 sm:px-4 rounded-full shadow-md hover:shadow-blue-200/80 text-[11px] sm:text-xs font-bold text-stone-800 border border-blue-200/90 flex items-center gap-1.5 cursor-pointer transition-colors hover:border-blue-400 group whitespace-nowrap"
+                className="hidden sm:flex absolute top-[20%] -right-2 sm:-right-3 md:-right-5 z-20 bg-white/95 backdrop-blur-xs py-1.5 px-3.5 sm:px-4 rounded-full shadow-md hover:shadow-blue-200/80 text-[11px] sm:text-xs font-bold text-stone-800 border border-blue-200/90 items-center gap-1.5 cursor-pointer transition-colors hover:border-blue-400 group whitespace-nowrap"
               >
                 <span className="text-xs sm:text-sm group-hover:scale-125 transition-transform">🇬🇧</span>
                 <span>Inglês</span>
               </motion.button>
 
-              {/* 3. Costura - Upper Left (approx. 10 o'clock, mirroring Inglês) */}
+              {/* 3. Costura - Upper Left */}
               <motion.button
                 id="hero-orbit-sewing"
                 onClick={() => handleOpenWorkshop('sewing')}
@@ -294,13 +297,13 @@ export default function HomeView({ setActiveTab, onSelectWorkshop }: HomeViewPro
                 whileHover={{ scale: 1.08, y: -7 }}
                 whileTap={{ scale: 0.95 }}
                 title="Ver detalhes da oficina de Costura"
-                className="absolute top-[20%] -left-2 sm:-left-3 md:-left-5 z-20 bg-white/95 backdrop-blur-xs py-1.5 px-3.5 sm:px-4 rounded-full shadow-md hover:shadow-purple-200/80 text-[11px] sm:text-xs font-bold text-stone-800 border border-purple-200/90 flex items-center gap-1.5 cursor-pointer transition-colors hover:border-purple-400 group whitespace-nowrap"
+                className="hidden sm:flex absolute top-[20%] -left-2 sm:-left-3 md:-left-5 z-20 bg-white/95 backdrop-blur-xs py-1.5 px-3.5 sm:px-4 rounded-full shadow-md hover:shadow-purple-200/80 text-[11px] sm:text-xs font-bold text-stone-800 border border-purple-200/90 items-center gap-1.5 cursor-pointer transition-colors hover:border-purple-400 group whitespace-nowrap"
               >
                 <span className="text-xs sm:text-sm group-hover:scale-125 transition-transform">🧵</span>
                 <span>Costura</span>
               </motion.button>
 
-              {/* 4. Pilates - Lower Right (approx. 4:30 o'clock) */}
+              {/* 4. Pilates - Lower Right */}
               <motion.button
                 id="hero-orbit-pilates"
                 onClick={() => handleOpenWorkshop('pilates')}
@@ -317,13 +320,13 @@ export default function HomeView({ setActiveTab, onSelectWorkshop }: HomeViewPro
                 whileHover={{ scale: 1.08, y: -7 }}
                 whileTap={{ scale: 0.95 }}
                 title="Ver detalhes das aulas de Pilates"
-                className="absolute bottom-[10%] -right-1 sm:-right-2 md:-right-4 z-20 bg-white/95 backdrop-blur-xs py-1.5 px-3.5 sm:px-4 rounded-full shadow-md hover:shadow-teal-200/80 text-[11px] sm:text-xs font-bold text-stone-800 border border-teal-200/90 flex items-center gap-1.5 cursor-pointer transition-colors hover:border-teal-400 group whitespace-nowrap"
+                className="hidden sm:flex absolute bottom-[10%] -right-1 sm:-right-2 md:-right-4 z-20 bg-white/95 backdrop-blur-xs py-1.5 px-3.5 sm:px-4 rounded-full shadow-md hover:shadow-teal-200/80 text-[11px] sm:text-xs font-bold text-stone-800 border border-teal-200/90 items-center gap-1.5 cursor-pointer transition-colors hover:border-teal-400 group whitespace-nowrap"
               >
                 <span className="text-xs sm:text-sm group-hover:scale-125 transition-transform">🧘</span>
                 <span>Pilates</span>
               </motion.button>
 
-              {/* 5. Bordados - Lower Left (approx. 7:30 o'clock, mirroring Pilates) */}
+              {/* 5. Bordados - Lower Left */}
               <motion.button
                 id="hero-orbit-embroidery"
                 onClick={() => handleOpenWorkshop('embroidery')}
@@ -340,24 +343,52 @@ export default function HomeView({ setActiveTab, onSelectWorkshop }: HomeViewPro
                 whileHover={{ scale: 1.08, y: -7 }}
                 whileTap={{ scale: 0.95 }}
                 title="Ver detalhes da oficina de Bordados"
-                className="absolute bottom-[10%] -left-1 sm:-left-2 md:-left-4 z-20 bg-white/95 backdrop-blur-xs py-1.5 px-3.5 sm:px-4 rounded-full shadow-md hover:shadow-rose-200/80 text-[11px] sm:text-xs font-bold text-stone-800 border border-rose-200/90 flex items-center gap-1.5 cursor-pointer transition-colors hover:border-rose-400 group whitespace-nowrap"
+                className="hidden sm:flex absolute bottom-[10%] -left-1 sm:-left-2 md:-left-4 z-20 bg-white/95 backdrop-blur-xs py-1.5 px-3.5 sm:px-4 rounded-full shadow-md hover:shadow-rose-200/80 text-[11px] sm:text-xs font-bold text-stone-800 border border-rose-200/90 items-center gap-1.5 cursor-pointer transition-colors hover:border-rose-400 group whitespace-nowrap"
               >
                 <span className="text-xs sm:text-sm group-hover:scale-125 transition-transform">🪡</span>
                 <span>Bordados</span>
               </motion.button>
             </div>
 
-            {/* Mobile quick scroll pill helper */}
-            <div className="flex sm:hidden items-center justify-center gap-1.5 text-[11px] text-stone-500 font-medium mt-3 bg-stone-100/80 px-3 py-1 rounded-full">
-              <span>Toque em qualquer curso para ver a ementa</span>
-              <ChevronRight className="h-3 w-3 text-emerald-600" />
+            {/* Dedicated Mobile Workshop Quick Chips (Touch-friendly & strictly within bounds) */}
+            <div className="sm:hidden w-full space-y-2 mt-4" id="hero-mobile-workshops-selector">
+              <div className="flex items-center justify-between px-1 text-[11px] font-bold uppercase tracking-wider text-stone-500">
+                <span>Oficinas Gratuitas</span>
+                <span className="text-emerald-700">Toque para ver</span>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                {[
+                  { id: 'karate', label: 'Karatê', emoji: '🥋', border: 'border-orange-200', bg: 'hover:bg-orange-50' },
+                  { id: 'english', label: 'Inglês', emoji: '🇬🇧', border: 'border-blue-200', bg: 'hover:bg-blue-50' },
+                  { id: 'sewing', label: 'Costura', emoji: '🧵', border: 'border-purple-200', bg: 'hover:bg-purple-50' },
+                  { id: 'pilates', label: 'Pilates', emoji: '🧘', border: 'border-teal-200', bg: 'hover:bg-teal-50' },
+                ].map((item) => (
+                  <button
+                    key={item.id}
+                    type="button"
+                    onClick={() => handleOpenWorkshop(item.id)}
+                    className={`flex items-center justify-center gap-2 py-2.5 px-3 bg-white border ${item.border} ${item.bg} rounded-xl shadow-xs text-xs font-bold text-stone-800 active:scale-95 transition-all cursor-pointer`}
+                  >
+                    <span>{item.emoji}</span>
+                    <span>{item.label}</span>
+                  </button>
+                ))}
+                <button
+                  type="button"
+                  onClick={() => handleOpenWorkshop('embroidery')}
+                  className="col-span-2 flex items-center justify-center gap-2 py-2.5 px-3 bg-white border border-rose-200 hover:bg-rose-50 rounded-xl shadow-xs text-xs font-bold text-stone-800 active:scale-95 transition-all cursor-pointer"
+                >
+                  <span>🪡</span>
+                  <span>Bordados Livres & Arteterapia</span>
+                </button>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
       {/* Metrics Section */}
-      <section className="bg-stone-900 rounded-3xl p-8 text-white grid grid-cols-1 md:grid-cols-3 gap-6 text-center border border-stone-850" id="impact-metrics">
+      <section className="bg-stone-900 rounded-3xl p-6 sm:p-8 text-white grid grid-cols-1 sm:grid-cols-3 gap-6 text-center border border-stone-850" id="impact-metrics">
         {stats.map((stat, idx) => (
           <div key={idx} className="space-y-1.5">
             <span className="block font-mono text-3xl md:text-4xl font-black text-emerald-400 tracking-tight">

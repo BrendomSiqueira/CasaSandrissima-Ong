@@ -21,7 +21,7 @@ export default function Footer({ setActiveTab, onOpenLoginModal }: FooterProps) 
     <footer className="bg-stone-900 text-stone-400 border-t border-stone-800 relative z-20 shadow-2xl" id="main-footer">
       {/* Brand Accent Top Stripe */}
       <div className="h-1 w-full bg-gradient-to-r from-emerald-600 via-lime-400 via-40% to-teal-700" />
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 pb-28 md:py-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           
           {/* Logo Section */}

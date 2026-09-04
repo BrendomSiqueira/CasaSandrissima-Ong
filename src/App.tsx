@@ -16,6 +16,7 @@ import PencilLoader from './components/PencilLoader';
 import { ShapeOverlaysTransition, ShapeOverlaysHandle } from './components/ShapeOverlaysTransition';
 import SiteAmbientBackground from './components/SiteAmbientBackground';
 import DemoModeBanner from './components/DemoModeBanner';
+import MobileBottomNav from './components/MobileBottomNav';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<ActiveTab>('home');
@@ -197,7 +198,7 @@ export default function App() {
       </header>
 
       {/* Screen Frame Content Area */}
-      <main className="flex-grow max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-6 mb-12 relative z-10">
+      <main className="flex-grow max-w-7xl mx-auto w-full px-3 sm:px-6 lg:px-8 py-4 sm:py-6 mb-16 md:mb-12 relative z-10">
         <div id="active-tab-container">
           {renderActiveView()}
         </div>
@@ -207,6 +208,12 @@ export default function App() {
       <Footer 
         setActiveTab={handleTabChange} 
         onOpenLoginModal={handleOpenLoginModal} 
+      />
+
+      {/* Fixed Ergonomic Mobile Dock Navigation Bar */}
+      <MobileBottomNav 
+        activeTab={activeTab} 
+        setActiveTab={handleTabChange} 
       />
 
       {/* Social Login Modal Accessible from anywhere */}
