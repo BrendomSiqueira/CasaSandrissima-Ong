@@ -859,13 +859,6 @@ export default function AreaAssociadoView({
                 >
                   Entrar no SGE
                 </TactileButton>
-
-                <div className="bg-amber-50/70 border border-amber-200 rounded-xl p-3 text-[10px] text-amber-850 space-y-1 text-center font-medium">
-                  <p className="font-bold flex items-center justify-center gap-1">🛡️ Credenciais de Testes do Sistema:</p>
-                  <p>Master (Super Admin): <span className="font-bold font-mono text-stone-800">brendomdev@gmail.com</span> / senha: <span className="font-bold">123</span></p>
-                  <p>Coordenadora: <span className="font-bold font-mono text-stone-880">sandra@casa.org</span> / senha: <span className="font-bold">123</span></p>
-                  <p>Professor: <span className="font-bold font-mono text-stone-880">marcelo@casa.org</span> / senha: <span className="font-bold">123</span></p>
-                </div>
               </motion.form>
             ) : (
               <motion.form 
