@@ -12,9 +12,11 @@ import {
   User as UserIcon, 
   ChevronDown,
   GraduationCap,
-  Sparkles
+  Sparkles,
+  BookOpen,
+  ShieldCheck
 } from 'lucide-react';
-import { ActiveTab } from '../types';
+import { ActiveTab, SystemRole } from '../types';
 import { useFirebase } from '../firebaseContext';
 import logoImg from '../assets/images/casa_sandrissima_green_white_logo_original.png';
 import TactileButton from './TactileButton';
@@ -27,7 +29,20 @@ interface NavbarProps {
 }
 
 export default function Navbar({ activeTab, setActiveTab, onOpenLoginModal, onNavigateToSgeTab }: NavbarProps) {
-  const { user, logout, isMaster, isDemoMode, demoRole, enterDemoMode, exitDemoMode } = useFirebase();
+  const { 
+    user, 
+    logout, 
+    isMaster, 
+    isAdmin, 
+    isStudent, 
+    userRole, 
+    canManageStudents,
+    isDemoMode, 
+    demoRole, 
+    enterDemoMode, 
+    exitDemoMode,
+    setDemoRole
+  } = useFirebase();
   const [isOpen, setIsOpen] = useState(false);
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
@@ -46,6 +61,16 @@ export default function Navbar({ activeTab, setActiveTab, onOpenLoginModal, onNa
     user?.email?.toLowerCase() === 'brendomdev@gmail.com' || 
     user?.email?.toLowerCase() === 'brendomsiqueira96@gmail.com' || 
     user?.email?.toLowerCase() === 'hardcoders@gmail.com';
+
+  const canManageStudentsAccess = canManageStudents || isMasterUser || isAdmin;
+
+  const roleLabel = isMasterUser 
+    ? 'Master' 
+    : isAdmin 
+      ? 'Admin' 
+      : isStudent 
+        ? 'Aluno' 
+        : 'Apoiador';
 
   // Clean public navigation tabs
   const navItems = [
@@ -206,27 +231,124 @@ export default function Navbar({ activeTab, setActiveTab, onOpenLoginModal, onNa
                       id="user-dropdown-menu"
                     >
                       <div className={`p-3 border-b ${isDemoMode ? 'bg-amber-50/50 border-amber-100 rounded-xl mb-1' : 'border-stone-100'}`}>
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center justify-between gap-2">
                           <span className="text-xs font-bold text-stone-900 block truncate">
-                            {user.displayName || 'Aluno / Apoiador'}
+                            {user.displayName || 'Usuário'}
                           </span>
-                          <span className={`text-[10px] px-1.5 py-0.5 rounded font-mono font-bold ${
-                            isDemoMode ? 'bg-amber-200 text-amber-900 font-extrabold' : 'bg-emerald-100 text-emerald-800'
+                          <span className={`text-[10px] px-2 py-0.5 rounded-full font-mono font-bold uppercase tracking-wide ${
+                            isMasterUser 
+                              ? 'bg-amber-100 text-amber-900 border border-amber-300 font-extrabold' 
+                              : isAdmin 
+                                ? 'bg-emerald-100 text-emerald-900 border border-emerald-300 font-bold'
+                                : isStudent 
+                                  ? 'bg-blue-100 text-blue-900 border border-blue-300 font-bold'
+                                  : 'bg-stone-100 text-stone-700'
                           }`}>
-                            {isDemoMode ? `DEMO • ${demoRole.toUpperCase()}` : 'Conectado'}
+                            {roleLabel}
                           </span>
                         </div>
                         <span className="text-[11px] text-stone-400 font-mono block truncate mt-0.5">
                           {user.email}
                         </span>
+
+                        {/* Demo Mode Role Switcher for Testing/Auditing */}
                         {isDemoMode && (
-                          <span className="text-[10px] text-amber-700 font-medium block mt-1">
-                            ⚡ Operações simuladas (sem gravação no banco)
-                          </span>
+                          <div className="mt-2 pt-2 border-t border-amber-200/60">
+                            <span className="text-[10px] font-mono text-amber-850 font-bold block mb-1">
+                              Alternar Nível de Acesso (Teste):
+                            </span>
+                            <div className="grid grid-cols-3 gap-1">
+                              <button
+                                type="button"
+                                onClick={() => setDemoRole('master')}
+                                className={`text-[10px] font-bold py-1 rounded-lg transition-all cursor-pointer ${
+                                  demoRole === 'master' 
+                                    ? 'bg-amber-600 text-white shadow-xs' 
+                                    : 'bg-amber-100/70 hover:bg-amber-200 text-amber-900'
+                                }`}
+                              >
+                                Master
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => setDemoRole('admin')}
+                                className={`text-[10px] font-bold py-1 rounded-lg transition-all cursor-pointer ${
+                                  demoRole === 'admin' 
+                                    ? 'bg-emerald-600 text-white shadow-xs' 
+                                    : 'bg-emerald-100/70 hover:bg-emerald-200 text-emerald-900'
+                                }`}
+                              >
+                                Admin
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => setDemoRole('aluno')}
+                                className={`text-[10px] font-bold py-1 rounded-lg transition-all cursor-pointer ${
+                                  demoRole === 'aluno' 
+                                    ? 'bg-blue-600 text-white shadow-xs' 
+                                    : 'bg-blue-100/70 hover:bg-blue-200 text-blue-900'
+                                }`}
+                              >
+                                Aluno
+                              </button>
+                            </div>
+                          </div>
                         )}
                       </div>
 
                       <div className="py-1 space-y-0.5">
+                        {/* Student Shortcut: Boletim Escolar */}
+                        {isStudent && (
+                          <button
+                            id="user-dropdown-boletim-aluno"
+                            onClick={() => {
+                              if (onNavigateToSgeTab) {
+                                onNavigateToSgeTab('grades');
+                              } else {
+                                setActiveTab('area_associado');
+                              }
+                              setUserDropdownOpen(false);
+                            }}
+                            className="w-full flex items-center justify-between px-3 py-2 text-xs font-bold text-blue-950 bg-blue-50 hover:bg-blue-100/90 rounded-xl transition-all border border-blue-200/80 cursor-pointer shadow-2xs group"
+                          >
+                            <div className="flex items-center gap-2.5">
+                              <div className="p-1 rounded-lg bg-blue-600 text-white shadow-2xs group-hover:scale-105 transition-transform">
+                                <BookOpen className="h-3.5 w-3.5" />
+                              </div>
+                              <span className="text-left font-extrabold text-blue-950">Meu Boletim Escolar</span>
+                            </div>
+                            <span className="text-[9px] px-1.5 py-0.5 bg-blue-700 text-white rounded font-mono font-black uppercase tracking-wider">
+                              Aluno
+                            </span>
+                          </button>
+                        )}
+
+                        {/* Master & Admin Shortcut: Cadastro de Alunos nas Turmas */}
+                        {canManageStudentsAccess && (
+                          <button
+                            id="user-dropdown-cadastro-alunos"
+                            onClick={() => {
+                              if (onNavigateToSgeTab) {
+                                onNavigateToSgeTab('students');
+                              } else {
+                                setActiveTab('area_associado');
+                              }
+                              setUserDropdownOpen(false);
+                            }}
+                            className="w-full flex items-center justify-between px-3 py-2 text-xs font-bold text-emerald-900 bg-emerald-50 hover:bg-emerald-100/90 rounded-xl transition-all border border-emerald-200/80 cursor-pointer shadow-2xs group"
+                          >
+                            <div className="flex items-center gap-2.5">
+                              <div className="p-1 rounded-lg bg-emerald-600 text-white shadow-2xs group-hover:scale-105 transition-transform">
+                                <Users className="h-3.5 w-3.5" />
+                              </div>
+                              <span className="text-left font-extrabold text-emerald-950">Cadastro de Alunos</span>
+                            </div>
+                            <span className={`text-[9px] px-1.5 py-0.5 ${isMasterUser ? 'bg-amber-600' : 'bg-emerald-700'} text-white rounded font-mono font-black uppercase tracking-wider`}>
+                              {isMasterUser ? 'Master' : 'Admin'}
+                            </span>
+                          </button>
+                        )}
+
                         <button
                           onClick={() => {
                             setActiveTab('projetos');
@@ -249,32 +371,6 @@ export default function Navbar({ activeTab, setActiveTab, onOpenLoginModal, onNa
                           <span>Histórico de Apoio / Doações</span>
                         </button>
 
-                        {/* Master Shortcut: Cadastro de Alunos nas Turmas */}
-                        {isMasterUser && (
-                          <button
-                            id="user-dropdown-cadastro-alunos"
-                            onClick={() => {
-                              if (onNavigateToSgeTab) {
-                                onNavigateToSgeTab('students');
-                              } else {
-                                setActiveTab('area_associado');
-                              }
-                              setUserDropdownOpen(false);
-                            }}
-                            className="w-full flex items-center justify-between px-3 py-2 text-xs font-bold text-emerald-900 bg-emerald-50 hover:bg-emerald-100/90 rounded-xl transition-all border border-emerald-200/80 cursor-pointer shadow-2xs group"
-                          >
-                            <div className="flex items-center gap-2.5">
-                              <div className="p-1 rounded-lg bg-emerald-600 text-white shadow-2xs group-hover:scale-105 transition-transform">
-                                <Users className="h-3.5 w-3.5" />
-                              </div>
-                              <span className="text-left font-extrabold text-emerald-950">Cadastro de Alunos</span>
-                            </div>
-                            <span className="text-[9px] px-1.5 py-0.5 bg-emerald-700 text-white rounded font-mono font-black uppercase tracking-wider">
-                              Master
-                            </span>
-                          </button>
-                        )}
-
                         <button
                           onClick={() => {
                             setActiveTab('area_associado');
@@ -287,7 +383,13 @@ export default function Navbar({ activeTab, setActiveTab, onOpenLoginModal, onNa
                           }`}
                         >
                           <GraduationCap className="h-4 w-4 text-emerald-600" />
-                          <span>Painel do Sistema (SGE / Gestão)</span>
+                          <span>
+                            {isStudent 
+                              ? 'Portal do Aluno (Boletim & Turmas)' 
+                              : (isMasterUser || isAdmin) 
+                                ? 'Painel Administrativo & SGE' 
+                                : 'Área do Apoiador'}
+                          </span>
                         </button>
                       </div>
 
@@ -436,10 +538,34 @@ export default function Navbar({ activeTab, setActiveTab, onOpenLoginModal, onNa
                 );
               })}
 
-              {/* Discreet Mobile Admin Portal Entry (Only if user is logged in) */}
+              {/* Mobile Portal Entries (Only if user is logged in) */}
               {user && (
                 <div className="pt-2 border-t border-stone-100 space-y-1">
-                  {isMasterUser && (
+                  {/* Student shortcut on mobile */}
+                  {isStudent && (
+                    <button
+                      onClick={() => {
+                        if (onNavigateToSgeTab) {
+                          onNavigateToSgeTab('grades');
+                        } else {
+                          setActiveTab('area_associado');
+                        }
+                        setIsOpen(false);
+                      }}
+                      className="w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-bold bg-blue-50 text-blue-950 border border-blue-200 transition-colors cursor-pointer"
+                    >
+                      <div className="flex items-center gap-3">
+                        <BookOpen className="h-5 w-5 text-blue-600" />
+                        <span>Meu Boletim Escolar</span>
+                      </div>
+                      <span className="text-[10px] px-2 py-0.5 bg-blue-700 text-white rounded-md font-mono font-bold uppercase tracking-wider">
+                        Aluno
+                      </span>
+                    </button>
+                  )}
+
+                  {/* Master / Admin shortcut on mobile */}
+                  {canManageStudentsAccess && (
                     <button
                       onClick={() => {
                         if (onNavigateToSgeTab) {
@@ -455,8 +581,8 @@ export default function Navbar({ activeTab, setActiveTab, onOpenLoginModal, onNa
                         <Users className="h-5 w-5 text-emerald-600" />
                         <span>Cadastro de Alunos nas Turmas</span>
                       </div>
-                      <span className="text-[10px] px-2 py-0.5 bg-emerald-700 text-white rounded-md font-mono font-bold uppercase tracking-wider">
-                        Master
+                      <span className={`text-[10px] px-2 py-0.5 ${isMasterUser ? 'bg-amber-600' : 'bg-emerald-700'} text-white rounded-md font-mono font-bold uppercase tracking-wider`}>
+                        {isMasterUser ? 'Master' : 'Admin'}
                       </span>
                     </button>
                   )}
@@ -473,7 +599,13 @@ export default function Navbar({ activeTab, setActiveTab, onOpenLoginModal, onNa
                     }`}
                   >
                     <GraduationCap className="h-5 w-5 text-emerald-600" />
-                    <span>Painel Administrativo & SGE</span>
+                    <span>
+                      {isStudent 
+                        ? 'Portal do Aluno (Boletim & Turmas)' 
+                        : (isMasterUser || isAdmin) 
+                          ? 'Painel Administrativo & SGE' 
+                          : 'Área do Apoiador'}
+                    </span>
                   </button>
                 </div>
               )}

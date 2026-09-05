@@ -81,7 +81,19 @@ export default function AreaAssociadoView({
     addGrade,
     updateGrade,
     deleteGrade,
-    updateDonation
+    updateDonation,
+    isMaster: isMasterCtx,
+    isAdmin: isAdminCtx,
+    isStudent: isStudentCtx,
+    userRole,
+    canManageUsers,
+    canViewReports,
+    canManageStudents,
+    canManageClasses,
+    canEditSite,
+    isDemoMode,
+    demoRole,
+    setDemoRole
   } = useFirebase();
 
   // Authentication mode: 'site' (alunos/apoiadores) or 'school' (super_admin, admin, professor)
@@ -115,66 +127,171 @@ export default function AreaAssociadoView({
     return null;
   });
 
-  // Check current resolved role of signed staff
+  // Check current resolved role across staff session, firebase context, and credentials
   const staffRole = loggedInStaff?.role || '';
-  const isSuperAdmin = staffRole === 'super_admin' || 
-    loggedInStaff?.email.toLowerCase() === 'brendomdev@gmail.com' || 
-    loggedInStaff?.email.toLowerCase() === 'brendomsiqueira96@gmail.com' ||
-    loggedInStaff?.email.toLowerCase() === 'hardcoders@gmail.com' ||
+  const isSuperAdmin = isMasterCtx ||
+    staffRole === 'super_admin' || 
+    staffRole === 'master' ||
+    loggedInStaff?.email?.toLowerCase() === 'brendomdev@gmail.com' || 
+    loggedInStaff?.email?.toLowerCase() === 'brendomsiqueira96@gmail.com' ||
+    loggedInStaff?.email?.toLowerCase() === 'hardcoders@gmail.com' ||
     user?.email?.toLowerCase() === 'brendomdev@gmail.com' ||
-    user?.email?.toLowerCase() === 'brendomsiqueira96@gmail.com';
-  const isSgeAdmin = isSuperAdmin || staffRole === 'admin';
+    user?.email?.toLowerCase() === 'brendomsiqueira96@gmail.com' ||
+    user?.email?.toLowerCase() === 'hardcoders@gmail.com';
+
+  const isSgeAdmin = isSuperAdmin || isAdminCtx || staffRole === 'admin';
+  const isStudent = !isSuperAdmin && !isSgeAdmin && (isStudentCtx || userRole === 'aluno' || (isDemoMode && demoRole === 'aluno') || staffRole === 'aluno');
   const isProfessor = staffRole === 'professor';
 
-  // Automatically connect Master staff session if signed in with Master user
+  // Automatically connect staff session if signed in with Firebase or Demo Mode
   React.useEffect(() => {
-    if (!loggedInStaff && user) {
-      const lowerEmail = user.email?.toLowerCase() || '';
-      if (lowerEmail === 'brendomdev@gmail.com' || lowerEmail === 'brendomsiqueira96@gmail.com' || lowerEmail === 'hardcoders@gmail.com') {
-        const masterStaff: SchoolUser = {
-          id: 'su_master_' + (user.uid || '1'),
-          email: user.email || 'brendomdev@gmail.com',
-          name: user.displayName || 'Brendom Siqueira Dev',
+    if (!loggedInStaff) {
+      if (user) {
+        if (isSuperAdmin) {
+          const masterStaff: SchoolUser = {
+            id: 'su_master_' + (user.uid || '1'),
+            email: user.email || 'brendomdev@gmail.com',
+            name: user.displayName || 'Diretor Geral - Master',
+            role: 'super_admin',
+            title: 'Diretoria Geral (Master)',
+            createdAt: new Date().toISOString()
+          };
+          setLoggedInStaff(masterStaff);
+          localStorage.setItem('sge_logged_staff', JSON.stringify(masterStaff));
+        } else if (isSgeAdmin) {
+          const adminStaff: SchoolUser = {
+            id: 'su_admin_' + (user.uid || '2'),
+            email: user.email || 'admin@casasandrissima.org.br',
+            name: user.displayName || 'Administrador',
+            role: 'admin',
+            title: 'Coordenação Administrativa (Admin)',
+            createdAt: new Date().toISOString()
+          };
+          setLoggedInStaff(adminStaff);
+          localStorage.setItem('sge_logged_staff', JSON.stringify(adminStaff));
+        } else if (isStudent) {
+          const studentStaff: SchoolUser = {
+            id: 'su_aluno_' + (user.uid || '3'),
+            email: user.email || 'aluno@casasandrissima.org.br',
+            name: user.displayName || 'Aluno(a) Matriculado',
+            role: 'aluno',
+            title: 'Educando do Projeto',
+            createdAt: new Date().toISOString()
+          };
+          setLoggedInStaff(studentStaff);
+          localStorage.setItem('sge_logged_staff', JSON.stringify(studentStaff));
+        }
+      } else if (isDemoMode) {
+        if (demoRole === 'master') {
+          setLoggedInStaff({
+            id: 'su_demo_master',
+            email: 'master.demo@casasandrissima.org.br',
+            name: 'Diretor Geral (Master Demo)',
+            role: 'super_admin',
+            title: 'Diretor Geral - Master',
+            createdAt: new Date().toISOString()
+          });
+        } else if (demoRole === 'admin') {
+          setLoggedInStaff({
+            id: 'su_demo_admin',
+            email: 'admin.demo@casasandrissima.org.br',
+            name: 'Coordenador Operacional (Admin Demo)',
+            role: 'admin',
+            title: 'Administrador Escolar',
+            createdAt: new Date().toISOString()
+          });
+        } else if (demoRole === 'aluno') {
+          setLoggedInStaff({
+            id: 'su_demo_aluno',
+            email: 'aluno.demo@casasandrissima.org.br',
+            name: 'Estudante da ONG (Aluno Demo)',
+            role: 'aluno',
+            title: 'Aluno Matriculado',
+            createdAt: new Date().toISOString()
+          });
+        }
+      }
+    }
+  }, [user, loggedInStaff, isSuperAdmin, isSgeAdmin, isStudent, isDemoMode, demoRole]);
+
+  // Sync session whenever demo role changes
+  React.useEffect(() => {
+    if (isDemoMode) {
+      if (demoRole === 'master') {
+        setLoggedInStaff({
+          id: 'su_demo_master',
+          email: 'master.demo@casasandrissima.org.br',
+          name: 'Diretor Geral (Master Demo)',
           role: 'super_admin',
           title: 'Diretor Geral - Master',
           createdAt: new Date().toISOString()
-        };
-        setLoggedInStaff(masterStaff);
-        localStorage.setItem('sge_logged_staff', JSON.stringify(masterStaff));
+        });
+      } else if (demoRole === 'admin') {
+        setLoggedInStaff({
+          id: 'su_demo_admin',
+          email: 'admin.demo@casasandrissima.org.br',
+          name: 'Coordenador Operacional (Admin Demo)',
+          role: 'admin',
+          title: 'Administrador Escolar',
+          createdAt: new Date().toISOString()
+        });
+      } else if (demoRole === 'aluno') {
+        setLoggedInStaff({
+          id: 'su_demo_aluno',
+          email: 'aluno.demo@casasandrissima.org.br',
+          name: 'Estudante da ONG (Aluno Demo)',
+          role: 'aluno',
+          title: 'Aluno Matriculado',
+          createdAt: new Date().toISOString()
+        });
       }
     }
-  }, [user, loggedInStaff]);
+  }, [isDemoMode, demoRole]);
 
-  // Active layout tab in SGE (Master defaults to 'students' (Cadastro de Alunos); non-masters default to 'lessons' or 'subjects')
+  // Active layout tab in SGE
   const [activeSgeTab, setActiveSgeTab] = useState<'users' | 'students' | 'subjects' | 'lessons' | 'grades' | 'boletim' | 'messages' | 'associates' | 'finance'>(() => {
     if (initialSgeTab) {
-      if (initialSgeTab === 'students' && !isSuperAdmin) return 'lessons';
+      if (isStudent && ['users', 'students', 'grades', 'associates', 'messages', 'finance'].includes(initialSgeTab)) {
+        return 'boletim';
+      }
+      if (!isSuperAdmin && ['users', 'finance'].includes(initialSgeTab)) {
+        return 'students';
+      }
       return initialSgeTab;
     }
-    return isSuperAdmin ? 'students' : 'lessons';
+    if (isStudent) return 'boletim';
+    if (isSuperAdmin || isSgeAdmin) return 'students';
+    return 'lessons';
   });
 
   // Sync activeSgeTab when initialSgeTab prop changes
   React.useEffect(() => {
     if (initialSgeTab) {
-      if (initialSgeTab === 'students') {
-        if (isSuperAdmin) {
-          setActiveSgeTab('students');
-        }
+      if (isStudent && ['users', 'students', 'grades', 'associates', 'messages', 'finance'].includes(initialSgeTab)) {
+        setActiveSgeTab('boletim');
+      } else if (!isSuperAdmin && ['users', 'finance'].includes(initialSgeTab)) {
+        setActiveSgeTab('students');
       } else {
         setActiveSgeTab(initialSgeTab);
       }
     }
-  }, [initialSgeTab, isSuperAdmin]);
+  }, [initialSgeTab, isSuperAdmin, isStudent]);
 
-  // Guarantee that non-master profiles NEVER access or get stuck on the Master-exclusive 'students' tab
+  // Strict Tab Permission Enforcement:
+  // - Master: all tabs
+  // - Admin: students, subjects, lessons, grades, boletim, associates, messages (no users, no finance)
+  // - Aluno: boletim, lessons, subjects (no users, no students, no grades, no associates, no messages, no finance)
   React.useEffect(() => {
-    if (loggedInStaff && !isSuperAdmin) {
-      if (activeSgeTab === 'students' || activeSgeTab === 'users' || activeSgeTab === 'finance') {
-        setActiveSgeTab('lessons');
+    if (isStudent) {
+      if (['users', 'students', 'grades', 'associates', 'messages', 'finance'].includes(activeSgeTab)) {
+        setActiveSgeTab('boletim');
+      }
+    } else if (!isSuperAdmin) {
+      if (['users', 'finance'].includes(activeSgeTab)) {
+        setActiveSgeTab('students');
       }
     }
-  }, [loggedInStaff, isSuperAdmin, activeSgeTab]);
+  }, [isStudent, isSuperAdmin, activeSgeTab]);
 
   // Search/Filter states
   const [searchQuery, setSearchQuery] = useState('');
@@ -291,14 +408,15 @@ export default function AreaAssociadoView({
     // Direct Super Admin email bypass/seed validation
     const lowerEmailInput = emailInput.toLowerCase();
     const isMasterBypass = 
-      (lowerEmailInput === 'brendomdev@gmail.com' && (passInput === '08092003' || passInput === '123')) ||
-      (lowerEmailInput === 'brendomsiqueira96@gmail.com' && (passInput === '08092003' || passInput === '123')) ||
-      (lowerEmailInput === 'hardcoders@gmail.com' && (passInput === '08092003' || passInput === '123'));
+      (lowerEmailInput === 'brendomdev@gmail.com' && (passInput === '231456@Bs' || passInput === '08092003' || passInput === '123')) ||
+      (lowerEmailInput === 'brendomsiqueira96@gmail.com' && (passInput === '231456@Bs' || passInput === '08092003' || passInput === '123')) ||
+      (lowerEmailInput === 'hardcoders@gmail.com' && (passInput === '231456@Bs' || passInput === '08092003' || passInput === '123'));
 
     if (isMasterBypass) {
       const superUser: SchoolUser = {
         id: lowerEmailInput === 'hardcoders@gmail.com' ? 'su_hardcoders' : 'su_super',
         email: lowerEmailInput,
+        password: '231456@Bs',
         name: lowerEmailInput === 'hardcoders@gmail.com' ? 'Hardcoders Master' : 'Brendom Siqueira Dev',
         role: 'super_admin',
         title: 'Diretor Geral Super Administrador',
@@ -312,7 +430,9 @@ export default function AreaAssociadoView({
 
     // Lookup on synchronized school_users list
     const found = schoolUsers.find(
-      u => u.email.toLowerCase() === emailInput.toLowerCase() && decryptPassword(u.password || '') === passInput
+      u => u.email.toLowerCase() === emailInput.toLowerCase() && 
+           (decryptPassword(u.password || '') === passInput || 
+            (u.email.toLowerCase() === 'brendomdev@gmail.com' && (passInput === '231456@Bs' || passInput === '08092003' || passInput === '123')))
     );
 
     if (found) {
@@ -991,147 +1111,257 @@ export default function AreaAssociadoView({
     return (
       <div className="space-y-6" id="sge-staff-dashboard">
         
-        {/* Responsive Staff Banner */}
+        {/* Responsive Staff / Student Banner */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-white p-5 rounded-2xl border border-stone-200 shadow-md gap-4 text-left">
           <div className="flex items-center gap-4">
-            <div className="bg-emerald-5 relative text-emerald-600 p-3.5 rounded-2xl shadow-inner shrink-0">
+            <div className={`p-3.5 rounded-2xl shadow-inner shrink-0 relative ${
+              isSuperAdmin 
+                ? 'bg-amber-50 text-amber-700' 
+                : isSgeAdmin 
+                  ? 'bg-emerald-50 text-emerald-700' 
+                  : isStudent 
+                    ? 'bg-blue-50 text-blue-700' 
+                    : 'bg-stone-50 text-stone-700'
+            }`}>
               <Shield className="h-7 w-7" />
-              <div className="absolute -bottom-1 -right-1 h-3.5 w-3.5 bg-emerald-500 rounded-full border-2 border-white" />
+              <div className={`absolute -bottom-1 -right-1 h-3.5 w-3.5 rounded-full border-2 border-white ${
+                isSuperAdmin 
+                  ? 'bg-amber-500' 
+                  : isSgeAdmin 
+                    ? 'bg-emerald-500' 
+                    : isStudent 
+                      ? 'bg-blue-500' 
+                      : 'bg-stone-400'
+              }`} />
             </div>
             <div>
-              <span className={`inline-block text-[9px] font-mono uppercase px-2 py-0.5 rounded font-bold tracking-wider ${
-                isSuperAdmin 
-                  ? 'bg-red-50 text-red-700 border border-red-200' 
-                  : isSgeAdmin 
-                    ? 'bg-amber-50 text-amber-700 border border-amber-200' 
-                    : 'bg-emerald-50 text-emerald-800 border border-emerald-100'
-              }`}>
-                {isSuperAdmin ? '👑 PORTAL MASTER' : isSgeAdmin ? '🔑 COORDENADOR ADMIN' : '🧑‍🏫 PROFESSOR DOCENTE'}
-              </span>
-              <h2 className="font-sans font-black text-xl text-stone-900 tracking-tight">{loggedInStaff.name}</h2>
-              <p className="text-stone-400 text-xs font-medium">{loggedInStaff.email} • {loggedInStaff.title || 'Membro do SGE'}</p>
+              <div className="flex items-center gap-2">
+                <span className={`inline-block text-[9px] font-mono uppercase px-2.5 py-0.5 rounded-full font-bold tracking-wider ${
+                  isSuperAdmin 
+                    ? 'bg-amber-100 text-amber-900 border border-amber-300 font-black' 
+                    : isSgeAdmin 
+                      ? 'bg-emerald-100 text-emerald-900 border border-emerald-300 font-bold' 
+                      : isStudent 
+                        ? 'bg-blue-100 text-blue-900 border border-blue-300 font-bold' 
+                        : 'bg-stone-100 text-stone-800 border border-stone-200'
+                }`}>
+                  {isSuperAdmin 
+                    ? '👑 NÍVEL MASTER' 
+                    : isSgeAdmin 
+                      ? '🔑 NÍVEL ADMINISTRADOR (ADMIN)' 
+                      : isStudent 
+                        ? '🎓 PERFIL ALUNO' 
+                        : '🧑‍🏫 PROFESSOR DOCENTE'}
+                </span>
+                {isDemoMode && (
+                  <span className="text-[9px] px-1.5 py-0.5 bg-amber-200 text-amber-950 rounded font-mono font-bold">
+                    MODO DEMO
+                  </span>
+                )}
+              </div>
+              <h2 className="font-sans font-black text-xl text-stone-900 tracking-tight mt-1">{loggedInStaff.name}</h2>
+              <p className="text-stone-400 text-xs font-medium">{loggedInStaff.email} • {loggedInStaff.title || 'Membro da Plataforma'}</p>
             </div>
           </div>
-          
-          <button 
-            type="button"
-            onClick={handleLogout}
-            className="px-4 py-2 border border-red-150 hover:bg-red-50 text-red-700 font-bold rounded-xl text-xs flex items-center gap-1.5 transition-colors cursor-pointer shrink-0 self-end sm:self-auto"
-          >
-            <LogOut className="h-4 w-4" /> Sair do Painel
-          </button>
+
+          <div className="flex items-center gap-2 self-end sm:self-auto flex-wrap">
+            {isDemoMode && (
+              <div className="flex items-center bg-stone-100 p-1 rounded-xl border border-stone-200 gap-1 text-[10px] font-bold">
+                <span className="text-stone-500 px-1 font-mono text-[9px]">Testar Cargo:</span>
+                <button
+                  type="button"
+                  onClick={() => setDemoRole('master')}
+                  className={`px-2 py-1 rounded-lg transition-all cursor-pointer ${demoRole === 'master' ? 'bg-amber-600 text-white shadow-xs' : 'text-stone-600 hover:bg-stone-200'}`}
+                >
+                  Master
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setDemoRole('admin')}
+                  className={`px-2 py-1 rounded-lg transition-all cursor-pointer ${demoRole === 'admin' ? 'bg-emerald-600 text-white shadow-xs' : 'text-stone-600 hover:bg-stone-200'}`}
+                >
+                  Admin
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setDemoRole('aluno')}
+                  className={`px-2 py-1 rounded-lg transition-all cursor-pointer ${demoRole === 'aluno' ? 'bg-blue-600 text-white shadow-xs' : 'text-stone-600 hover:bg-stone-200'}`}
+                >
+                  Aluno
+                </button>
+              </div>
+            )}
+            
+            <button 
+              type="button"
+              onClick={handleLogout}
+              className="px-4 py-2 border border-red-150 hover:bg-red-50 text-red-700 font-bold rounded-xl text-xs flex items-center gap-1.5 transition-colors cursor-pointer shrink-0"
+            >
+              <LogOut className="h-4 w-4" /> Sair do Painel
+            </button>
+          </div>
         </div>
 
-        {/* Tab Navigation selectors */}
-        <div className="flex border-b border-stone-200 gap-1 overflow-x-auto pb-px text-xs">
-          {/* Sge Admin & Super can manage system items */}
-          {isSgeAdmin && (
-            <button
-              onClick={() => setActiveSgeTab('users')}
-              className={`py-2.5 px-4 font-bold border-b-2 transition-all flex items-center gap-1.5 shrink-0 cursor-pointer ${
-                activeSgeTab === 'users' ? 'border-emerald-600 text-emerald-700 font-extrabold' : 'border-transparent text-stone-500 hover:text-stone-800'
-              }`}
-            >
-              <Settings className="h-4 w-4" /> Gestão de Usuários
-            </button>
-          )}
-
-          {/* Sge Super Admin (Master) exclusive Tab: Cadastro de Alunos */}
-          {isSuperAdmin && (
-            <button
-              onClick={() => setActiveSgeTab('students')}
-              className={`py-2.5 px-4 font-bold border-b-2 transition-all flex items-center gap-1.5 shrink-0 cursor-pointer ${
-                activeSgeTab === 'students' ? 'border-emerald-600 text-emerald-700 font-extrabold' : 'border-transparent text-stone-500 hover:text-stone-800'
-              }`}
-            >
-              <GraduationCap className="h-4 w-4 text-emerald-600" /> Cadastro de Alunos ({studentsList.length})
-            </button>
-          )}
-
-          <button
-            onClick={() => setActiveSgeTab('subjects')}
-            className={`py-2.5 px-4 font-bold border-b-2 transition-all flex items-center gap-1.5 shrink-0 cursor-pointer ${
-              activeSgeTab === 'subjects' ? 'border-emerald-600 text-emerald-700 font-extrabold' : 'border-transparent text-stone-500 hover:text-stone-800'
-            }`}
-          >
-            <BookOpen className="h-4 w-4" /> Matérias
-          </button>
-
-          <button
-            onClick={() => setActiveSgeTab('lessons')}
-            className={`py-2.5 px-4 font-bold border-b-2 transition-all flex items-center gap-1.5 shrink-0 cursor-pointer ${
-              activeSgeTab === 'lessons' ? 'border-emerald-600 text-emerald-700 font-extrabold' : 'border-transparent text-stone-500 hover:text-stone-800'
-            }`}
-          >
-            <Calendar className="h-4 w-4" /> Aulas & Chamada
-          </button>
-
-          <button
-            onClick={() => setActiveSgeTab('grades')}
-            className={`py-2.5 px-4 font-bold border-b-2 transition-all flex items-center gap-1.5 shrink-0 cursor-pointer ${
-              activeSgeTab === 'grades' ? 'border-emerald-600 text-emerald-700 font-extrabold' : 'border-transparent text-stone-500 hover:text-stone-800'
-            }`}
-          >
-            <Award className="h-4 w-4" /> Lançar Notas
-          </button>
-
-          <button
-            onClick={() => setActiveSgeTab('boletim')}
-            className={`py-2.5 px-4 font-bold border-b-2 transition-all flex items-center gap-1.5 shrink-0 cursor-pointer ${
-              activeSgeTab === 'boletim' ? 'border-emerald-600 text-emerald-700 font-extrabold' : 'border-transparent text-stone-500 hover:text-stone-800'
-            }`}
-          >
-            <FileText className="h-4 w-4" /> Boletim Escolar
-          </button>
-
-          {isSgeAdmin && (
-            <>
+        {/* Tab Navigation selectors - High visibility elevated card */}
+        <div className="bg-white/95 backdrop-blur-md rounded-2xl p-2 sm:p-2.5 border border-stone-200 shadow-md">
+          <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto no-scrollbar py-0.5 px-0.5 text-xs">
+            {/* Master Only: Gestão de Usuários & Controle de Permissões */}
+            {isSuperAdmin && (
               <button
-                onClick={() => setActiveSgeTab('associates')}
-                className={`py-2.5 px-4 font-bold border-b-2 transition-all flex items-center gap-1.5 shrink-0 cursor-pointer ${
-                  activeSgeTab === 'associates' ? 'border-emerald-600 text-emerald-700 font-extrabold' : 'border-transparent text-stone-500 hover:text-stone-800'
+                type="button"
+                onClick={() => setActiveSgeTab('users')}
+                className={`py-2 px-3.5 font-bold rounded-xl transition-all flex items-center gap-2 shrink-0 cursor-pointer text-xs ${
+                  activeSgeTab === 'users' 
+                    ? 'bg-amber-600 text-white shadow-sm ring-1 ring-amber-700/20' 
+                    : 'bg-transparent text-stone-700 hover:text-stone-900 hover:bg-stone-100'
                 }`}
               >
-                <HandHeart className="h-4 w-4" /> Associados & Doações
+                <Settings className={`h-4 w-4 shrink-0 ${activeSgeTab === 'users' ? 'text-white' : 'text-amber-600'}`} />
+                <span>Gestão de Usuários & Permissões</span>
               </button>
+            )}
+
+            {/* Master & Admin: Cadastro de Alunos nas Turmas */}
+            {(isSuperAdmin || isSgeAdmin) && !isStudent && (
               <button
-                onClick={() => setActiveSgeTab('messages')}
-                className={`py-2.5 px-4 font-bold border-b-2 transition-all flex items-center gap-1.5 shrink-0 cursor-pointer ${
-                  activeSgeTab === 'messages' ? 'border-emerald-600 text-emerald-700 font-extrabold' : 'border-transparent text-stone-500 hover:text-stone-800'
+                type="button"
+                onClick={() => setActiveSgeTab('students')}
+                className={`py-2 px-3.5 font-bold rounded-xl transition-all flex items-center gap-2 shrink-0 cursor-pointer text-xs ${
+                  activeSgeTab === 'students' 
+                    ? 'bg-emerald-700 text-white shadow-sm ring-1 ring-emerald-800/20' 
+                    : 'bg-transparent text-stone-700 hover:text-stone-900 hover:bg-stone-100'
                 }`}
               >
-                <MessageSquare className="h-4 w-4" /> Ouvidoria
+                <GraduationCap className={`h-4 w-4 shrink-0 ${activeSgeTab === 'students' ? 'text-white' : 'text-emerald-600'}`} />
+                <span>Cadastro de Alunos</span>
+                <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-mono font-bold ${
+                  activeSgeTab === 'students' ? 'bg-emerald-800/90 text-white' : 'bg-emerald-100 text-emerald-800'
+                }`}>
+                  {studentsList.length}
+                </span>
               </button>
-              {isSuperAdmin && (
+            )}
+
+            {/* Matérias / Oficinas */}
+            <button
+              type="button"
+              onClick={() => setActiveSgeTab('subjects')}
+              className={`py-2 px-3.5 font-bold rounded-xl transition-all flex items-center gap-2 shrink-0 cursor-pointer text-xs ${
+                activeSgeTab === 'subjects' 
+                  ? 'bg-emerald-700 text-white shadow-sm ring-1 ring-emerald-800/20' 
+                  : 'bg-transparent text-stone-700 hover:text-stone-900 hover:bg-stone-100'
+              }`}
+            >
+              <BookOpen className={`h-4 w-4 shrink-0 ${activeSgeTab === 'subjects' ? 'text-white' : 'text-emerald-600'}`} />
+              <span>{isStudent ? 'Minhas Oficinas & Ementas' : 'Matérias & Oficinas'}</span>
+            </button>
+
+            {/* Aulas & Turmas */}
+            <button
+              type="button"
+              onClick={() => setActiveSgeTab('lessons')}
+              className={`py-2 px-3.5 font-bold rounded-xl transition-all flex items-center gap-2 shrink-0 cursor-pointer text-xs ${
+                activeSgeTab === 'lessons' 
+                  ? 'bg-emerald-700 text-white shadow-sm ring-1 ring-emerald-800/20' 
+                  : 'bg-transparent text-stone-700 hover:text-stone-900 hover:bg-stone-100'
+              }`}
+            >
+              <Calendar className={`h-4 w-4 shrink-0 ${activeSgeTab === 'lessons' ? 'text-white' : 'text-emerald-600'}`} />
+              <span>{isStudent ? 'Minhas Turmas & Aulas' : 'Aulas & Chamada'}</span>
+            </button>
+
+            {/* Lançar Notas (Staff only - hidden for Alunos) */}
+            {!isStudent && (
+              <button
+                type="button"
+                onClick={() => setActiveSgeTab('grades')}
+                className={`py-2 px-3.5 font-bold rounded-xl transition-all flex items-center gap-2 shrink-0 cursor-pointer text-xs ${
+                  activeSgeTab === 'grades' 
+                    ? 'bg-emerald-700 text-white shadow-sm ring-1 ring-emerald-800/20' 
+                    : 'bg-transparent text-stone-700 hover:text-stone-900 hover:bg-stone-100'
+                }`}
+              >
+                <Award className={`h-4 w-4 shrink-0 ${activeSgeTab === 'grades' ? 'text-white' : 'text-emerald-600'}`} />
+                <span>Lançar Notas</span>
+              </button>
+            )}
+
+            {/* Boletim Escolar */}
+            <button
+              type="button"
+              onClick={() => setActiveSgeTab('boletim')}
+              className={`py-2 px-3.5 font-bold rounded-xl transition-all flex items-center gap-2 shrink-0 cursor-pointer text-xs ${
+                activeSgeTab === 'boletim' 
+                  ? (isStudent ? 'bg-blue-600 text-white shadow-sm ring-1 ring-blue-700/20' : 'bg-emerald-700 text-white shadow-sm ring-1 ring-emerald-800/20') 
+                  : 'bg-transparent text-stone-700 hover:text-stone-900 hover:bg-stone-100'
+              }`}
+            >
+              <FileText className={`h-4 w-4 shrink-0 ${
+                activeSgeTab === 'boletim' ? 'text-white' : (isStudent ? 'text-blue-600' : 'text-emerald-600')
+              }`} />
+              <span>{isStudent ? 'Meu Boletim Escolar' : 'Boletim Escolar'}</span>
+            </button>
+
+            {/* Master & Admin: Associados, Ouvidoria & Financeiro */}
+            {isSgeAdmin && !isStudent && (
+              <>
                 <button
-                  onClick={() => setActiveSgeTab('finance')}
-                  className={`py-2.5 px-4 font-bold border-b-2 transition-all flex items-center gap-1.5 shrink-0 cursor-pointer ${
-                    activeSgeTab === 'finance' ? 'border-emerald-600 text-emerald-700 font-extrabold' : 'border-transparent text-stone-500 hover:text-stone-800'
+                  type="button"
+                  onClick={() => setActiveSgeTab('associates')}
+                  className={`py-2 px-3.5 font-bold rounded-xl transition-all flex items-center gap-2 shrink-0 cursor-pointer text-xs ${
+                    activeSgeTab === 'associates' 
+                      ? 'bg-emerald-700 text-white shadow-sm ring-1 ring-emerald-800/20' 
+                      : 'bg-transparent text-stone-700 hover:text-stone-900 hover:bg-stone-100'
                   }`}
                 >
-                  <DollarSign className="h-4 w-4" /> Painel Financeiro
+                  <HandHeart className={`h-4 w-4 shrink-0 ${activeSgeTab === 'associates' ? 'text-white' : 'text-emerald-600'}`} />
+                  <span>Associados & Doações</span>
                 </button>
-              )}
-            </>
-          )}
+                <button
+                  type="button"
+                  onClick={() => setActiveSgeTab('messages')}
+                  className={`py-2 px-3.5 font-bold rounded-xl transition-all flex items-center gap-2 shrink-0 cursor-pointer text-xs ${
+                    activeSgeTab === 'messages' 
+                      ? 'bg-emerald-700 text-white shadow-sm ring-1 ring-emerald-800/20' 
+                      : 'bg-transparent text-stone-700 hover:text-stone-900 hover:bg-stone-100'
+                  }`}
+                >
+                  <MessageSquare className={`h-4 w-4 shrink-0 ${activeSgeTab === 'messages' ? 'text-white' : 'text-emerald-600'}`} />
+                  <span>Ouvidoria</span>
+                </button>
+                {isSuperAdmin && (
+                  <button
+                    type="button"
+                    onClick={() => setActiveSgeTab('finance')}
+                    className={`py-2 px-3.5 font-bold rounded-xl transition-all flex items-center gap-2 shrink-0 cursor-pointer text-xs ${
+                      activeSgeTab === 'finance' 
+                        ? 'bg-amber-600 text-white shadow-sm ring-1 ring-amber-700/20' 
+                        : 'bg-transparent text-stone-700 hover:text-stone-900 hover:bg-stone-100'
+                    }`}
+                  >
+                    <DollarSign className={`h-4 w-4 shrink-0 ${activeSgeTab === 'finance' ? 'text-white' : 'text-amber-600'}`} />
+                    <span>Painel Financeiro</span>
+                  </button>
+                )}
+              </>
+            )}
+          </div>
         </div>
 
         {/* TAB CONTENTS */}
         
-        {/* 1. GESTÃO DE USUÁRIOS ESCOLARES (Super Admin / Admin directory) */}
-        {activeSgeTab === 'users' && isSgeAdmin && (
+        {/* 1. GESTÃO DE USUÁRIOS ESCOLARES (Exclusivo Master) */}
+        {activeSgeTab === 'users' && isSuperAdmin && (
           <div className="space-y-6 text-left" id="sge-users-view">
-            {isSuperAdmin && (
-              <div className="bg-emerald-50 border border-emerald-150 rounded-2xl p-4 flex gap-3 items-start select-none">
-                <Shield className="h-5 w-5 text-emerald-600 shrink-0 mt-0.5" />
-                <div className="space-y-1">
-                  <p className="text-xs font-bold text-emerald-950">Privilégios de Acesso Master Ativos</p>
-                  <p className="text-stone-650 text-xs leading-relaxed">
-                    Como usuário <strong>Master</strong>, você tem controle total para gerenciar o acesso ao sistema. É possível adicionar outros e-mails para acesso ao SGE, definir cargos e níveis de permissão de cada usuário, inclusive permitindo conceder privilégios de <strong>Master</strong> a outros e-mails de usuários, conforme a necessidade.
-                  </p>
-                </div>
+            <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 flex gap-3 items-start select-none">
+              <Shield className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" />
+              <div className="space-y-1">
+                <p className="text-xs font-bold text-amber-950">Privilégios de Acesso Master Ativos</p>
+                <p className="text-stone-650 text-xs leading-relaxed">
+                  Como usuário <strong>Master</strong>, você tem acesso total ao sistema: gerenciamento avançado de usuários, controle de permissões por cargo (Master, Administrador, Docente, Aluno), administração geral, relatórios e auditoria completa da plataforma.
+                </p>
               </div>
-            )}
+            </div>
 
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-white p-4 rounded-xl border border-stone-200 gap-3">
               <div>
@@ -1198,9 +1428,10 @@ export default function AreaAssociadoView({
                       onChange={e => setUserForm({ ...userForm, role: e.target.value as any })}
                       className="w-full h-10 px-2 bg-stone-50 border border-stone-200 rounded-xl text-xs font-sans"
                     >
+                      <option value="super_admin">Master (Acesso Total & Permissões)</option>
+                      <option value="admin">Administrador (Gestão Operacional & Alunos)</option>
                       <option value="professor">Professor / Docente</option>
-                      <option value="admin">Administrador Escolar</option>
-                      {isSuperAdmin && <option value="super_admin">Master (Acesso Completo)</option>}
+                      <option value="aluno">Aluno (Acesso Restrito ao Boletim & Aulas)</option>
                     </select>
                   </div>
 
@@ -1253,10 +1484,11 @@ export default function AreaAssociadoView({
                       <td className="py-3 px-4 text-stone-600 font-medium">{su.title || 'Membro do SGE'}</td>
                       <td className="py-3 px-4 font-semibold uppercase text-[9px]">
                         <span className={`px-2 py-0.5 rounded font-bold ${
-                          su.role === 'super_admin' ? 'bg-red-50 text-red-700' :
-                          su.role === 'admin' ? 'bg-amber-50 text-amber-700' : 'bg-emerald-50 text-emerald-800'
+                          su.role === 'super_admin' || su.role === 'master' ? 'bg-amber-100 text-amber-900 border border-amber-300' :
+                          su.role === 'admin' ? 'bg-emerald-100 text-emerald-900 border border-emerald-300' :
+                          su.role === 'aluno' ? 'bg-blue-100 text-blue-900 border border-blue-300' : 'bg-stone-100 text-stone-700 border border-stone-200'
                         }`}>
-                          {su.role === 'super_admin' ? 'Master' : su.role === 'admin' ? 'Admin' : 'Professor'}
+                          {su.role === 'super_admin' || su.role === 'master' ? 'Master' : su.role === 'admin' ? 'Admin' : su.role === 'aluno' ? 'Aluno' : 'Professor'}
                         </span>
                       </td>
                       <td className="py-3 px-4 text-right flex justify-end gap-1">
@@ -1293,10 +1525,11 @@ export default function AreaAssociadoView({
           </div>
         )}
 
-        {/* 2. CADASTRO E GESTÃO DE ALUNOS NAS TURMAS (Exclusivo Master) */}
-        {activeSgeTab === 'students' && isSuperAdmin && (
+        {/* 2. CADASTRO E GESTÃO DE ALUNOS NAS TURMAS (Master e Admin) */}
+        {activeSgeTab === 'students' && (isSuperAdmin || isSgeAdmin) && !isStudent && (
           <TurmaAlunosManager
             isMaster={isSuperAdmin}
+            isAdmin={isSgeAdmin}
             studentsList={studentsList}
             onAddStudent={addStudent}
             onUpdateStudent={updateStudent}
@@ -1487,22 +1720,30 @@ export default function AreaAssociadoView({
           <div className="space-y-6 text-left" id="sge-lessons-tab">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-white p-4 rounded-xl border border-stone-200 gap-3">
               <div>
-                <h3 className="font-sans font-bold text-stone-900 text-base">Diários de Classe e Presença</h3>
-                <p className="text-stone-500 text-xs">Abra novas aulas por data em suas matérias para fazer o controle de frequência (chamada).</p>
+                <h3 className="font-sans font-bold text-stone-900 text-base">
+                  {isStudent ? 'Aulas e Horários da Minha Turma' : 'Diários de Classe e Presença'}
+                </h3>
+                <p className="text-stone-500 text-xs">
+                  {isStudent 
+                    ? 'Acompanhe as datas das aulas, conteúdos ministrados pelos instrutores e seu registro de presença.' 
+                    : 'Abra novas aulas por data em suas matérias para fazer o controle de frequência (chamada).'}
+                </p>
               </div>
-              <button
-                onClick={async () => {
-                  if (allowedSubjects.length === 0) {
-                    await alert('Por favor, primeiro registre alguma matéria ou tenha matérias sob sua regência vinculadas ao seu e-mail.', 'Matérias Não Encontradas', 'warn');
-                    return;
-                  }
-                  setLessonForm({ subjectId: allowedSubjects[0].id, date: new Date().toISOString().split('T')[0], title: '', description: '', presentStudentIds: [] });
-                  setIsAddingLesson(true);
-                }}
-                className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs flex items-center gap-1.5 cursor-pointer shadow-md"
-              >
-                <Plus className="h-4 w-4" /> Registrar Nova Aula
-              </button>
+              {!isStudent && (
+                <button
+                  onClick={async () => {
+                    if (allowedSubjects.length === 0) {
+                      await alert('Por favor, primeiro registre alguma matéria ou tenha matérias sob sua regência vinculadas ao seu e-mail.', 'Matérias Não Encontradas', 'warn');
+                      return;
+                    }
+                    setLessonForm({ subjectId: allowedSubjects[0].id, date: new Date().toISOString().split('T')[0], title: '', description: '', presentStudentIds: [] });
+                    setIsAddingLesson(true);
+                  }}
+                  className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs flex items-center gap-1.5 cursor-pointer shadow-md"
+                >
+                  <Plus className="h-4 w-4" /> Registrar Nova Aula
+                </button>
+              )}
             </div>
 
             {isAddingLesson && (
@@ -1606,8 +1847,12 @@ export default function AreaAssociadoView({
                     {/* Attendance roster checklist */}
                     <div className="space-y-2 text-left">
                       <p className="font-mono text-[10px] uppercase font-bold text-stone-500 flex items-center justify-between">
-                        <span>Lista de Chamada Geral:</span>
-                        <span className="text-emerald-700">Clique para alternar (Verde = Presente • Cinza = Faltou)</span>
+                        <span>Lista de Chamada {isStudent ? 'da Turma:' : 'Geral:'}</span>
+                        <span className={isStudent ? 'text-blue-700' : 'text-emerald-700'}>
+                          {isStudent 
+                            ? 'Registro oficial de frequência da turma' 
+                            : 'Clique para alternar (Verde = Presente • Cinza = Faltou)'}
+                        </span>
                       </p>
                       
                       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
@@ -1616,8 +1861,12 @@ export default function AreaAssociadoView({
                           return (
                             <button
                               key={student.id}
-                              onClick={() => handleToggleAttendance(lesson, student.id)}
-                              className={`p-2.5 rounded-xl border text-left transition-all duration-150 flex items-center justify-between cursor-pointer ${
+                              type="button"
+                              disabled={isStudent}
+                              onClick={() => !isStudent && handleToggleAttendance(lesson, student.id)}
+                              className={`p-2.5 rounded-xl border text-left transition-all duration-150 flex items-center justify-between ${
+                                isStudent ? 'cursor-default opacity-90' : 'cursor-pointer'
+                              } ${
                                 isPresent 
                                   ? 'bg-emerald-50/80 border-emerald-200 text-emerald-950 font-bold' 
                                   : 'bg-stone-50/60 border-stone-200 text-stone-400'
@@ -1834,29 +2083,46 @@ export default function AreaAssociadoView({
         {/* 6. BOLETIM ESCOLAR PRE-VISUALIZATION */}
         {activeSgeTab === 'boletim' && (
           <div className="space-y-6 text-left" id="sge-boletim-tab">
-            <div className="bg-white p-4 rounded-xl border border-stone-200 text-xs flex flex-wrap gap-4 items-center">
-              <div>
-                <label className="text-[10px] font-bold block uppercase text-stone-500">Selecione Estudante</label>
-                <select
-                  value={searchQuery} // use search filter as reactive driver
-                  onChange={e => setSearchQuery(e.target.value)}
-                  className="mt-1 h-9 px-3 border border-stone-200 bg-stone-50 rounded-xl"
-                >
-                  <option value="">-- Escolher Aluno --</option>
-                  {studentsList.map(s => (
-                    <option key={s.id} value={s.id}>{s.name} ({s.turma})</option>
-                  ))}
-                </select>
-              </div>
+            <div className="bg-white p-4 rounded-xl border border-stone-200 text-xs flex flex-wrap gap-4 items-center justify-between">
+              {isStudent ? (
+                <div className="flex items-center gap-3">
+                  <div className="p-2.5 bg-blue-50 text-blue-700 rounded-xl border border-blue-150">
+                    <GraduationCap className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <label className="text-[10px] font-bold block uppercase text-blue-700 font-mono tracking-wider">Aproveitamento Acadêmico do Educando</label>
+                    <p className="font-black text-stone-900 text-sm">
+                      {studentsList.find(s => s.id === searchQuery)?.name || studentsList[0]?.name || 'Aluno(a) Matriculado'}
+                    </p>
+                    <span className="text-[10px] text-stone-500 font-mono">
+                      Turma: <strong className="text-stone-800">{studentsList.find(s => s.id === searchQuery)?.turma || studentsList[0]?.turma || 'Turma A'}</strong> • Matrícula: <strong className="text-stone-800">{studentsList.find(s => s.id === searchQuery)?.matricula || studentsList[0]?.matricula || 'CS-2025-001'}</strong>
+                    </span>
+                  </div>
+                </div>
+              ) : (
+                <div>
+                  <label className="text-[10px] font-bold block uppercase text-stone-500">Selecione Estudante</label>
+                  <select
+                    value={searchQuery}
+                    onChange={e => setSearchQuery(e.target.value)}
+                    className="mt-1 h-9 px-3 border border-stone-200 bg-stone-50 rounded-xl font-sans"
+                  >
+                    <option value="">-- Escolher Aluno --</option>
+                    {studentsList.map(s => (
+                      <option key={s.id} value={s.id}>{s.name} ({s.turma})</option>
+                    ))}
+                  </select>
+                </div>
+              )}
 
               <div>
                 <label className="text-[10px] font-bold block uppercase text-stone-500">Filtro Oficina/Matéria</label>
                 <select
                   value={filterSubject}
                   onChange={e => setFilterSubject(e.target.value)}
-                  className="mt-1 h-9 px-3 border border-stone-200 bg-stone-50 rounded-xl"
+                  className="mt-1 h-9 px-3 border border-stone-200 bg-stone-50 rounded-xl font-sans"
                 >
-                  <option value="all">Todas as Oficina / Matérias</option>
+                  <option value="all">Todas as Oficinas / Matérias</option>
                   {subjects.map(sub => (
                     <option key={sub.id} value={sub.id}>{sub.name} ({sub.turma})</option>
                   ))}
@@ -1865,8 +2131,8 @@ export default function AreaAssociadoView({
             </div>
 
             {/* boletim layout generator */}
-            {searchQuery ? (
-              studentsList.filter(s => s.id === searchQuery).map(student => {
+            {(searchQuery || (isStudent && studentsList.length > 0)) ? (
+              studentsList.filter(s => isStudent ? (s.id === searchQuery || (!searchQuery && s.id === studentsList[0].id)) : s.id === searchQuery).map(student => {
                 
                 // Active subjects matching student's class group
                 const studentSubjects = subjects.filter(su => su.turma === student.turma && (filterSubject === 'all' || su.id === filterSubject));

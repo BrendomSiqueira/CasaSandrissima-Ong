@@ -127,7 +127,8 @@ const INITIAL_GALLERY_ITEMS: GalleryPhoto[] = [
 ];
 
 export default function GaleriaView({ setActiveTab, onOpenLoginModal }: GaleriaViewProps) {
-  const { user } = useFirebase();
+  const { user, isMaster, isAdmin, canEditSite } = useFirebase();
+  const canManagePhotos = Boolean(canEditSite ?? (isMaster || isAdmin));
   const { alert, confirm } = useModal();
   
   const [photos, setPhotos] = useState<GalleryPhoto[]>(() => {
@@ -350,15 +351,15 @@ export default function GaleriaView({ setActiveTab, onOpenLoginModal }: GaleriaV
           </div>
 
           {/* Admin / Authenticated Editor Controls */}
-          {user ? (
+          {canManagePhotos ? (
             <div className="bg-white/10 backdrop-blur-md border border-white/20 p-3.5 rounded-2xl flex items-center gap-3 shrink-0" id="galeria-admin-badge">
               <div className="text-left text-xs">
                 <div className="flex items-center gap-1.5 text-emerald-300 font-bold">
                   <ShieldCheck className="h-4 w-4" />
-                  <span>Modo Editor Ativo</span>
+                  <span>{isMaster ? 'Modo Master Ativo' : 'Modo Administrador'}</span>
                 </div>
                 <span className="text-stone-300 text-[11px] font-mono block truncate max-w-[160px] mt-0.5">
-                  {user.displayName || user.email}
+                  {user?.displayName || user?.email || 'Administrador'}
                 </span>
               </div>
               <TactileButton
@@ -402,8 +403,8 @@ export default function GaleriaView({ setActiveTab, onOpenLoginModal }: GaleriaV
         ))}
       </section>
 
-      {/* Floating Add Photo Button on mobile if logged in */}
-      {user && (
+      {/* Floating Add Photo Button on mobile if canManagePhotos */}
+      {canManagePhotos && (
         <div className="md:hidden flex justify-end">
           <button
             onClick={handleOpenAddModal}
@@ -448,8 +449,8 @@ export default function GaleriaView({ setActiveTab, onOpenLoginModal }: GaleriaV
                   {photo.categoryLabel}
                 </div>
 
-                {/* Exclusive Editor Controls (Only visible to logged in users) */}
-                {user && (
+                {/* Exclusive Editor Controls (Only visible to Master and Admins) */}
+                {canManagePhotos && (
                   <div 
                     className="absolute top-3 right-3 flex items-center gap-1.5 z-10" 
                     onClick={(e) => e.stopPropagation()}
@@ -584,8 +585,8 @@ export default function GaleriaView({ setActiveTab, onOpenLoginModal }: GaleriaV
                   </div>
 
                   <div className="flex gap-2">
-                    {/* If logged in, provide quick edit/delete in lightbox */}
-                    {user && (
+                    {/* If authorized as Master or Admin, provide quick edit/delete in lightbox */}
+                    {canManagePhotos && (
                       <>
                         <button
                           onClick={() => handleOpenEditModal(activePhoto)}
@@ -642,9 +643,9 @@ export default function GaleriaView({ setActiveTab, onOpenLoginModal }: GaleriaV
         )}
       </AnimatePresence>
 
-      {/* Modal for Creating / Editing Photos (Only Accessible to Logged-in Users) */}
+      {/* Modal for Creating / Editing Photos (Only Accessible to Master and Admins) */}
       <AnimatePresence>
-        {isPhotoModalOpen && user && (
+        {isPhotoModalOpen && canManagePhotos && (
           <div 
             className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-950/70 backdrop-blur-sm"
             onClick={(e) => {

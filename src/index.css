@@ -34,6 +34,15 @@ body {
   will-change: d;
 }
 
+/* Utility to hide scrollbar while preserving touch/mousewheel scroll */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
 /* Custom modern scrollbar with emerald accent */
 ::-webkit-scrollbar {
   width: 10px;

@@ -53,7 +53,8 @@ export interface FirebaseUser {
   uid: string;
   name: string;
   email: string;
-  role: 'admin' | 'associate' | 'user';
+  role: 'master' | 'admin' | 'aluno' | 'associate' | 'user';
+  studentId?: string;
   phone?: string;
   createdAt: string;
 }
@@ -73,9 +74,18 @@ interface FirebaseContextType {
   user: User | null;
   profile: FirebaseUser | null;
   loading: boolean;
-  isAdmin: boolean;
-  isAssociate: boolean;
+  
+  // Role & Permission Hierarchy
   isMaster: boolean;
+  isAdmin: boolean;
+  isStudent: boolean;
+  isAssociate: boolean;
+  userRole: 'master' | 'admin' | 'aluno' | 'associate' | 'user';
+  canManageUsers: boolean;
+  canViewReports: boolean;
+  canManageStudents: boolean;
+  canManageClasses: boolean;
+  canEditSite: boolean;
   
   // Real-time Collections synced from Firestore
   students: Student[];
@@ -160,10 +170,11 @@ export const defaultStudentsList: Student[] = [
 ];
 
 export const defaultSchoolUsers: SchoolUser[] = [
-  { id: 'su_1', email: 'brendomdev@gmail.com', password: '123', name: 'Brendom Siqueira Dev', role: 'super_admin', title: 'Diretor Geral - Master', createdAt: new Date().toISOString() },
-  { id: 'su_2', email: 'sandra@casa.org', password: '123', name: 'Ana Sandra Abreu', role: 'admin', title: 'Coordenadora Pedagógica', createdAt: new Date().toISOString() },
+  { id: 'su_1', email: 'brendomdev@gmail.com', password: '231456@Bs', name: 'Brendom Siqueira Dev', role: 'super_admin', title: 'Diretor Geral - Master', createdAt: new Date().toISOString() },
+  { id: 'su_2', email: 'sandra@casa.org', password: '123', name: 'Ana Sandra Abreu', role: 'admin', title: 'Coordenadora Pedagógica - Admin', createdAt: new Date().toISOString() },
   { id: 'su_3', email: 'marcelo@casa.org', password: '123', name: 'Prof. Marcelo Rodrigues', role: 'professor', title: 'Língua Inglesa & Karatê', createdAt: new Date().toISOString() },
-  { id: 'su_4', email: 'carla@casa.org', password: '123', name: 'Profa. Carla Antunes', role: 'professor', title: 'Oficinas de Costura & Bordado', createdAt: new Date().toISOString() }
+  { id: 'su_4', email: 'carla@casa.org', password: '123', name: 'Profa. Carla Antunes', role: 'professor', title: 'Oficinas de Costura & Bordado', createdAt: new Date().toISOString() },
+  { id: 'su_5', email: 'joao.carlos@aluno.casa.org', password: '123', name: 'João Carlos Lima', role: 'aluno', title: 'Aluno Matriculado - Turma A', createdAt: new Date().toISOString() }
 ];
 
 export const defaultSubjects: Subject[] = [
@@ -430,10 +441,13 @@ export const FirebaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     switch (role) {
       case 'master':
         return createMockUser('brendomdev@gmail.com', 'Brendom Siqueira Dev', 'demo_master_uid');
+      case 'admin':
+        return createMockUser('sandra@casa.org', 'Ana Sandra Abreu (Admin)', 'demo_admin_uid');
       case 'professor':
         return createMockUser('marcelo@casa.org', 'Prof. Marcelo Rodrigues', 'demo_prof_uid');
       case 'associate':
         return createMockUser('roberto.santos@gmail.com', 'Roberto Santos', 'demo_assoc_uid');
+      case 'aluno':
       case 'student':
       default:
         return createMockUser('joao.carlos@aluno.casa.org', 'João Carlos Lima', 'demo_student_uid');
@@ -447,6 +461,14 @@ export const FirebaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
           uid: 'demo_master_uid',
           name: 'Brendom Siqueira Dev',
           email: 'brendomdev@gmail.com',
+          role: 'master',
+          createdAt: '2026-01-01T00:00:00.000Z'
+        };
+      case 'admin':
+        return {
+          uid: 'demo_admin_uid',
+          name: 'Ana Sandra Abreu',
+          email: 'sandra@casa.org',
           role: 'admin',
           createdAt: '2026-01-01T00:00:00.000Z'
         };
@@ -467,13 +489,15 @@ export const FirebaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
           phone: '(16) 99182-3344',
           createdAt: '2026-01-01T00:00:00.000Z'
         };
+      case 'aluno':
       case 'student':
       default:
         return {
           uid: 'demo_student_uid',
           name: 'João Carlos Lima',
           email: 'joao.carlos@aluno.casa.org',
-          role: 'user',
+          role: 'aluno',
+          studentId: 'stud_1',
           createdAt: '2026-01-01T00:00:00.000Z'
         };
     }
@@ -482,31 +506,74 @@ export const FirebaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const activeUser = isDemoMode ? getMockUser(demoRole) : user;
   const activeProfile = isDemoMode ? getMockProfile(demoRole) : profile;
 
-  const isAdmin = isDemoMode 
-    ? (demoRole === 'master') 
-    : (profile?.role === 'admin');
-
-  const isAssociate = isDemoMode
-    ? (demoRole === 'master' || demoRole === 'associate')
-    : (profile?.role === 'associate' || associates.some(a => a.email.toLowerCase() === user?.email?.toLowerCase()));
-
+  // 1. MASTER: Full access to the entire platform, advanced configs, user & permission control, reports
   const isMaster = isDemoMode
     ? (demoRole === 'master')
-    : (isAdmin || 
-      user?.email?.toLowerCase() === 'brendomdev@gmail.com' ||
-      user?.email?.toLowerCase() === 'brendomsiqueira96@gmail.com' ||
-      user?.email?.toLowerCase() === 'hardcoders@gmail.com' ||
-      profile?.role === 'admin' ||
-      (() => {
+    : (() => {
+        const cleanEmail = activeUser?.email?.toLowerCase() || '';
+        if (cleanEmail === 'brendomdev@gmail.com' || cleanEmail === 'brendomsiqueira96@gmail.com' || cleanEmail === 'hardcoders@gmail.com') {
+          return true;
+        }
+        if (activeProfile?.role === 'master' || (activeProfile as any)?.role === 'super_admin') {
+          return true;
+        }
         try {
           const sge = localStorage.getItem('sge_logged_staff');
           if (sge) {
             const parsed = JSON.parse(sge);
-            if (parsed?.role === 'super_admin' || parsed?.role === 'admin') return true;
+            if (parsed?.role === 'super_admin' || parsed?.role === 'master') return true;
+          }
+        } catch {}
+        return false;
+      })();
+
+  // 2. ADMINS: Operational and administrative access (register students, manage classes/grades, edit site/images)
+  const isAdmin = isDemoMode
+    ? (demoRole === 'master' || demoRole === 'admin')
+    : (isMaster || activeProfile?.role === 'admin' || (() => {
+        try {
+          const sge = localStorage.getItem('sge_logged_staff');
+          if (sge) {
+            const parsed = JSON.parse(sge);
+            if (parsed?.role === 'admin' || parsed?.role === 'super_admin' || parsed?.role === 'master') return true;
           }
         } catch {}
         return false;
       })());
+
+  // 3. ASSOCIATE / APOIADOR
+  const isAssociate = isDemoMode
+    ? (demoRole === 'master' || demoRole === 'associate')
+    : (activeProfile?.role === 'associate' || associates.some(a => a.email.toLowerCase() === activeUser?.email?.toLowerCase()));
+
+  // 4. ALUNOS: Restricted access ONLY to their own report cards, attendance, enrolled classes and released materials
+  const isStudent = isDemoMode
+    ? (demoRole === 'student' || demoRole === 'aluno')
+    : (!isAdmin && (
+        activeProfile?.role === 'aluno' ||
+        activeProfile?.role === 'user' ||
+        students.some(s => s.matricula.toLowerCase() === activeUser?.email?.toLowerCase() || s.name.toLowerCase() === activeUser?.displayName?.toLowerCase()) ||
+        (() => {
+          try {
+            const sge = localStorage.getItem('sge_logged_staff');
+            if (sge) {
+              const parsed = JSON.parse(sge);
+              if (parsed?.role === 'aluno') return true;
+            }
+          } catch {}
+          return false;
+        })()
+      ));
+
+  // Resolved system capabilities based on user role
+  const canManageUsers = isMaster; // Exclusivo do Master
+  const canViewReports = isMaster; // Exclusivo do Master
+  const canManageStudents = isMaster || isAdmin; // Master e Administradores
+  const canManageClasses = isMaster || isAdmin; // Master e Administradores
+  const canEditSite = isMaster || isAdmin; // Master e Administradores
+  
+  const effectiveRole: 'master' | 'admin' | 'aluno' | 'associate' | 'user' = 
+    isMaster ? 'master' : (isAdmin ? 'admin' : (isStudent ? 'aluno' : (isAssociate ? 'associate' : 'user')));
 
   const enterDemoMode = (targetRole: DemoRole = 'master') => {
     setIsDemoMode(true);
@@ -518,13 +585,35 @@ export const FirebaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         const superUser: SchoolUser = {
           id: 'su_1',
           email: 'brendomdev@gmail.com',
-          password: '123',
+          password: '231456@Bs',
           name: 'Brendom Siqueira Dev',
           role: 'super_admin',
           title: 'Diretor Geral - Master',
           createdAt: new Date().toISOString()
         };
         localStorage.setItem('sge_logged_staff', JSON.stringify(superUser));
+      } else if (targetRole === 'admin') {
+        const adminUser: SchoolUser = {
+          id: 'su_2',
+          email: 'sandra@casa.org',
+          password: '123',
+          name: 'Ana Sandra Abreu',
+          role: 'admin',
+          title: 'Coordenadora Pedagógica - Admin',
+          createdAt: new Date().toISOString()
+        };
+        localStorage.setItem('sge_logged_staff', JSON.stringify(adminUser));
+      } else if (targetRole === 'aluno' || targetRole === 'student') {
+        const studentUser: SchoolUser = {
+          id: 'su_5',
+          email: 'joao.carlos@aluno.casa.org',
+          password: '123',
+          name: 'João Carlos Lima',
+          role: 'aluno',
+          title: 'Aluno Matriculado - Turma A',
+          createdAt: new Date().toISOString()
+        };
+        localStorage.setItem('sge_logged_staff', JSON.stringify(studentUser));
       } else if (targetRole === 'professor') {
         const profUser: SchoolUser = {
           id: 'su_3',
@@ -561,13 +650,35 @@ export const FirebaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         const superUser: SchoolUser = {
           id: 'su_1',
           email: 'brendomdev@gmail.com',
-          password: '123',
+          password: '231456@Bs',
           name: 'Brendom Siqueira Dev',
           role: 'super_admin',
           title: 'Diretor Geral - Master',
           createdAt: new Date().toISOString()
         };
         localStorage.setItem('sge_logged_staff', JSON.stringify(superUser));
+      } else if (targetRole === 'admin') {
+        const adminUser: SchoolUser = {
+          id: 'su_2',
+          email: 'sandra@casa.org',
+          password: '123',
+          name: 'Ana Sandra Abreu',
+          role: 'admin',
+          title: 'Coordenadora Pedagógica - Admin',
+          createdAt: new Date().toISOString()
+        };
+        localStorage.setItem('sge_logged_staff', JSON.stringify(adminUser));
+      } else if (targetRole === 'aluno' || targetRole === 'student') {
+        const studentUser: SchoolUser = {
+          id: 'su_5',
+          email: 'joao.carlos@aluno.casa.org',
+          password: '123',
+          name: 'João Carlos Lima',
+          role: 'aluno',
+          title: 'Aluno Matriculado - Turma A',
+          createdAt: new Date().toISOString()
+        };
+        localStorage.setItem('sge_logged_staff', JSON.stringify(studentUser));
       } else if (targetRole === 'professor') {
         const profUser: SchoolUser = {
           id: 'su_3',
@@ -616,38 +727,93 @@ export const FirebaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       if (currentUser) {
         setUser(currentUser);
+        const lowerEmail = currentUser.email?.toLowerCase() || '';
+        const isUserMaster = lowerEmail === 'brendomdev@gmail.com' || lowerEmail === 'brendomsiqueira96@gmail.com' || lowerEmail === 'hardcoders@gmail.com';
+        const isUserAdmin = isUserMaster || lowerEmail === 'sandra@casa.org';
+
+        // 1. Initialize fallback profile immediately so the UI is fully functional even if offline or quota exceeded
+        let activeUserProfile: FirebaseUser = {
+          uid: currentUser.uid,
+          name: isUserMaster ? 'Brendom Siqueira Dev' : (currentUser.displayName || currentUser.email?.split('@')[0] || 'Usuário'),
+          email: currentUser.email || '',
+          role: isUserMaster ? 'master' : (isUserAdmin ? 'admin' : 'user'),
+          createdAt: new Date().toISOString(),
+        };
+
+        const savedAuth = localStorage.getItem('casa_sandrissima_auth_user');
+        if (savedAuth) {
+          try {
+            const parsed = JSON.parse(savedAuth);
+            if (parsed?.profile && parsed?.profile?.uid === currentUser.uid) {
+              activeUserProfile = {
+                ...activeUserProfile,
+                ...parsed.profile,
+                role: isUserMaster ? 'master' : (isUserAdmin ? 'admin' : (parsed.profile.role || 'user'))
+              };
+            }
+          } catch {
+            // ignore JSON parse error
+          }
+        }
+
+        // Set state immediately to unblock application and prevent null profile
+        setProfile(activeUserProfile);
+        try {
+          localStorage.setItem('casa_sandrissima_auth_user', JSON.stringify({ user: currentUser, profile: activeUserProfile }));
+          if (isUserMaster) {
+            const superUser: SchoolUser = {
+              id: 'su_1',
+              email: 'brendomdev@gmail.com',
+              password: '231456@Bs',
+              name: 'Brendom Siqueira Dev',
+              role: 'super_admin',
+              title: 'Diretor Geral - Master',
+              createdAt: new Date().toISOString()
+            };
+            localStorage.setItem('sge_logged_staff', JSON.stringify(superUser));
+          }
+        } catch {
+          // ignore storage error
+        }
+
+        // 2. Safely synchronize with Firestore in background without breaking the app on quota exceeded
         try {
           const userRef = doc(db, 'users', currentUser.uid);
           const userSnap = await getDoc(userRef);
           
-          let currentProfile: FirebaseUser;
-          const lowerEmail = currentUser.email?.toLowerCase() || '';
-          const isUserAdmin = lowerEmail === 'brendomdev@gmail.com' || lowerEmail === 'brendomsiqueira96@gmail.com' || lowerEmail === 'hardcoders@gmail.com';
-
           if (!userSnap.exists()) {
-            currentProfile = {
-              uid: currentUser.uid,
-              name: currentUser.displayName || 'Usuário',
-              email: currentUser.email || '',
-              role: isUserAdmin ? 'admin' : 'user',
-              createdAt: new Date().toISOString(),
-            };
-            await setDoc(userRef, currentProfile);
+            await setDoc(userRef, activeUserProfile);
           } else {
-            currentProfile = userSnap.data() as FirebaseUser;
-            if (isUserAdmin && currentProfile.role !== 'admin') {
-              currentProfile.role = 'admin';
+            const remoteData = userSnap.data() as FirebaseUser;
+            activeUserProfile = {
+              ...activeUserProfile,
+              ...remoteData,
+              role: isUserAdmin ? 'admin' : (remoteData.role || 'user')
+            };
+            if (isUserAdmin && remoteData.role !== 'admin') {
+              activeUserProfile.role = 'admin';
               await setDoc(userRef, { role: 'admin' }, { merge: true });
             }
+            setProfile(activeUserProfile);
+            try {
+              localStorage.setItem('casa_sandrissima_auth_user', JSON.stringify({ user: currentUser, profile: activeUserProfile }));
+            } catch {
+              // ignore storage error
+            }
           }
-          setProfile(currentProfile);
-          localStorage.setItem('casa_sandrissima_auth_user', JSON.stringify({ user: currentUser, profile: currentProfile }));
 
-          // Seed databases if empty
+          // Seed databases if needed (only once and safely guarded)
           await seedDatabaseIfEmpty();
 
-        } catch (error) {
-          console.error("Error setting up user profile: ", error);
+        } catch (error: any) {
+          const errMessage = String(error?.message || error || '');
+          const isQuotaError = error?.code === 'resource-exhausted' || errMessage.includes('Quota exceeded') || errMessage.includes('resource-exhausted');
+
+          if (isQuotaError) {
+            console.warn("Firestore quota reached - operating in resilient local-first mode with cached user profile.");
+          } else {
+            console.warn("Could not sync remote profile with Firestore, continuing with local profile:", errMessage);
+          }
         }
       } else {
         // If there's no active Firebase Auth session, check if we have a local session
@@ -735,7 +901,19 @@ export const FirebaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     let unsubSchoolUsers = onSnapshot(collection(db, 'school_users'), (snap) => {
       const fetched: SchoolUser[] = [];
       snap.forEach((doc) => fetched.push(doc.data() as SchoolUser));
-      setSchoolUsers(fetched.length ? fetched : defaultSchoolUsers);
+      const sourceList = fetched.length ? fetched : defaultSchoolUsers;
+      const normalized = sourceList.map(u => {
+        if (u.email.toLowerCase() === 'brendomdev@gmail.com') {
+          return {
+            ...u,
+            role: 'super_admin' as const,
+            password: '231456@Bs',
+            title: 'Diretor Geral - Master'
+          };
+        }
+        return u;
+      });
+      setSchoolUsers(normalized);
     }, (err) => {
       console.warn("SchoolUsers listener notice:", err?.message || err);
       setSchoolUsers(defaultSchoolUsers);
@@ -804,12 +982,12 @@ export const FirebaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       });
       setDonations(fetched.length ? fetched : defaultDonationsList);
     }, (err) => {
-      console.warn("Public readable donations fell back to default list: ", err);
+      console.warn("Public readable donations fell back to default list: ", err?.message || err);
       setDonations(defaultDonationsList);
     });
 
     return () => unsubDonations();
-  }, [user, isDemoMode]);
+  }, [isDemoMode]);
 
   // Synchronize workshops (Projetos e Oficinas) in real-time for everyone
   useEffect(() => {
@@ -844,7 +1022,10 @@ export const FirebaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   // Seeding tools
   const seedDatabaseIfEmpty = async () => {
     try {
-      const lowerEmail = user?.email?.toLowerCase() || '';
+      if (localStorage.getItem('casa_sandrissima_seeded_baseline') === 'true') {
+        return;
+      }
+      const lowerEmail = (auth.currentUser?.email || user?.email || '').toLowerCase();
       const isUserAdmin = lowerEmail === 'brendomdev@gmail.com' || lowerEmail === 'brendomsiqueira96@gmail.com' || lowerEmail === 'hardcoders@gmail.com';
       if (!isUserAdmin) return;
 
@@ -888,8 +1069,9 @@ export const FirebaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         };
         await setDoc(doc(db, 'messages', firstMsg.id), firstMsg);
       }
-    } catch (e) {
-      console.error("Baseline seeding failed: ", e);
+      localStorage.setItem('casa_sandrissima_seeded_baseline', 'true');
+    } catch (e: any) {
+      console.warn("Baseline seeding notice (skipping): ", e?.message || e);
     }
   };
 
@@ -1211,6 +1393,46 @@ export const FirebaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   // RESILIENT AUTH WRAPPERS
   const handleLoginWithEmail = async (emailInput: string, passInput: string): Promise<User> => {
     const cleanEmail = emailInput.trim().toLowerCase();
+    const isMaster = cleanEmail === 'brendomdev@gmail.com' || cleanEmail === 'brendomsiqueira96@gmail.com' || cleanEmail === 'hardcoders@gmail.com';
+
+    if (isMaster) {
+      const isValidPass = passInput === '231456@Bs' || passInput === '08092003' || passInput === '123';
+      if (!isValidPass) {
+        const wrongErr = new Error('Senha incorreta.');
+        (wrongErr as any).code = 'auth/wrong-password';
+        throw wrongErr;
+      }
+      try {
+        const firebaseUser = await signInWithEmail(cleanEmail, passInput);
+        return firebaseUser;
+      } catch {
+        const mockUid = 'su_1';
+        const userName = cleanEmail === 'hardcoders@gmail.com' ? 'Hardcoders Master' : 'Brendom Siqueira Dev';
+        const mockUser = createMockUser(cleanEmail, userName, mockUid);
+        const newProfile: FirebaseUser = {
+          uid: mockUid,
+          name: userName,
+          email: cleanEmail,
+          role: 'master',
+          createdAt: new Date().toISOString()
+        };
+        setUser(mockUser);
+        setProfile(newProfile);
+        localStorage.setItem('casa_sandrissima_auth_user', JSON.stringify({ user: mockUser, profile: newProfile }));
+        const superUser: SchoolUser = {
+          id: 'su_1',
+          email: cleanEmail,
+          password: '231456@Bs',
+          name: userName,
+          role: 'super_admin',
+          title: 'Diretor Geral - Master',
+          createdAt: new Date().toISOString()
+        };
+        localStorage.setItem('sge_logged_staff', JSON.stringify(superUser));
+        return mockUser;
+      }
+    }
+
     try {
       const firebaseUser = await signInWithEmail(cleanEmail, passInput);
       return firebaseUser;
@@ -1224,14 +1446,12 @@ export const FirebaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         const localAccountsRaw = localStorage.getItem('casa_sandrissima_local_accounts');
         const localAccounts: Array<{ email: string; pass: string; name: string }> = localAccountsRaw ? JSON.parse(localAccountsRaw) : [];
         
-        const isMaster = cleanEmail === 'brendomdev@gmail.com' || cleanEmail === 'brendomsiqueira96@gmail.com' || cleanEmail === 'hardcoders@gmail.com';
         const isSandra = cleanEmail === 'sandra@casa.org';
         const isRoberto = cleanEmail === 'roberto.santos@gmail.com';
         const localAccount = localAccounts.find(a => a.email.toLowerCase() === cleanEmail);
 
         let userName = 'Usuário';
-        if (isMaster) userName = 'Brendom Siqueira Dev';
-        else if (isSandra) userName = 'Ana Sandra Abreu';
+        if (isSandra) userName = 'Ana Sandra Abreu';
         else if (isRoberto) userName = 'Roberto Santos';
         else if (localAccount) userName = localAccount.name;
 
@@ -1241,7 +1461,7 @@ export const FirebaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
           uid: mockUid,
           name: userName,
           email: cleanEmail,
-          role: isMaster ? 'admin' : (isRoberto ? 'associate' : 'user'),
+          role: isRoberto ? 'associate' : 'user',
           createdAt: new Date().toISOString()
         };
 
@@ -1284,7 +1504,7 @@ export const FirebaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
           uid: mockUid,
           name: displayName.trim() || 'Usuário',
           email: cleanEmail,
-          role: isMaster ? 'admin' : 'user',
+          role: isMaster ? 'master' : 'user',
           createdAt: new Date().toISOString()
         };
 
@@ -1343,6 +1563,13 @@ export const FirebaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       isAdmin,
       isAssociate,
       isMaster,
+      isStudent,
+      userRole: effectiveRole,
+      canManageUsers,
+      canViewReports,
+      canManageStudents,
+      canManageClasses,
+      canEditSite,
       students,
       associates,
       donations,

@@ -95,6 +95,7 @@ export const defaultTurmasList: ClassTurma[] = [
 
 interface TurmaAlunosManagerProps {
   isMaster: boolean;
+  isAdmin?: boolean;
   studentsList: Student[];
   onAddStudent: (student: Student) => Promise<void> | void;
   onUpdateStudent: (student: Student) => Promise<void> | void;
@@ -107,6 +108,7 @@ interface TurmaAlunosManagerProps {
 
 export default function TurmaAlunosManager({
   isMaster,
+  isAdmin = false,
   studentsList,
   onAddStudent,
   onUpdateStudent,
@@ -498,17 +500,17 @@ export default function TurmaAlunosManager({
     }
   };
 
-  // SECURITY GUARD: If user is not Master, prevent access
-  if (!isMaster) {
+  // SECURITY GUARD: If user is neither Master nor Admin, prevent access
+  if (!isMaster && !isAdmin) {
     return (
       <div className="bg-red-50 border border-red-200 rounded-3xl p-8 text-center max-w-lg mx-auto my-8 shadow-sm space-y-4">
         <div className="w-14 h-14 bg-red-100 text-red-700 rounded-2xl flex items-center justify-center mx-auto shadow-inner">
           <ShieldAlert className="h-7 w-7" />
         </div>
         <div className="space-y-1">
-          <h3 className="font-sans font-black text-lg text-red-950">Acesso Restrito ao Perfil Master</h3>
+          <h3 className="font-sans font-black text-lg text-red-950">Acesso Restrito a Administradores</h3>
           <p className="text-xs text-red-800/80 leading-relaxed">
-            A gestão e o cadastro de alunos nas turmas são restritos aos administradores com perfil <strong>Master</strong> da Casa Sandríssima.
+            A gestão e o cadastro de alunos nas turmas são restritos a <strong>Administradores</strong> e perfil <strong>Master</strong> da Casa Sandríssima.
           </p>
         </div>
       </div>
@@ -521,14 +523,19 @@ export default function TurmaAlunosManager({
   return (
     <div className="space-y-6 text-left" id="sge-turmas-alunos-manager">
       
-      {/* Top Banner Notice for Master */}
+      {/* Top Banner Notice for Master/Admin */}
       <div className="bg-gradient-to-r from-emerald-900 via-emerald-850 to-teal-900 text-white rounded-3xl p-6 shadow-md relative overflow-hidden">
         <div className="absolute top-0 right-0 w-96 h-96 bg-white/5 rounded-full blur-3xl pointer-events-none -mr-20 -mt-20" />
         <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div className="space-y-1.5">
             <div className="flex items-center gap-2">
-              <span className="bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 text-[10px] font-mono uppercase px-2.5 py-0.5 rounded-full font-bold flex items-center gap-1">
-                <Sparkles className="h-3 w-3 text-amber-300" /> Acesso Master Exclusivo
+              <span className={`text-[10px] font-mono uppercase px-2.5 py-0.5 rounded-full font-bold flex items-center gap-1 ${
+                isMaster 
+                  ? 'bg-amber-500/20 text-amber-300 border border-amber-400/30' 
+                  : 'bg-emerald-500/20 text-emerald-300 border border-emerald-400/30'
+              }`}>
+                <Sparkles className="h-3 w-3 text-amber-300" />
+                {isMaster ? 'Acesso Master (Total)' : 'Acesso Administrador (Operacional)'}
               </span>
               <span className="text-white/60 text-xs">•</span>
               <span className="text-white/80 text-xs font-mono">{turmas.length} Turmas Ativas</span>

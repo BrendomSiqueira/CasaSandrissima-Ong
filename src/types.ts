@@ -1,6 +1,8 @@
 export type ActiveTab = 'home' | 'associacao' | 'doacoes' | 'projetos' | 'galeria' | 'area_associado';
 
-export type DemoRole = 'master' | 'professor' | 'associate' | 'student';
+export type SystemRole = 'master' | 'admin' | 'aluno' | 'associate';
+
+export type DemoRole = 'master' | 'admin' | 'aluno' | 'professor' | 'associate' | 'student';
 
 export interface GalleryPhoto {
   id: string;
@@ -51,7 +53,7 @@ export interface SchoolUser {
   email: string;
   password?: string;
   name: string;
-  role: 'super_admin' | 'admin' | 'professor';
+  role: 'super_admin' | 'admin' | 'professor' | 'master' | 'aluno';
   title?: string;
   createdAt: string;
 }

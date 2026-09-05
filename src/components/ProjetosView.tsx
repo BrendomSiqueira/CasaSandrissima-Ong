@@ -74,7 +74,8 @@ export default function ProjetosView({
   onSelectProject
 }: ProjetosViewProps) {
   const { alert } = useModal();
-  const { workshops, updateWorkshop, resetWorkshops, isMaster } = useFirebase();
+  const { workshops, updateWorkshop, resetWorkshops, isMaster, isAdmin, canEditSite } = useFirebase();
+  const canEdit = canEditSite ?? (isMaster || isAdmin);
   const [internalSelectedId, setInternalSelectedId] = useState<string>(externalSelectedId || 'karate');
 
   // Keep in sync if prop changes
@@ -226,27 +227,31 @@ export default function ProjetosView({
         )}
       </AnimatePresence>
 
-      {/* Master Control Banner */}
-      {isMaster && (
+      {/* Master & Admin Control Banner */}
+      {canEdit && (
         <motion.div 
           initial={{ opacity: 0, y: -10 }} 
           animate={{ opacity: 1, y: 0 }}
-          className="bg-amber-50/90 border border-amber-200/80 rounded-2xl p-4 md:p-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-sm"
+          className={`${isMaster ? 'bg-amber-50/90 border-amber-200/80' : 'bg-emerald-50/90 border-emerald-200/80'} border rounded-2xl p-4 md:p-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-sm`}
           id="master-mode-toolbar"
         >
           <div className="flex items-center gap-3">
-            <div className="p-2.5 bg-amber-500 text-white rounded-xl shadow-xs">
+            <div className={`p-2.5 ${isMaster ? 'bg-amber-500' : 'bg-emerald-600'} text-white rounded-xl shadow-xs`}>
               <Sparkles className="h-5 w-5" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="font-bold text-amber-950 text-sm">Privilégio Master Ativo</span>
-                <span className="bg-amber-200/80 text-amber-900 text-[10px] font-mono font-bold px-2 py-0.5 rounded-full uppercase">
-                  Acesso Total
+                <span className={`font-bold ${isMaster ? 'text-amber-950' : 'text-emerald-950'} text-sm`}>
+                  {isMaster ? 'Privilégio Master Ativo' : 'Privilégio de Administrador Ativo'}
+                </span>
+                <span className={`${isMaster ? 'bg-amber-200/80 text-amber-900' : 'bg-emerald-200/80 text-emerald-900'} text-[10px] font-mono font-bold px-2 py-0.5 rounded-full uppercase`}>
+                  {isMaster ? 'Acesso Total' : 'Acesso Operacional'}
                 </span>
               </div>
-              <p className="text-xs text-amber-800/90 mt-0.5">
-                Como usuário <strong>Master</strong>, você pode alterar a foto de perfil/banner desta área e editar quaisquer textos, dias, horários e ementas configurados.
+              <p className={`text-xs ${isMaster ? 'text-amber-800/90' : 'text-emerald-800/90'} mt-0.5`}>
+                {isMaster 
+                  ? 'Como perfil Master, você pode editar todos os dados, cronogramas, fotos e requisitos de cada oficina da ONG.'
+                  : 'Como Administrador, você tem permissão operacional para editar fotos, horários e informações das oficinas.'}
               </p>
             </div>
           </div>
@@ -254,7 +259,7 @@ export default function ProjetosView({
           <div className="flex flex-wrap items-center gap-2 w-full md:w-auto">
             <button
               onClick={handleOpenEditModal}
-              className="px-4 py-2 bg-amber-600 hover:bg-amber-700 active:scale-95 text-white rounded-xl text-xs font-bold transition-all shadow-sm flex items-center gap-2 cursor-pointer"
+              className={`px-4 py-2 ${isMaster ? 'bg-amber-600 hover:bg-amber-700' : 'bg-emerald-600 hover:bg-emerald-700'} active:scale-95 text-white rounded-xl text-xs font-bold transition-all shadow-sm flex items-center gap-2 cursor-pointer`}
               id="btn-master-edit-workshop"
             >
               <Edit3 className="h-4 w-4" />
@@ -263,26 +268,28 @@ export default function ProjetosView({
             
             <button
               onClick={handleOpenPhotoModal}
-              className="px-4 py-2 bg-white hover:bg-amber-100 text-amber-900 border border-amber-300 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer shadow-xs"
+              className={`px-4 py-2 bg-white ${isMaster ? 'hover:bg-amber-100 text-amber-900 border-amber-300' : 'hover:bg-emerald-100 text-emerald-900 border-emerald-300'} border rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer shadow-xs`}
               id="btn-master-change-photo"
             >
-              <Camera className="h-4 w-4 text-amber-700" />
+              <Camera className={`h-4 w-4 ${isMaster ? 'text-amber-700' : 'text-emerald-700'}`} />
               Alterar Foto
             </button>
 
-            <button
-              onClick={async () => {
-                if (confirm("Deseja restaurar todas as 5 oficinas para as configurações originais padrão?")) {
-                  await resetWorkshops();
-                  setSaveSuccessNotice("Oficinas restauradas para o padrão inicial.");
-                  setTimeout(() => setSaveSuccessNotice(null), 3000);
-                }
-              }}
-              title="Restaurar dados originais padrão"
-              className="p-2 text-stone-500 hover:text-stone-800 hover:bg-stone-200/60 rounded-xl transition-all cursor-pointer"
-            >
-              <RotateCcw className="h-4 w-4" />
-            </button>
+            {isMaster && (
+              <button
+                onClick={async () => {
+                  if (confirm("Deseja restaurar todas as 5 oficinas para as configurações originais padrão?")) {
+                    await resetWorkshops();
+                    setSaveSuccessNotice("Oficinas restauradas para o padrão inicial.");
+                    setTimeout(() => setSaveSuccessNotice(null), 3000);
+                  }
+                }}
+                title="Restaurar dados originais padrão"
+                className="p-2 text-stone-500 hover:text-stone-800 hover:bg-stone-200/60 rounded-xl transition-all cursor-pointer"
+              >
+                <RotateCcw className="h-4 w-4" />
+              </button>
+            )}
           </div>
         </motion.div>
       )}
@@ -324,15 +331,15 @@ export default function ProjetosView({
       {/* Main Feature Layout */}
       <section className="bg-white/90 backdrop-blur-md rounded-3xl border border-emerald-100/80 shadow-lg p-6 md:p-10 relative" id="project-detailed-board">
         
-        {/* Master quick edit badge in the corner */}
-        {isMaster && (
+        {/* Master / Admin quick edit badge in the corner */}
+        {canEdit && (
           <div className="absolute top-4 right-4 flex items-center gap-2">
             <button
               onClick={handleOpenEditModal}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-amber-500/10 hover:bg-amber-500/20 text-amber-800 border border-amber-300/80 rounded-full text-xs font-semibold cursor-pointer transition-colors"
+              className={`inline-flex items-center gap-1.5 px-3 py-1.5 ${isMaster ? 'bg-amber-500/10 hover:bg-amber-500/20 text-amber-800 border-amber-300/80' : 'bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-800 border-emerald-300/80'} border rounded-full text-xs font-semibold cursor-pointer transition-colors`}
             >
-              <Edit3 className="h-3.5 w-3.5 text-amber-700" />
-              Editar Dados (Master)
+              <Edit3 className={`h-3.5 w-3.5 ${isMaster ? 'text-amber-700' : 'text-emerald-700'}`} />
+              Editar Dados ({isMaster ? 'Master' : 'Admin'})
             </button>
           </div>
         )}
@@ -366,30 +373,30 @@ export default function ProjetosView({
                 {currentProj.cost === "Totalmente de graça" ? "Oficina Gratuita" : currentProj.cost}
               </div>
 
-              {/* Master Change Photo Overlay */}
-              {isMaster && (
+              {/* Master / Admin Change Photo Overlay */}
+              {canEdit && (
                 <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2 p-4 text-white z-20">
                   <button
                     onClick={handleOpenPhotoModal}
                     className="px-3.5 py-2 bg-white text-stone-900 hover:bg-stone-100 rounded-xl text-xs font-bold shadow-lg flex items-center gap-2 cursor-pointer transition-all active:scale-95"
                   >
-                    <Camera className="h-4 w-4 text-amber-600" />
+                    <Camera className="h-4 w-4 text-emerald-600" />
                     Alterar Foto de Perfil
                   </button>
                   <span className="text-[11px] text-stone-200 text-center font-medium">
-                    Permissão exclusiva de Master
+                    {isMaster ? 'Permissão Master (Total)' : 'Permissão de Administrador'}
                   </span>
                 </div>
               )}
             </div>
 
             {/* Quick button to change photo if on mobile or outside hover */}
-            {isMaster && (
+            {canEdit && (
               <button
                 onClick={handleOpenPhotoModal}
-                className="w-full py-2 bg-amber-50 hover:bg-amber-100/80 text-amber-900 border border-dashed border-amber-300 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer lg:hidden"
+                className="w-full py-2 bg-emerald-50 hover:bg-emerald-100/80 text-emerald-900 border border-dashed border-emerald-300 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer lg:hidden"
               >
-                <Camera className="h-3.5 w-3.5 text-amber-700" />
+                <Camera className="h-3.5 w-3.5 text-emerald-700" />
                 Alterar Foto Desta Oficina
               </button>
             )}
@@ -398,10 +405,10 @@ export default function ProjetosView({
             <div className="space-y-4" id="project-meta-info">
               <div className="flex items-center justify-between">
                 <h4 className="text-xs font-bold font-mono uppercase text-stone-400 tracking-wider">Metadados da Oficina</h4>
-                {isMaster && (
+                {canEdit && (
                   <button 
                     onClick={handleOpenEditModal}
-                    className="text-[11px] text-amber-700 hover:underline font-semibold flex items-center gap-1 cursor-pointer"
+                    className="text-[11px] text-emerald-700 hover:underline font-semibold flex items-center gap-1 cursor-pointer"
                   >
                     <Edit3 className="h-3 w-3" /> Editar
                   </button>
@@ -471,10 +478,10 @@ export default function ProjetosView({
             <div className="space-y-4 pt-4 border-t border-stone-100">
               <div className="flex items-center justify-between">
                 <h4 className="text-stone-850 font-bold text-sm">O que o aluno aprende na prática:</h4>
-                {isMaster && (
+                {canEdit && (
                   <button 
                     onClick={handleOpenEditModal}
-                    className="text-xs text-amber-700 font-semibold hover:underline flex items-center gap-1 cursor-pointer"
+                    className="text-xs text-emerald-700 font-semibold hover:underline flex items-center gap-1 cursor-pointer"
                   >
                     <Edit3 className="h-3 w-3" /> Editar Tópicos
                   </button>
@@ -497,11 +504,11 @@ export default function ProjetosView({
                 <span className="text-[11px] text-emerald-700 leading-normal block">Preencha e converse com nossa secretaria para cadastrar o aluno.</span>
               </div>
               <div className="flex flex-wrap items-center gap-3 shrink-0">
-                {isMaster && (
+                {canEdit && (
                   <TactileButton
                     type="button"
                     onClick={handleOpenEditModal}
-                    variant="amber"
+                    variant={isMaster ? "amber" : "primary"}
                     size="sm"
                     icon={<Edit3 className="h-3.5 w-3.5" />}
                   >
